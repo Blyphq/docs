@@ -16,7 +16,13 @@ import type {
   ClientLogEvent,
   ClientLogLevel,
   ClientLogBrowserContext,
+  ClientLogDeviceContext,
   ClientLogPageContext,
+  RemoteDeliveryConfig,
+  RemoteDeliveryRetryContext,
+  RemoteDeliverySuccessContext,
+  RemoteDeliveryFailureContext,
+  RemoteDeliveryDropContext,
   ParseErrorOptions,
   BlypErrorLike,
   BlypErrorCode,
@@ -30,17 +36,20 @@ import type {
   ExpoLogger,
   ExpoLoggerConfig,
   ClientLogDeviceContext,
+  RemoteDeliveryConfig,
 } from "blyp-js/expo";
 ```
 
 ## Main interfaces
 
 - `ClientLogger`: browser logger with `info`, `warning`, `error`, `critical`, `success`, `debug`, `table`, `child`
-- `ClientLoggerConfig`: `endpoint`, `headers`, `credentials`, `localConsole`, `remoteSync`, `metadata`
+- `ClientLoggerConfig`: `endpoint`, `headers`, `credentials`, `localConsole`, `remoteSync`, `metadata`, `delivery`
 - `ClientLogEvent`: normalized payload sent to the backend ingestion endpoint
 - `ClientLogBrowserContext`: user agent, language, and platform info
 - `ClientLogDeviceContext`: mobile/device metadata, including Expo network details when available
 - `ClientLogPageContext`: current URL, pathname, search, hash, title, and referrer
+- `RemoteDeliveryConfig`: retry/queue policy plus `onRetry`, `onSuccess`, `onFailure`, and `onDrop`
+- `RemoteDeliveryRetryContext`, `RemoteDeliverySuccessContext`, `RemoteDeliveryFailureContext`, `RemoteDeliveryDropContext`: callback payloads for delivery lifecycle hooks
 - `ParseErrorOptions`: `logger`, `logLevel`, and `fallbackStatus`
 - `ExpoLogger` / `ExpoLoggerConfig`: mobile logger surface for Expo apps using absolute remote delivery
 
@@ -51,6 +60,11 @@ const config: ClientLoggerConfig = {
   endpoint: "/inngest",
   localConsole: true,
   remoteSync: true,
+  delivery: {
+    maxRetries: 3,
+    retryDelayMs: 5000,
+    maxQueueSize: 100,
+  },
   metadata: {
     app: "dashboard",
   },

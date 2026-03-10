@@ -1,6 +1,6 @@
 ---
 title: "Expo"
-description: "Use Blyp in Expo apps with createExpoLogger(), expo-network, and an absolute ingestion URL."
+description: "Use Blyp in Expo apps with createExpoLogger(), expo-network, queued retries, and an absolute ingestion URL."
 icon: "link"
 order: 10
 ---
@@ -31,6 +31,10 @@ const logger = createExpoLogger({
   metadata: () => ({
     app: "mobile",
   }),
+  delivery: {
+    maxRetries: 3,
+    retryDelayMs: 5000,
+  },
 });
 
 logger.info("mounted", { screen: "home" });
@@ -44,10 +48,20 @@ logger.child({ feature: "checkout" }).warn("Validation failed");
 - `endpoint` must be an absolute `http://` or `https://` URL
 - remote delivery uses runtime `fetch`
 - connectivity metadata comes from `expo-network`
-- failed delivery is swallowed silently
-- logs are not retried or queued
+- failed delivery is queued in memory
+- retryable failures are retried by default `3` times at `5000ms`
+- the default queue limit is `100`
 - if `expo-network` is missing, Blyp warns once and skips remote sync
 - if the endpoint is not absolute, Blyp warns once and skips remote sync
+
+Retryable Expo failures include:
+
+- offline connectivity state
+- network errors
+- HTTP `429`
+- HTTP `5xx`
+
+When Expo connectivity returns, Blyp resumes queued delivery through the `expo-network` state listener.
 
 ## Local console vs remote sync
 
@@ -60,6 +74,32 @@ const logger = createExpoLogger({
 ```
 
 `localConsole` defaults to `true` and `remoteSync` defaults to `true`.
+
+## Delivery hooks
+
+Expo supports the same delivery lifecycle callbacks as the browser logger:
+
+```ts
+const logger = createExpoLogger({
+  endpoint: "https://api.example.com/inngest",
+  delivery: {
+    onRetry: (ctx) => {
+      console.log("retry", ctx.attempt, ctx.reason);
+    },
+    onSuccess: (ctx) => {
+      console.log("success", ctx.transport);
+    },
+    onFailure: (ctx) => {
+      console.log("failure", ctx.reason);
+    },
+    onDrop: (ctx) => {
+      console.log("dropped", ctx.droppedEvent.message);
+    },
+  },
+});
+```
+
+These hooks are useful when you want to monitor mobile delivery health, surface diagnostics in development builds, or measure how often events are being queued and replayed.
 
 ## Payload shape
 
@@ -80,6 +120,8 @@ Expo emits a client log payload with the same base structure as `blyp-js/client`
 }
 ```
 
+Child loggers share the same in-memory dispatcher and queue, so `.child()` keeps delivery behavior consistent across screens and features.
+
 ## Relevant types
 
 ```ts
@@ -89,5 +131,10 @@ import type {
   ClientLogEvent,
   ClientLogLevel,
   ClientLogDeviceContext,
+  RemoteDeliveryConfig,
+  RemoteDeliveryRetryContext,
+  RemoteDeliverySuccessContext,
+  RemoteDeliveryFailureContext,
+  RemoteDeliveryDropContext,
 } from "blyp-js/expo";
 ```

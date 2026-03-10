@@ -57,7 +57,7 @@ All server adapters accept the same core options:
 - When client logging is enabled, Blyp automatically excludes the ingestion path from normal HTTP request logging
 - Some adapters auto-register the endpoint for you; others return a handler you mount manually
 - If you mount a handler on the wrong path, adapters like Next.js, SvelteKit, and TanStack Start return a `500` mismatch response
-- Expo is different: it sends logs directly to an absolute backend URL and does not register a local ingestion handler
+- Expo is different: it sends logs directly to an absolute backend URL, queues failures in memory, resumes on connectivity changes via `expo-network`, and does not register a local ingestion handler
 
 Pick a framework page below for the exact wiring:
 

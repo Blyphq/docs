@@ -1,6 +1,6 @@
 ---
 title: "Client"
-description: "Send browser logs to the console, sync them to your backend, and parse failed fetch responses safely."
+description: "Send browser logs to the console, queue and retry remote delivery, and parse failed fetch responses safely."
 icon: "link"
 order: 5
 ---
@@ -26,6 +26,10 @@ const logger = createClientLogger({
     app: "dashboard",
     release: "2026.03.10",
   }),
+  delivery: {
+    maxRetries: 3,
+    retryDelayMs: 5000,
+  },
 });
 
 logger.info("hydrated", { route: window.location.pathname });
@@ -41,8 +45,66 @@ logger.child({ feature: "checkout" }).warn("client validation failed");
 | `credentials` | `"same-origin"` |
 | `localConsole` | `true` |
 | `remoteSync` | `true` |
+| `delivery.maxRetries` | `3` |
+| `delivery.retryDelayMs` | `5000` |
+| `delivery.maxQueueSize` | `100` |
 
-If you do not set custom headers, the client logger can fall back to `navigator.sendBeacon()` when `fetch(..., { keepalive: true })` fails.
+## Delivery behavior
+
+Remote browser delivery is now managed by a shared in-memory dispatcher:
+
+- failed events are queued in memory
+- retryable failures are retried up to `3` times by default
+- the default retry delay is `5000ms`
+- the queue keeps at most `100` pending events
+- when the queue is full, Blyp drops the oldest queued item
+- child loggers reuse the same dispatcher instead of creating separate queues
+- when the browser comes back online, Blyp resumes queued delivery automatically
+
+Retryable failures are:
+
+- offline browser state
+- network errors
+- HTTP `429`
+- HTTP `5xx`
+
+Non-retryable response failures, such as `400`, fail immediately and trigger terminal failure handling.
+
+If you do not set custom headers, the client logger still uses `navigator.sendBeacon()` as a last-chance fallback when `fetch(..., { keepalive: true })` fails.
+
+## Delivery hooks
+
+Use `delivery` to customize retry policy and observe outcomes:
+
+```ts
+const logger = createClientLogger({
+  delivery: {
+    maxRetries: 3,
+    retryDelayMs: 5000,
+    maxQueueSize: 100,
+    warnOnFailure: true,
+    onRetry: (ctx) => {
+      console.log("retrying", ctx.attempt, ctx.retriesRemaining);
+    },
+    onSuccess: (ctx) => {
+      console.log("delivered via", ctx.transport);
+    },
+    onFailure: (ctx) => {
+      console.error("terminal delivery failure", ctx.reason, ctx.status);
+    },
+    onDrop: (ctx) => {
+      console.warn("dropped", ctx.droppedEvent.message, "for", ctx.replacementEvent.message);
+    },
+  },
+});
+```
+
+### Hook context highlights
+
+- `onRetry`: receives `attempt`, `retriesRemaining`, `nextRetryAt`, `reason`, `status`, and `error`
+- `onSuccess`: receives `attempt`, `status`, and `transport` (`"fetch"` or `"beacon"`)
+- `onFailure`: receives the terminal `reason`, plus `status` or `error` when available
+- `onDrop`: fires when queue overflow forces Blyp to evict the oldest queued event
 
 ## Event shape
 
@@ -60,6 +122,7 @@ type ClientLogEvent = {
   clientTimestamp: string;
   page: ClientLogPageContext;
   browser: ClientLogBrowserContext;
+  device?: ClientLogDeviceContext;
   session: { pageId: string; sessionId: string };
   metadata?: Record<string, unknown>;
 };
@@ -99,6 +162,10 @@ const logger = createExpoLogger({
   metadata: () => ({
     app: "mobile",
   }),
+  delivery: {
+    maxRetries: 3,
+    retryDelayMs: 5000,
+  },
 });
 ```
 
