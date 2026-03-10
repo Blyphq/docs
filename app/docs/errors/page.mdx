@@ -16,7 +16,7 @@ Blyp errors revolve around three pieces:
 ## `createError()`
 
 ```ts
-import { createError } from "blyp";
+import { createError } from "blyp-js";
 
 throw createError({
   status: 402,
@@ -54,7 +54,7 @@ return Response.json(error.toJSON(), { status: error.status });
 The root `parseError()` accepts either a payload or a `Response`.
 
 ```ts
-import { parseError } from "blyp";
+import { parseError } from "blyp-js";
 
 const parsed = parseError({
   error: {
@@ -87,7 +87,7 @@ if (!response.ok) {
 Use the browser-safe client entry:
 
 ```ts
-import { parseError } from "blyp/client";
+import { parseError } from "blyp-js/client";
 
 const response = await fetch("/api/users/does-not-exist");
 

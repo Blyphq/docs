@@ -18,19 +18,21 @@ Blyp is a high-performance logger built for Bun-first and Node-compatible TypeSc
 - structured `BlypError` handling
 - NDJSON file logging with rotation and archives
 
+The GitHub repository is `Blyphq/blyp`, but the published package name is `blyp-js`.
+
 ## What Blyp exports
 
 | Area | Import path | What you get |
 | --- | --- | --- |
-| Core logger + errors | `blyp` | `logger`, `createStandaloneLogger`, `createError`, `HTTP_CODES`, `parseError`, `readLogFile`, config/runtime helpers |
-| Browser logger | `blyp/client` | `createClientLogger`, browser-safe `parseError`, `ClientLogger` types |
-| Framework adapters | `blyp/<framework>` | `createLogger()` or equivalent framework factory plus framework-specific types |
-| Workers | `blyp/workers` | `initWorkersLogger`, `createWorkersLogger`, Workers-specific request logger types |
+| Core logger + errors | `blyp-js` | `logger`, `createStandaloneLogger`, `createError`, `HTTP_CODES`, `parseError`, `readLogFile`, config/runtime helpers |
+| Browser logger | `blyp-js/client` | `createClientLogger`, browser-safe `parseError`, `ClientLogger` types |
+| Framework adapters | `blyp-js/<framework>` | `createLogger()` or equivalent framework factory plus framework-specific types |
+| Workers | `blyp-js/workers` | `initWorkersLogger`, `createWorkersLogger`, Workers-specific request logger types |
 
 ## Quick start
 
 ```ts
-import { logger, createError } from "blyp";
+import { logger, createError } from "blyp-js";
 
 logger.info("server started");
 logger.success("cache warmed");
@@ -43,15 +45,15 @@ throw createError({
 
 ## Supported integrations
 
-- `blyp/elysia`
-- `blyp/hono`
-- `blyp/express`
-- `blyp/fastify`
-- `blyp/nestjs`
-- `blyp/nextjs`
-- `blyp/tanstack-start`
-- `blyp/sveltekit`
-- `blyp/workers`
+- `blyp-js/elysia`
+- `blyp-js/hono`
+- `blyp-js/express`
+- `blyp-js/fastify`
+- `blyp-js/nestjs`
+- `blyp-js/nextjs`
+- `blyp-js/tanstack-start`
+- `blyp-js/sveltekit`
+- `blyp-js/workers`
 
 ## Recommended reading order
 

@@ -7,11 +7,11 @@ order: 4
 
 # Fastify
 
-Import from `blyp/fastify`.
+Import from `blyp-js/fastify`.
 
 ```ts
 import Fastify from "fastify";
-import { createLogger } from "blyp/fastify";
+import { createLogger } from "blyp-js/fastify";
 
 const app = Fastify();
 
@@ -39,5 +39,5 @@ The adapter logs in `onResponse`, records thrown failures from `onError`, and re
 import type {
   FastifyLoggerConfig,
   FastifyLoggerPlugin,
-} from "blyp/fastify";
+} from "blyp-js/fastify";
 ```

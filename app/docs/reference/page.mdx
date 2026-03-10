@@ -10,7 +10,7 @@ order: 10
 ## Runtime detection
 
 ```ts
-import { runtime, createRuntimeAdapter, createLogDir } from "blyp";
+import { runtime, createRuntimeAdapter, createLogDir } from "blyp-js";
 
 console.log(runtime.type);   // "bun" or "node"
 console.log(runtime.isBun);  // boolean
@@ -36,7 +36,7 @@ import {
   getResponseTimeColor,
   getColoredLevel,
   colors,
-} from "blyp";
+} from "blyp-js";
 ```
 
 These helpers power Blyp's pretty console output and are useful in custom CLIs or reporting tools.
@@ -54,7 +54,7 @@ import {
   mergeBlypConfig,
   resolveConfig,
   resetConfigCache,
-} from "blyp";
+} from "blyp-js";
 ```
 
 Use them when you want to inspect defaults, merge overrides manually, or reset config state in tests.

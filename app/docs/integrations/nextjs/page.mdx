@@ -7,10 +7,10 @@ order: 6
 
 # Next.js App Router
 
-Import from `blyp/nextjs`.
+Import from `blyp-js/nextjs`.
 
 ```ts
-import { createLogger } from "blyp/nextjs";
+import { createLogger } from "blyp-js/nextjs";
 
 const nextLogger = createLogger({
   level: "info",
@@ -28,7 +28,7 @@ Mount `clientLogHandler` on the same path configured for client logging.
 
 ```ts
 // app/inngest/route.ts
-import { createLogger } from "blyp/nextjs";
+import { createLogger } from "blyp-js/nextjs";
 
 const nextLogger = createLogger();
 
@@ -45,5 +45,5 @@ import type {
   NextJsLoggerFactory,
   NextJsHandlerWithLogger,
   NextJsRouteContext,
-} from "blyp/nextjs";
+} from "blyp-js/nextjs";
 ```

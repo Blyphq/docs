@@ -7,7 +7,7 @@ order: 5
 
 # Client
 
-The `blyp/client` entry gives you two major capabilities:
+The `blyp-js/client` entry gives you two major capabilities:
 
 - browser logging with optional remote sync
 - browser-safe error parsing with `parseError()`
@@ -15,7 +15,7 @@ The `blyp/client` entry gives you two major capabilities:
 ## `createClientLogger()`
 
 ```ts
-import { createClientLogger } from "blyp/client";
+import { createClientLogger } from "blyp-js/client";
 
 const logger = createClientLogger({
   endpoint: "/inngest",
@@ -66,7 +66,7 @@ type ClientLogEvent = {
 ## Browser error parsing
 
 ```ts
-import { parseError } from "blyp/client";
+import { parseError } from "blyp-js/client";
 
 const response = await fetch("/api/payments", { method: "POST" });
 

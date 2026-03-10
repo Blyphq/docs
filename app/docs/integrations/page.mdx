@@ -18,15 +18,15 @@ Every server-side adapter does the same high-level job:
 
 | Framework | Import path | Main API | Where the logger is exposed |
 | --- | --- | --- | --- |
-| Elysia | `blyp/elysia` | `createLogger()` | `ctx.log` |
-| Hono | `blyp/hono` | `createLogger()` | `context.get("blypLog")` |
-| Express | `blyp/express` | `createLogger()` | `req.blypLog` |
-| Fastify | `blyp/fastify` | `createLogger()` | `request.blypLog` |
-| NestJS | `blyp/nestjs` | `createLogger()` + `BlypModule.forRoot()` | `req.blypLog` and root `logger` |
-| Next.js App Router | `blyp/nextjs` | `createLogger()` | `withLogger(..., { log })` |
-| TanStack Start | `blyp/tanstack-start` | `createLogger()` | `context.blypLog` |
-| SvelteKit | `blyp/sveltekit` | `createLogger()` | `event.locals.blypLog` |
-| Cloudflare Workers | `blyp/workers` | `initWorkersLogger()` + `createWorkersLogger()` | request-scoped logger returned per request |
+| Elysia | `blyp-js/elysia` | `createLogger()` | `ctx.log` |
+| Hono | `blyp-js/hono` | `createLogger()` | `context.get("blypLog")` |
+| Express | `blyp-js/express` | `createLogger()` | `req.blypLog` |
+| Fastify | `blyp-js/fastify` | `createLogger()` | `request.blypLog` |
+| NestJS | `blyp-js/nestjs` | `createLogger()` + `BlypModule.forRoot()` | `req.blypLog` and root `logger` |
+| Next.js App Router | `blyp-js/nextjs` | `createLogger()` | `withLogger(..., { log })` |
+| TanStack Start | `blyp-js/tanstack-start` | `createLogger()` | `context.blypLog` |
+| SvelteKit | `blyp-js/sveltekit` | `createLogger()` | `event.locals.blypLog` |
+| Cloudflare Workers | `blyp-js/workers` | `initWorkersLogger()` + `createWorkersLogger()` | request-scoped logger returned per request |
 
 ## Shared config shape
 

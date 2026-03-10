@@ -7,7 +7,7 @@ order: 5
 
 # NestJS
 
-Import from `blyp/nestjs`.
+Import from `blyp-js/nestjs`.
 
 ## Required bootstrap order
 
@@ -17,8 +17,8 @@ Call `createLogger()` before `NestFactory.create(...)`.
 import "reflect-metadata";
 import { Module, Controller, Get, Req } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
-import { logger } from "blyp";
-import { createLogger, BlypModule } from "blyp/nestjs";
+import { logger } from "blyp-js";
+import { createLogger, BlypModule } from "blyp-js/nestjs";
 
 @Controller()
 class AppController {
@@ -61,5 +61,5 @@ import type {
   NestLoggerConfig,
   NestLoggerContext,
   NestAdapterType,
-} from "blyp/nestjs";
+} from "blyp-js/nestjs";
 ```

@@ -27,7 +27,7 @@ Client-ingested browser logs are written into the same combined stream, with the
 ## Configure rotation
 
 ```ts
-import { createStandaloneLogger } from "blyp";
+import { createStandaloneLogger } from "blyp-js";
 
 const logger = createStandaloneLogger({
   pretty: true,
@@ -44,7 +44,7 @@ const logger = createStandaloneLogger({
 ## Read stored logs
 
 ```ts
-import { readLogFile } from "blyp";
+import { readLogFile } from "blyp-js";
 
 const pretty = await readLogFile("logs/log.ndjson");
 
@@ -57,7 +57,7 @@ const records = await readLogFile("logs/archive/log.20260309T101530Z.ndjson.gz",
 ## Related exports
 
 ```ts
-import type { LogRecord, ReadLogFileOptions } from "blyp";
+import type { LogRecord, ReadLogFileOptions } from "blyp-js";
 ```
 
 Use `LogRecord` when you want to type the parsed NDJSON entries in your own tooling.
