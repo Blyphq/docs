@@ -12,6 +12,8 @@ The `blyp-js/client` entry gives you two major capabilities:
 - browser logging with optional remote sync
 - browser-safe error parsing with `parseError()`
 
+For Expo apps, use the dedicated `blyp-js/expo` logger instead of `blyp-js/client`.
+
 ## `createClientLogger()`
 
 ```ts
@@ -84,3 +86,20 @@ Most server-side adapters automatically register or expose a handler for the con
 - ingested events are tagged as `type: "client_log"` and `source: "client"`
 
 See the individual pages under [Integrations](/docs/integrations) for exact mounting patterns.
+
+## Expo mobile logging
+
+Expo has its own logger because it does not run in a browser environment and cannot rely on same-origin delivery.
+
+```ts
+import { createExpoLogger } from "blyp-js/expo";
+
+const logger = createExpoLogger({
+  endpoint: "https://api.example.com/inngest",
+  metadata: () => ({
+    app: "mobile",
+  }),
+});
+```
+
+Use [Expo](/docs/integrations/expo) for the full mobile setup and its delivery constraints.

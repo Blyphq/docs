@@ -39,6 +39,7 @@ Blyp ships one package, but framework adapters rely on the framework you already
 | Adapter | Import path | Optional peer |
 | --- | --- | --- |
 | Elysia | `blyp-js/elysia` | `elysia` |
+| Expo | `blyp-js/expo` | `expo-network` in your Expo app |
 | Hono | `blyp-js/hono` | `hono` |
 | Express | `blyp-js/express` | `express` |
 | Fastify | `blyp-js/fastify` | `fastify` |
@@ -56,6 +57,7 @@ These are the package exports exposed by `blyp-js@0.1.0`:
 - `blyp-js/standalone`
 - `blyp-js/client`
 - `blyp-js/elysia`
+- `blyp-js/expo`
 - `blyp-js/hono`
 - `blyp-js/express`
 - `blyp-js/fastify`
@@ -68,6 +70,14 @@ These are the package exports exposed by `blyp-js@0.1.0`:
 ## Bootstrapped local config
 
 When Blyp runs inside an application project, it will bootstrap a `blyp.config.json` file and add `logs` to `.gitignore` if they do not already exist. See [Configuration](/docs/configuration) before relying on the defaults in production.
+
+## Expo-specific install
+
+If you are using the Expo integration, install the Expo network module in your app:
+
+```bash
+npx expo install expo-network
+```
 
 ## Local development
 

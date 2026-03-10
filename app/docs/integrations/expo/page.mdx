@@ -1,0 +1,93 @@
+---
+title: "Expo"
+description: "Use Blyp in Expo apps with createExpoLogger(), expo-network, and an absolute ingestion URL."
+icon: "link"
+order: 10
+---
+
+# Expo
+
+Expo is a mobile/client integration rather than a server adapter. Use it when you want Blyp logs from an Expo app to sync directly to your backend.
+
+## Install
+
+Install the package and the Expo network module:
+
+```bash
+bun add blyp-js
+```
+
+```bash
+npx expo install expo-network
+```
+
+## Basic setup
+
+```ts
+import { createExpoLogger } from "blyp-js/expo";
+
+const logger = createExpoLogger({
+  endpoint: "https://api.example.com/inngest",
+  metadata: () => ({
+    app: "mobile",
+  }),
+});
+
+logger.info("mounted", { screen: "home" });
+logger.error(new Error("Failed to load profile"));
+logger.child({ feature: "checkout" }).warn("Validation failed");
+```
+
+## Important Expo-specific behavior
+
+- `endpoint` is required
+- `endpoint` must be an absolute `http://` or `https://` URL
+- remote delivery uses runtime `fetch`
+- connectivity metadata comes from `expo-network`
+- failed delivery is swallowed silently
+- logs are not retried or queued
+- if `expo-network` is missing, Blyp warns once and skips remote sync
+- if the endpoint is not absolute, Blyp warns once and skips remote sync
+
+## Local console vs remote sync
+
+```ts
+const logger = createExpoLogger({
+  endpoint: "https://api.example.com/inngest",
+  localConsole: true,
+  remoteSync: true,
+});
+```
+
+`localConsole` defaults to `true` and `remoteSync` defaults to `true`.
+
+## Payload shape
+
+Expo emits a client log payload with the same base structure as `blyp-js/client`, but includes Expo-specific device data:
+
+```ts
+{
+  type: "client_log",
+  source: "client",
+  device: {
+    runtime: "expo",
+    network: {
+      type: "WIFI",
+      isConnected: true,
+      isInternetReachable: true,
+    },
+  },
+}
+```
+
+## Relevant types
+
+```ts
+import type {
+  ExpoLogger,
+  ExpoLoggerConfig,
+  ClientLogEvent,
+  ClientLogLevel,
+  ClientLogDeviceContext,
+} from "blyp-js/expo";
+```
