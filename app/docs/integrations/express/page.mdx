@@ -1,0 +1,49 @@
+---
+title: "Express"
+description: "Attach Blyp to Express middleware, use req.blypLog, and capture thrown errors with createExpressErrorLogger()."
+icon: "link"
+order: 3
+---
+
+# Express
+
+Import from `blyp/express`.
+
+```ts
+import express from "express";
+import {
+  createLogger,
+  createExpressErrorLogger,
+} from "blyp/express";
+
+const app = express();
+
+app.use(createLogger({
+  level: "info",
+  clientLogging: true,
+}));
+
+app.get("/hello", (req, res) => {
+  req.blypLog.info("express-route");
+  res.status(200).send("ok");
+});
+
+app.use(createExpressErrorLogger());
+app.use((error, _req, res, _next) => {
+  res.status(500).json({ message: error.message });
+});
+```
+
+## Why the extra error middleware matters
+
+`createExpressErrorLogger()` stores the thrown error on `res.locals` so Blyp can emit an `http_error` record when the response finishes.
+
+## Relevant types
+
+```ts
+import type {
+  ExpressLoggerConfig,
+  ExpressLoggerMiddleware,
+  ExpressErrorLoggerMiddleware,
+} from "blyp/express";
+```

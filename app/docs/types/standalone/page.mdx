@@ -1,0 +1,44 @@
+---
+title: "Standalone Types"
+description: "Standalone logger configuration, runtime detection, and file/client config types."
+icon: "terminal"
+order: 1
+---
+
+# Standalone Types
+
+Import these from `blyp/standalone` when you want the standalone logger surface explicitly:
+
+```ts
+import type {
+  StandaloneLogger,
+  StandaloneLoggerConfig,
+  ClientLoggingConfig,
+  LogFileConfig,
+  LogRotationConfig,
+  RuntimeAdapter,
+  RuntimeType,
+  LogLevel,
+} from "blyp/standalone";
+```
+
+## Main interfaces
+
+- `StandaloneLogger`: the logger instance with `info`, `warning`, `error`, `critical`, `success`, `debug`, `table`, and `child`
+- `StandaloneLoggerConfig`: `pretty`, `level`, `logDir`, `file`, and `clientLogging`
+- `RuntimeAdapter`: runtime abstraction for file, path, env, and `cwd`
+- `RuntimeType`: `"bun" | "node"`
+- `LogLevel`: `"error" | "critical" | "warning" | "info" | "success" | "debug" | "table"`
+
+## Example
+
+```ts
+const config: StandaloneLoggerConfig = {
+  level: "debug",
+  file: {
+    rotation: {
+      maxArchives: 10,
+    },
+  },
+};
+```

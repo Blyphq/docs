@@ -1,0 +1,86 @@
+---
+title: "Client"
+description: "Send browser logs to the console, sync them to your backend, and parse failed fetch responses safely."
+icon: "link"
+order: 5
+---
+
+# Client
+
+The `blyp/client` entry gives you two major capabilities:
+
+- browser logging with optional remote sync
+- browser-safe error parsing with `parseError()`
+
+## `createClientLogger()`
+
+```ts
+import { createClientLogger } from "blyp/client";
+
+const logger = createClientLogger({
+  endpoint: "/inngest",
+  credentials: "same-origin",
+  metadata: () => ({
+    app: "dashboard",
+    release: "2026.03.10",
+  }),
+});
+
+logger.info("hydrated", { route: window.location.pathname });
+logger.error(new Error("button failed to render"));
+logger.child({ feature: "checkout" }).warn("client validation failed");
+```
+
+## Defaults
+
+| Option | Default |
+| --- | --- |
+| `endpoint` | `/inngest` |
+| `credentials` | `"same-origin"` |
+| `localConsole` | `true` |
+| `remoteSync` | `true` |
+
+If you do not set custom headers, the client logger can fall back to `navigator.sendBeacon()` when `fetch(..., { keepalive: true })` fails.
+
+## Event shape
+
+Client events are normalized into a `ClientLogEvent` shape:
+
+```ts
+type ClientLogEvent = {
+  type: "client_log";
+  source: "client";
+  id: string;
+  level: "debug" | "info" | "warning" | "error" | "critical" | "success" | "table";
+  message: string;
+  data?: unknown;
+  bindings?: Record<string, unknown>;
+  clientTimestamp: string;
+  page: ClientLogPageContext;
+  browser: ClientLogBrowserContext;
+  session: { pageId: string; sessionId: string };
+  metadata?: Record<string, unknown>;
+};
+```
+
+## Browser error parsing
+
+```ts
+import { parseError } from "blyp/client";
+
+const response = await fetch("/api/payments", { method: "POST" });
+
+if (!response.ok) {
+  throw await parseError(response);
+}
+```
+
+## Pairing with server adapters
+
+Most server-side adapters automatically register or expose a handler for the configured client ingestion path:
+
+- programmatic server adapters auto-register `POST /inngest`
+- file-based integrations expose a handler helper you mount yourself
+- ingested events are tagged as `type: "client_log"` and `source: "client"`
+
+See the individual pages under [Integrations](/docs/integrations) for exact mounting patterns.

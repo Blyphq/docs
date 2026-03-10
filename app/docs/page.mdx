@@ -1,0 +1,64 @@
+---
+title: "Overview"
+description: "Blyp is a runtime-adaptive logger for standalone apps, browser clients, and modern TypeScript server frameworks."
+icon: "rocket"
+order: 1
+---
+
+# Blyp Logger
+
+> Grep less. Understand more.
+
+Blyp is a high-performance logger built for Bun-first and Node-compatible TypeScript applications. It gives you one package that covers:
+
+- root application logging
+- standalone logger instances
+- framework-aware HTTP logging
+- browser-to-server log ingestion
+- structured `BlypError` handling
+- NDJSON file logging with rotation and archives
+
+## What Blyp exports
+
+| Area | Import path | What you get |
+| --- | --- | --- |
+| Core logger + errors | `blyp` | `logger`, `createStandaloneLogger`, `createError`, `HTTP_CODES`, `parseError`, `readLogFile`, config/runtime helpers |
+| Browser logger | `blyp/client` | `createClientLogger`, browser-safe `parseError`, `ClientLogger` types |
+| Framework adapters | `blyp/<framework>` | `createLogger()` or equivalent framework factory plus framework-specific types |
+| Workers | `blyp/workers` | `initWorkersLogger`, `createWorkersLogger`, Workers-specific request logger types |
+
+## Quick start
+
+```ts
+import { logger, createError } from "blyp";
+
+logger.info("server started");
+logger.success("cache warmed");
+
+throw createError({
+  status: 404,
+  message: "User not found",
+});
+```
+
+## Supported integrations
+
+- `blyp/elysia`
+- `blyp/hono`
+- `blyp/express`
+- `blyp/fastify`
+- `blyp/nestjs`
+- `blyp/nextjs`
+- `blyp/tanstack-start`
+- `blyp/sveltekit`
+- `blyp/workers`
+
+## Recommended reading order
+
+- [Installation](/docs/installation) for package managers, peer dependencies, and exported subpaths.
+- [Basic Usage](/docs/basic-usage) for logger methods, child loggers, and standalone instances.
+- [Errors](/docs/errors) for `createError()`, `parseError()`, and `BlypError` behavior.
+- [Client](/docs/client) for browser logging and `/inngest` ingestion.
+- [Integrations](/docs/integrations) for framework-specific guides.
+- [Configuration](/docs/configuration) for `blyp.config.json`, `ignorePaths`, and client ingestion config.
+- [Type Surfaces](/docs/types) for standalone, server-side, and browser-facing types.

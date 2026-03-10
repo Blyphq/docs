@@ -1,0 +1,43 @@
+---
+title: "Fastify"
+description: "Register Blyp as a Fastify plugin and use request.blypLog inside handlers."
+icon: "link"
+order: 4
+---
+
+# Fastify
+
+Import from `blyp/fastify`.
+
+```ts
+import Fastify from "fastify";
+import { createLogger } from "blyp/fastify";
+
+const app = Fastify();
+
+await app.register(createLogger({
+  level: "info",
+}));
+
+app.get("/hello", async (request) => {
+  request.blypLog.info("fastify-route");
+  return { ok: true };
+});
+```
+
+## What Blyp decorates
+
+- `request.blypLog`
+- `request.blypStartTime`
+- `request.blypError`
+
+The adapter logs in `onResponse`, records thrown failures from `onError`, and registers the client ingestion route when enabled.
+
+## Relevant types
+
+```ts
+import type {
+  FastifyLoggerConfig,
+  FastifyLoggerPlugin,
+} from "blyp/fastify";
+```

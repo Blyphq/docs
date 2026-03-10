@@ -1,0 +1,83 @@
+---
+title: "HTTP Codes"
+description: "Use Blyp's built-in HTTP status registry and derive your own application error families."
+icon: "settings"
+order: 1
+---
+
+# HTTP Codes
+
+Blyp exposes a full HTTP status registry through `HTTP_CODES`. The registry covers built-in statuses from the `100` range through `511`.
+
+## Basic usage
+
+```ts
+import { HTTP_CODES } from "blyp";
+
+throw HTTP_CODES.NOT_FOUND.create();
+throw HTTP_CODES.BAD_REQUEST.create({
+  message: "Missing tenant id",
+  skipLogging: true,
+});
+```
+
+Each preset is a `BlypErrorCode` with:
+
+- `status`
+- `statusCode`
+- `message`
+- optional `code`, `why`, `fix`, `link`, `details`
+- `.create(overrides?)`
+- `.extend(definition)`
+
+## Create a reusable domain error
+
+```ts
+const INVALID_PAYMENT_AMOUNT = HTTP_CODES.BAD_REQUEST.extend({
+  code: "INVALID_PAYMENT_AMOUNT",
+  message: "Invalid payment amount",
+  why: "The amount must be a positive number",
+  fix: "Pass a positive integer in cents",
+});
+
+throw INVALID_PAYMENT_AMOUNT.create({
+  link: "https://docs.example.com/payments/amount",
+});
+```
+
+## Extend an existing custom code
+
+```ts
+const CHECKOUT_INVALID_PAYMENT_AMOUNT = INVALID_PAYMENT_AMOUNT.extend({
+  code: "CHECKOUT_INVALID_PAYMENT_AMOUNT",
+  link: "https://docs.example.com/payments/checkout",
+});
+```
+
+## Look up a status dynamically
+
+```ts
+import { getHttpCode } from "blyp";
+
+const preset = getHttpCode(429);
+
+if (preset) {
+  throw preset.create({
+    why: "Too many checkout attempts",
+  });
+}
+```
+
+## Common presets
+
+| Status | Constant |
+| --- | --- |
+| `400` | `HTTP_CODES.BAD_REQUEST` |
+| `401` | `HTTP_CODES.UNAUTHORIZED` |
+| `403` | `HTTP_CODES.FORBIDDEN` |
+| `404` | `HTTP_CODES.NOT_FOUND` |
+| `409` | `HTTP_CODES.CONFLICT` |
+| `422` | `HTTP_CODES.UNPROCESSABLE_ENTITY` |
+| `429` | `HTTP_CODES.TOO_MANY_REQUESTS` |
+| `500` | `HTTP_CODES.INTERNAL_SERVER_ERROR` |
+| `503` | `HTTP_CODES.SERVICE_UNAVAILABLE` |

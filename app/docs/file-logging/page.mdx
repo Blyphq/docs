@@ -1,0 +1,63 @@
+---
+title: "File Logging"
+description: "Write NDJSON logs to disk, rotate archives, and read them back programmatically."
+icon: "database"
+order: 8
+---
+
+# File Logging
+
+Blyp writes structured NDJSON logs to disk and rotates them automatically.
+
+## Active files
+
+- `logs/log.ndjson`: active combined stream
+- `logs/log.error.ndjson`: active error and critical stream
+- `logs/archive/*.ndjson.gz`: rotated archives
+
+Client-ingested browser logs are written into the same combined stream, with the original payload stored under `data`.
+
+## Defaults
+
+- rotation enabled
+- `10 MB` max active file size
+- `5` retained archives per stream
+- gzip-compressed archives
+
+## Configure rotation
+
+```ts
+import { createStandaloneLogger } from "blyp";
+
+const logger = createStandaloneLogger({
+  pretty: true,
+  file: {
+    rotation: {
+      maxSizeBytes: 5 * 1024 * 1024,
+      maxArchives: 3,
+      compress: true,
+    },
+  },
+});
+```
+
+## Read stored logs
+
+```ts
+import { readLogFile } from "blyp";
+
+const pretty = await readLogFile("logs/log.ndjson");
+
+const records = await readLogFile("logs/archive/log.20260309T101530Z.ndjson.gz", {
+  format: "json",
+  limit: 100,
+});
+```
+
+## Related exports
+
+```ts
+import type { LogRecord, ReadLogFileOptions } from "blyp";
+```
+
+Use `LogRecord` when you want to type the parsed NDJSON entries in your own tooling.

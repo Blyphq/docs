@@ -1,0 +1,49 @@
+---
+title: "TanStack Start"
+description: "Use requestMiddleware() for server routes and mount clientLogHandlers.POST for browser ingestion."
+icon: "link"
+order: 7
+---
+
+# TanStack Start
+
+Import from `blyp/tanstack-start`.
+
+```ts
+import { createLogger } from "blyp/tanstack-start";
+
+const tanstackLogger = createLogger({
+  level: "info",
+});
+
+export const requestMiddleware = tanstackLogger.requestMiddleware;
+```
+
+Inside `requestMiddleware`, Blyp injects `blypLog` into the middleware context passed to `next({ context })`.
+
+```ts
+const response = await tanstackLogger.requestMiddleware({
+  request,
+  context: {},
+  next: async (options) => {
+    options?.context?.blypLog?.info("tanstack-route");
+    return new Response("ok");
+  },
+});
+```
+
+## Client ingestion route
+
+```ts
+export const POST = tanstackLogger.clientLogHandlers.POST;
+```
+
+## Relevant types
+
+```ts
+import type {
+  TanStackStartLoggerConfig,
+  TanStackStartLoggerFactory,
+  TanStackStartMiddlewareContext,
+} from "blyp/tanstack-start";
+```

@@ -1,0 +1,79 @@
+---
+title: "Installation"
+description: "Install Blyp, understand the published subpaths, and match the right peer dependency to your framework."
+icon: "terminal"
+order: 2
+---
+
+# Installation
+
+## Package managers
+
+```bash
+bun add blyp
+```
+
+```bash
+npm install blyp
+```
+
+```bash
+yarn add blyp
+```
+
+```bash
+pnpm add blyp
+```
+
+## Runtime and language requirements
+
+- Bun `1.2+` or Node.js `18+`
+- TypeScript `5+`
+
+## Optional framework peers
+
+Blyp ships one package, but framework adapters rely on the framework you already use:
+
+| Adapter | Import path | Optional peer |
+| --- | --- | --- |
+| Elysia | `blyp/elysia` | `elysia` |
+| Hono | `blyp/hono` | `hono` |
+| Express | `blyp/express` | `express` |
+| Fastify | `blyp/fastify` | `fastify` |
+| NestJS | `blyp/nestjs` | `@nestjs/*`, `rxjs` |
+| Next.js App Router | `blyp/nextjs` | `next` |
+| TanStack Start | `blyp/tanstack-start` | `@tanstack/react-start` |
+| SvelteKit | `blyp/sveltekit` | `@sveltejs/kit` |
+| Cloudflare Workers | `blyp/workers` | none |
+
+## Published subpaths
+
+These are the package exports exposed by `blyp@0.1.0`:
+
+- `blyp`
+- `blyp/standalone`
+- `blyp/client`
+- `blyp/elysia`
+- `blyp/hono`
+- `blyp/express`
+- `blyp/fastify`
+- `blyp/nestjs`
+- `blyp/nextjs`
+- `blyp/tanstack-start`
+- `blyp/sveltekit`
+- `blyp/workers`
+
+## Bootstrapped local config
+
+When Blyp runs inside an application project, it will bootstrap a `blyp.config.json` file and add `logs` to `.gitignore` if they do not already exist. See [Configuration](/docs/configuration) before relying on the defaults in production.
+
+## Local development
+
+```bash
+git clone https://github.com/Blyphq/blyp.git
+cd blyp
+bun install
+bun run test
+bun run build
+bun run type-check
+```

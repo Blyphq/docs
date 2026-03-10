@@ -1,0 +1,100 @@
+---
+title: "Configuration"
+description: "Control log level, file rotation, ingestion paths, ignore rules, and custom props with code or blyp.config.json."
+icon: "settings"
+order: 7
+---
+
+# Configuration
+
+Blyp configuration comes from two places:
+
+- `blyp.config.json` in your project root
+- per-logger runtime overrides passed to `createStandaloneLogger()` or a framework adapter
+
+Runtime overrides are merged on top of the loaded config.
+
+## `blyp.config.json`
+
+```json
+{
+  "pretty": true,
+  "level": "info",
+  "file": {
+    "enabled": true,
+    "format": "ndjson",
+    "rotation": {
+      "enabled": true,
+      "maxSizeBytes": 10485760,
+      "maxArchives": 5,
+      "compress": true
+    }
+  },
+  "clientLogging": {
+    "enabled": true,
+    "path": "/inngest"
+  }
+}
+```
+
+## Default behavior
+
+- pretty console logging is enabled
+- default level is `info`
+- file logging is enabled
+- client logging is enabled
+- default client ingestion path is `/inngest`
+- default rotation is `10 MB`, `5` archives, gzip compression enabled
+
+## Common server adapter options
+
+```ts
+createLogger({
+  level: "debug",
+  pretty: false,
+  logDir: "logs/api",
+  file: {
+    rotation: {
+      maxSizeBytes: 5 * 1024 * 1024,
+      maxArchives: 3,
+      compress: true,
+    },
+  },
+  autoLogging: {
+    ignore: (ctx) => false,
+  },
+  customProps: (ctx) => ({
+    requestId: "req_123",
+  }),
+  logErrors: true,
+  ignorePaths: ["/health", "/metrics/**"],
+  clientLogging: {
+    path: "/client-ingest",
+    validate: async (_ctx, payload) => payload.id !== "blocked",
+    enrich: async (_ctx, payload) => ({
+      clientLevel: payload.level,
+    }),
+  },
+});
+```
+
+## Notes that matter in production
+
+- `ignorePaths` applies to both automatic request logs and error logs.
+- When client logging is enabled, the ingestion path is auto-added to the ignore list so Blyp does not emit duplicate `http_request` records for `POST /inngest`.
+- `logErrors: false` disables HTTP error record emission for the adapter.
+- `customProps()` is merged into emitted request records and is the right place for request IDs, user IDs, tenant IDs, and controller/action names.
+
+## Config helpers from the root package
+
+```ts
+import {
+  getConfig,
+  loadConfig,
+  mergeBlypConfig,
+  resolveConfig,
+  resetConfigCache,
+} from "blyp";
+```
+
+Use these if you need to inspect or recompute configuration in tests or custom bootstrap code.

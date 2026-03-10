@@ -1,0 +1,114 @@
+---
+title: "Errors"
+description: "Throw, log, serialize, and parse Blyp errors on the server and in the browser."
+icon: "file"
+order: 4
+---
+
+# Errors
+
+Blyp errors revolve around three pieces:
+
+- `createError()` for building and optionally logging a `BlypError`
+- `HTTP_CODES` for reusable status presets
+- `parseError()` for hydrating unknown payloads or `Response` objects back into a `BlypError`
+
+## `createError()`
+
+```ts
+import { createError } from "blyp";
+
+throw createError({
+  status: 402,
+  code: "PAYMENT_DECLINED",
+  message: "Payment failed",
+  why: "Card declined by issuer",
+  fix: "Try a different payment method",
+  link: "https://docs.example.com/payments/declined",
+  details: { paymentId: "pay_123" },
+});
+```
+
+### Important behavior
+
+- `createError()` returns a throwable `BlypError`.
+- If you only pass `status`, Blyp uses the matching HTTP reason phrase.
+- `4xx` errors log at `error` by default.
+- `5xx` errors log at `critical` by default.
+- `skipLogging: true` prevents automatic emission.
+- `logger` routes the error through a request-scoped logger instead of the global root logger.
+- `logLevel` lets you override the default severity.
+
+```ts
+const error = createError({
+  status: 404,
+  message: "User not found",
+  skipLogging: true,
+});
+
+return Response.json(error.toJSON(), { status: error.status });
+```
+
+## `parseError()` on the server
+
+The root `parseError()` accepts either a payload or a `Response`.
+
+```ts
+import { parseError } from "blyp";
+
+const parsed = parseError({
+  error: {
+    status: 404,
+    message: "User not found",
+    fix: "Check the user id",
+  },
+});
+```
+
+```ts
+const response = await fetch("https://api.example.com/payments");
+
+if (!response.ok) {
+  const error = await parseError(response);
+  throw error;
+}
+```
+
+### Response parsing behavior
+
+- JSON bodies are preferred when the response is JSON.
+- Nested `error` payloads are unwrapped.
+- Text bodies become the message when JSON parsing fails.
+- `response.status` is treated as authoritative even if the body contains a different status.
+- Empty bodies fall back to `statusText`, then to the HTTP reason phrase.
+
+## `parseError()` in the browser
+
+Use the browser-safe client entry:
+
+```ts
+import { parseError } from "blyp/client";
+
+const response = await fetch("/api/users/does-not-exist");
+
+if (!response.ok) {
+  throw await parseError(response);
+}
+```
+
+The client entry also re-exports `HTTP_CODES`, `BlypError`, and the related error types.
+
+## Optional parse-time logging
+
+`parseError()` does not log by default, but it will emit exactly once when you pass a logger.
+
+```ts
+const error = await parseError(response, {
+  logger,
+  logLevel: "warning",
+});
+```
+
+## Next step
+
+Use [HTTP Codes](/docs/errors/http-codes) when you want reusable presets and custom error families instead of ad-hoc `createError()` calls.

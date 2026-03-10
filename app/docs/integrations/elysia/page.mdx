@@ -1,0 +1,46 @@
+---
+title: "Elysia"
+description: "Use Blyp as an Elysia plugin and access the request logger as ctx.log."
+icon: "link"
+order: 1
+---
+
+# Elysia
+
+Import from `blyp/elysia`.
+
+```ts
+import { Elysia } from "elysia";
+import { createLogger } from "blyp/elysia";
+
+const app = new Elysia()
+  .use(createLogger({
+    level: "debug",
+    customProps: (ctx) => ({
+      framework: "elysia",
+      path: ctx.path,
+    }),
+  }))
+  .get("/hello", ({ log }) => {
+    log.info("elysia-route");
+    return "ok";
+  });
+```
+
+## How it works
+
+- Blyp decorates the app with `log`
+- request timing starts per request
+- success responses emit `http_request`
+- failures emit `http_error`
+- when enabled, client logs are accepted on the configured ingestion path
+
+## Relevant types
+
+```ts
+import type {
+  ElysiaLoggerConfig,
+  ElysiaContext,
+  ResolveCtx,
+} from "blyp/elysia";
+```

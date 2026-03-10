@@ -1,0 +1,42 @@
+---
+title: "Hono"
+description: "Use Blyp as Hono middleware and read the request logger from context variables."
+icon: "link"
+order: 2
+---
+
+# Hono
+
+Import from `blyp/hono`.
+
+```ts
+import { Hono } from "hono";
+import { createLogger } from "blyp/hono";
+
+const app = new Hono();
+
+app.use("*", createLogger({
+  level: "info",
+  customProps: () => ({ framework: "hono" }),
+}));
+
+app.get("/hello", (context) => {
+  context.get("blypLog").info("hono-route");
+  return context.text("ok");
+});
+```
+
+## Notes
+
+- the request logger is stored in `context.get("blypLog")`
+- the middleware handles both success and thrown error flows
+- `POST /inngest` is intercepted automatically when client logging is enabled
+
+## Relevant types
+
+```ts
+import type {
+  HonoLoggerConfig,
+  HonoLoggerVariables,
+} from "blyp/hono";
+```

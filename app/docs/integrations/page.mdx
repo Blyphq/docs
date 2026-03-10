@@ -1,0 +1,70 @@
+---
+title: "Integrations"
+description: "Framework-specific logger setup for Elysia, Hono, Express, Fastify, NestJS, Next.js, TanStack Start, SvelteKit, and Workers."
+icon: "link"
+order: 6
+---
+
+# Integrations
+
+Every server-side adapter does the same high-level job:
+
+- create or expose a `BlypLogger`
+- attach it to the request lifecycle in a framework-native way
+- emit `http_request` and `http_error` records
+- optionally ingest browser logs on the configured client logging path
+
+## Integration map
+
+| Framework | Import path | Main API | Where the logger is exposed |
+| --- | --- | --- | --- |
+| Elysia | `blyp/elysia` | `createLogger()` | `ctx.log` |
+| Hono | `blyp/hono` | `createLogger()` | `context.get("blypLog")` |
+| Express | `blyp/express` | `createLogger()` | `req.blypLog` |
+| Fastify | `blyp/fastify` | `createLogger()` | `request.blypLog` |
+| NestJS | `blyp/nestjs` | `createLogger()` + `BlypModule.forRoot()` | `req.blypLog` and root `logger` |
+| Next.js App Router | `blyp/nextjs` | `createLogger()` | `withLogger(..., { log })` |
+| TanStack Start | `blyp/tanstack-start` | `createLogger()` | `context.blypLog` |
+| SvelteKit | `blyp/sveltekit` | `createLogger()` | `event.locals.blypLog` |
+| Cloudflare Workers | `blyp/workers` | `initWorkersLogger()` + `createWorkersLogger()` | request-scoped logger returned per request |
+
+## Shared config shape
+
+All server adapters accept the same core options:
+
+```ts
+{
+  level?: string;
+  pretty?: boolean;
+  logDir?: string;
+  file?: LogFileConfig;
+  autoLogging?: boolean | { ignore?: (ctx) => boolean };
+  customProps?: (ctx) => Record<string, unknown>;
+  logErrors?: boolean;
+  ignorePaths?: string[];
+  clientLogging?: boolean | {
+    path?: string;
+    validate?: (ctx, payload) => boolean | Promise<boolean>;
+    enrich?: (ctx, payload) => Record<string, unknown> | Promise<Record<string, unknown>>;
+  };
+}
+```
+
+## Client ingestion behavior
+
+- Default ingestion path: `/inngest`
+- When client logging is enabled, Blyp automatically excludes the ingestion path from normal HTTP request logging
+- Some adapters auto-register the endpoint for you; others return a handler you mount manually
+- If you mount a handler on the wrong path, adapters like Next.js, SvelteKit, and TanStack Start return a `500` mismatch response
+
+Pick a framework page below for the exact wiring:
+
+- [Elysia](/docs/integrations/elysia)
+- [Hono](/docs/integrations/hono)
+- [Express](/docs/integrations/express)
+- [Fastify](/docs/integrations/fastify)
+- [NestJS](/docs/integrations/nestjs)
+- [Next.js App Router](/docs/integrations/nextjs)
+- [TanStack Start](/docs/integrations/tanstack-start)
+- [SvelteKit](/docs/integrations/sveltekit)
+- [Cloudflare Workers](/docs/integrations/workers)

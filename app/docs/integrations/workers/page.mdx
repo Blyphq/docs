@@ -1,0 +1,68 @@
+---
+title: "Cloudflare Workers"
+description: "Use the console-based Workers logger for request-scoped logs and manual request emission."
+icon: "link"
+order: 9
+---
+
+# Cloudflare Workers
+
+Workers use a separate API from the Node/Bun server adapters.
+
+```ts
+import { initWorkersLogger, createWorkersLogger } from "blyp/workers";
+
+initWorkersLogger({
+  env: { service: "my-worker" },
+  customProps: (request) => ({
+    requestId: request.headers.get("x-request-id"),
+  }),
+});
+
+export default {
+  async fetch(request: Request): Promise<Response> {
+    const log = createWorkersLogger(request);
+
+    log.set({ action: "handle_request" });
+    log.info("worker started");
+
+    const response = Response.json({ ok: true });
+    log.emit({ response });
+
+    return response;
+  },
+};
+```
+
+## Differences from the Node/Bun adapters
+
+- no file logging
+- no `blyp.config.json`
+- no automatic client log ingestion
+- console-based output only
+- request logs are emitted manually through `emit()`
+
+## Error emission
+
+```ts
+const log = createWorkersLogger(request);
+
+try {
+  // handler work
+} catch (error) {
+  log.emit({ error });
+  throw error;
+}
+```
+
+`emit()` returns the first emitted `HttpRequestLog` record and does not emit twice for the same request logger.
+
+## Relevant types
+
+```ts
+import type {
+  WorkersLoggerConfig,
+  WorkersEmitOptions,
+  WorkersRequestLogger,
+} from "blyp/workers";
+```

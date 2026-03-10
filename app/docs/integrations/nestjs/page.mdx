@@ -1,0 +1,65 @@
+---
+title: "NestJS"
+description: "Initialize Blyp before Nest bootstrap, wire BlypModule.forRoot(), and use req.blypLog inside controllers."
+icon: "link"
+order: 5
+---
+
+# NestJS
+
+Import from `blyp/nestjs`.
+
+## Required bootstrap order
+
+Call `createLogger()` before `NestFactory.create(...)`.
+
+```ts
+import "reflect-metadata";
+import { Module, Controller, Get, Req } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+import { logger } from "blyp";
+import { createLogger, BlypModule } from "blyp/nestjs";
+
+@Controller()
+class AppController {
+  @Get("/hello")
+  hello(@Req() request: { blypLog?: { info(message: string): void } }) {
+    request.blypLog?.info("nest-request");
+    logger.info("nest-route");
+    return { ok: true };
+  }
+}
+
+@Module({
+  imports: [BlypModule.forRoot()],
+  controllers: [AppController],
+})
+class AppModule {}
+
+createLogger({
+  level: "info",
+  clientLogging: true,
+});
+
+const app = await NestFactory.create(AppModule);
+await app.listen(3000);
+```
+
+## What BlypModule does
+
+- applies middleware to all routes
+- registers a global interceptor
+- registers a global exception filter
+- supports both Nest Express and Nest Fastify adapters
+
+If you call `BlypModule.forRoot()` before `createLogger(...)`, Blyp throws an initialization error during bootstrap.
+
+## Relevant types
+
+```ts
+import type {
+  NestLoggerConfig,
+  NestLoggerContext,
+  NestAdapterType,
+} from "blyp/nestjs";
+```

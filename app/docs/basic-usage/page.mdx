@@ -1,0 +1,87 @@
+---
+title: "Basic Usage"
+description: "Use the root logger, create scoped child loggers, and switch between shared and standalone logger instances."
+icon: "code"
+order: 3
+---
+
+# Basic Usage
+
+## Root logger
+
+The root `logger` export is a proxy around a default standalone logger instance.
+
+```ts
+import { logger } from "blyp";
+
+logger.info("server started");
+logger.success("worker ready");
+logger.warning("cache is stale");
+logger.error("queue processing failed");
+logger.critical("database unavailable");
+logger.debug("request trace");
+```
+
+## Structured messages and metadata
+
+Every log method accepts a message and optional extra arguments.
+
+```ts
+logger.info("user login", {
+  userId: "usr_123",
+  tenantId: "tenant_456",
+});
+
+logger.table("feature flags", {
+  betaCheckout: true,
+  useEdgeCache: false,
+});
+```
+
+## Child loggers
+
+Use `child()` when you want stable bindings on every log line.
+
+```ts
+const paymentsLog = logger.child({
+  service: "payments",
+  region: "eu-west-1",
+});
+
+paymentsLog.info("authorized");
+paymentsLog.error("capture failed", { provider: "stripe" });
+```
+
+## Dedicated standalone instances
+
+If you need a logger with different level, output directory, or file options, create an instance explicitly.
+
+```ts
+import { createStandaloneLogger } from "blyp";
+
+const log = createStandaloneLogger({
+  level: "debug",
+  pretty: true,
+  logDir: "logs/payments",
+  clientLogging: {
+    enabled: true,
+    path: "/client-logs",
+  },
+});
+
+log.info("standalone logger ready");
+```
+
+## Root import vs `blyp/standalone`
+
+Both of these are valid:
+
+```ts
+import { logger, createStandaloneLogger } from "blyp";
+```
+
+```ts
+import type { StandaloneLogger, StandaloneLoggerConfig } from "blyp/standalone";
+```
+
+Use the root import for app code and the subpath import when you specifically want standalone type surfaces.

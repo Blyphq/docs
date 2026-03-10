@@ -1,0 +1,49 @@
+---
+title: "Next.js App Router"
+description: "Wrap route handlers with withLogger() and mount clientLogHandler on the configured ingestion path."
+icon: "link"
+order: 6
+---
+
+# Next.js App Router
+
+Import from `blyp/nextjs`.
+
+```ts
+import { createLogger } from "blyp/nextjs";
+
+const nextLogger = createLogger({
+  level: "info",
+});
+
+export const GET = nextLogger.withLogger(async (_request, _context, { log }) => {
+  log.info("next-route");
+  return Response.json({ ok: true });
+});
+```
+
+## Client ingestion route
+
+Mount `clientLogHandler` on the same path configured for client logging.
+
+```ts
+// app/inngest/route.ts
+import { createLogger } from "blyp/nextjs";
+
+const nextLogger = createLogger();
+
+export const POST = nextLogger.clientLogHandler;
+```
+
+If you mount the handler on a path that does not match the configured ingestion path, Blyp returns a `500` mismatch response.
+
+## Relevant types
+
+```ts
+import type {
+  NextJsLoggerConfig,
+  NextJsLoggerFactory,
+  NextJsHandlerWithLogger,
+  NextJsRouteContext,
+} from "blyp/nextjs";
+```

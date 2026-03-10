@@ -1,0 +1,60 @@
+---
+title: "Utilities & Runtime"
+description: "Use Blyp's runtime detector, color helpers, config helpers, and log directory utilities."
+icon: "settings"
+order: 10
+---
+
+# Utilities & Runtime
+
+## Runtime detection
+
+```ts
+import { runtime, createRuntimeAdapter, createLogDir } from "blyp";
+
+console.log(runtime.type);   // "bun" or "node"
+console.log(runtime.isBun);  // boolean
+console.log(runtime.isNode); // boolean
+```
+
+`runtime` exposes a `RuntimeAdapter` with:
+
+- `file.existsSync`
+- `file.mkdirSync`
+- `file.writeFileSync`
+- `path.join`
+- `env.get`
+- `cwd()`
+
+## Color helpers
+
+```ts
+import {
+  getMethodColor,
+  getStatusColor,
+  getArrowForMethod,
+  getResponseTimeColor,
+  getColoredLevel,
+  colors,
+} from "blyp";
+```
+
+These helpers power Blyp's pretty console output and are useful in custom CLIs or reporting tools.
+
+## Config helpers
+
+```ts
+import {
+  DEFAULT_CONFIG,
+  DEFAULT_CLIENT_LOGGING_CONFIG,
+  DEFAULT_FILE_CONFIG,
+  DEFAULT_ROTATION_CONFIG,
+  getConfig,
+  loadConfig,
+  mergeBlypConfig,
+  resolveConfig,
+  resetConfigCache,
+} from "blyp";
+```
+
+Use them when you want to inspect defaults, merge overrides manually, or reset config state in tests.

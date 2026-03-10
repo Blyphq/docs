@@ -1,0 +1,46 @@
+---
+title: "Browser Types"
+description: "Client logger config, client event shape, and browser-safe error utilities."
+icon: "code"
+order: 3
+---
+
+# Browser Types
+
+Import these from `blyp/client`:
+
+```ts
+import type {
+  ClientLogger,
+  ClientLoggerConfig,
+  ClientLogEvent,
+  ClientLogLevel,
+  ClientLogBrowserContext,
+  ClientLogPageContext,
+  ParseErrorOptions,
+  BlypErrorLike,
+  BlypErrorCode,
+} from "blyp/client";
+```
+
+## Main interfaces
+
+- `ClientLogger`: browser logger with `info`, `warning`, `error`, `critical`, `success`, `debug`, `table`, `child`
+- `ClientLoggerConfig`: `endpoint`, `headers`, `credentials`, `localConsole`, `remoteSync`, `metadata`
+- `ClientLogEvent`: normalized payload sent to the backend ingestion endpoint
+- `ClientLogBrowserContext`: user agent, language, and platform info
+- `ClientLogPageContext`: current URL, pathname, search, hash, title, and referrer
+- `ParseErrorOptions`: `logger`, `logLevel`, and `fallbackStatus`
+
+## Example
+
+```ts
+const config: ClientLoggerConfig = {
+  endpoint: "/inngest",
+  localConsole: true,
+  remoteSync: true,
+  metadata: {
+    app: "dashboard",
+  },
+};
+```

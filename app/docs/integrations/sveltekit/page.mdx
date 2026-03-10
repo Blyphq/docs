@@ -1,0 +1,51 @@
+---
+title: "SvelteKit"
+description: "Attach Blyp through handle(), use event.locals.blypLog, and mount clientLogHandler in a server route."
+icon: "link"
+order: 8
+---
+
+# SvelteKit
+
+Import from `blyp/sveltekit`.
+
+```ts
+import { createLogger } from "blyp/sveltekit";
+
+const svelteLogger = createLogger({
+  level: "info",
+});
+
+export const handle = svelteLogger.handle;
+```
+
+Inside the request lifecycle, Blyp stores the logger on `event.locals.blypLog`.
+
+```ts
+// inside resolve(event)
+event.locals.blypLog?.info("sveltekit-route");
+```
+
+## Client ingestion route
+
+```ts
+// src/routes/inngest/+server.ts
+import { createLogger } from "blyp/sveltekit";
+
+const svelteLogger = createLogger();
+
+export const POST = svelteLogger.clientLogHandler;
+```
+
+Like the Next.js and TanStack adapters, SvelteKit validates that the mounted route path matches the configured ingestion path.
+
+## Relevant types
+
+```ts
+import type {
+  SvelteKitLoggerConfig,
+  SvelteKitLoggerFactory,
+  SvelteKitRequestEvent,
+  SvelteKitLocals,
+} from "blyp/sveltekit";
+```
