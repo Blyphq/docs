@@ -1,0 +1,135 @@
+---
+title: "createError"
+description: "Build structured BlypError instances with status metadata, logging behavior, and reusable error details."
+icon: "file"
+order: 1
+---
+
+# `createError()`
+
+Use `createError()` when you want to throw a structured `BlypError` instead of a plain `Error`.
+
+It is the right fit when you need:
+
+- an HTTP status attached to the failure
+- user-facing fields such as `why`, `fix`, and `link`
+- consistent logging severity based on the status code
+- a serializable payload for API responses
+
+## Basic example
+
+```ts
+import { createError } from "blyp-js";
+
+throw createError({
+  status: 402,
+  code: "PAYMENT_DECLINED",
+  message: "Payment failed",
+  why: "Card declined by issuer",
+  fix: "Try a different payment method",
+  link: "https://docs.example.com/payments/declined",
+  details: { paymentId: "pay_123" },
+});
+```
+
+## What it gives you
+
+- a throwable `BlypError`
+- a default message when you only provide `status`
+- automatic log severity based on status code
+- `.toJSON()` for response serialization
+
+## Logging behavior
+
+By default:
+
+- `4xx` errors log at `error`
+- `5xx` errors log at `critical`
+
+You can override or suppress that behavior.
+
+```ts
+const error = createError({
+  status: 404,
+  message: "User not found",
+  skipLogging: true,
+});
+
+return Response.json(error.toJSON(), { status: error.status });
+```
+
+```ts
+const error = createError({
+  status: 503,
+  message: "Primary database unavailable",
+  logLevel: "warning",
+  logger: request.blypLog,
+});
+```
+
+## Common use cases
+
+### API validation failures
+
+```ts
+if (!body.email) {
+  throw createError({
+    status: 400,
+    code: "EMAIL_REQUIRED",
+    message: "Email is required",
+    fix: "Pass email in the request body",
+  });
+}
+```
+
+### Permission checks
+
+```ts
+if (!session.isAdmin) {
+  throw createError({
+    status: 403,
+    code: "ADMIN_REQUIRED",
+    message: "You do not have access to this resource",
+    why: "The current session lacks the admin role",
+  });
+}
+```
+
+### Wrapping downstream failures
+
+```ts
+try {
+  await payments.charge(input);
+} catch (cause) {
+  throw createError({
+    status: 502,
+    code: "PAYMENTS_UPSTREAM_FAILED",
+    message: "Payment provider request failed",
+    why: "The upstream provider returned an unexpected failure",
+    details: { cause },
+  });
+}
+```
+
+## Pair it with `HTTP_CODES`
+
+If you repeat the same error shape in multiple places, promote it to a reusable preset with [HTTP Codes](/docs/errors/http-codes) instead of repeating `createError()` calls inline.
+
+```ts
+import { HTTP_CODES } from "blyp-js";
+
+const INVALID_COUPON = HTTP_CODES.BAD_REQUEST.extend({
+  code: "INVALID_COUPON",
+  message: "Coupon code is invalid",
+  why: "The supplied coupon does not exist or has expired",
+  fix: "Check the code or request a new promotion link",
+});
+
+throw INVALID_COUPON.create({
+  details: {
+    coupon: body.coupon,
+  },
+});
+```
+
+Use direct `createError()` calls for one-off failures, and `HTTP_CODES.<STATUS>.extend(...)` when the same error contract should be shared across handlers or services.

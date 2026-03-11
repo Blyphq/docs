@@ -1,0 +1,109 @@
+---
+title: "parseError"
+description: "Hydrate unknown payloads or failed Response objects into BlypError instances on the server or in the browser."
+icon: "file"
+order: 2
+---
+
+# `parseError()`
+
+Use `parseError()` when the error source is not already a `BlypError`.
+
+That usually means:
+
+- a failed `fetch()` call returned a `Response`
+- an API returned an unknown JSON payload
+- you received a nested `{ error: ... }` shape from another service
+- you want a consistent `BlypError` before rethrowing or logging
+
+## Parse a raw payload
+
+The root `parseError()` accepts payload-like objects and normalizes them into a `BlypError`.
+
+```ts
+import { parseError } from "blyp-js";
+
+const error = parseError({
+  error: {
+    status: 404,
+    message: "User not found",
+    fix: "Check the user id",
+  },
+});
+
+throw error;
+```
+
+## Parse a failed `Response`
+
+```ts
+import { parseError } from "blyp-js";
+
+const response = await fetch("https://api.example.com/payments");
+
+if (!response.ok) {
+  const error = await parseError(response);
+  throw error;
+}
+```
+
+## Response parsing rules
+
+- JSON bodies are preferred when the response is JSON
+- nested `error` payloads are unwrapped
+- text bodies become the message when JSON parsing fails
+- `response.status` is authoritative even if the body contains a different status
+- empty bodies fall back to `statusText`, then to the HTTP reason phrase
+
+## Browser usage
+
+Use the browser-safe client entry in frontend code:
+
+```ts
+import { parseError } from "blyp-js/client";
+
+const response = await fetch("/api/users/does-not-exist");
+
+if (!response.ok) {
+  throw await parseError(response);
+}
+```
+
+## Common use cases
+
+### Re-throwing upstream API failures
+
+```ts
+const response = await fetch("https://api.example.com/orders/ord_123");
+
+if (!response.ok) {
+  throw await parseError(response);
+}
+```
+
+### Normalizing a third-party error payload
+
+```ts
+const payload = await queueClient.publish(job);
+
+if ("error" in payload) {
+  throw parseError(payload);
+}
+```
+
+### Logging once while parsing
+
+`parseError()` does not log by default, but it can emit exactly once when you pass a logger.
+
+```ts
+const error = await parseError(response, {
+  logger,
+  logLevel: "warning",
+});
+```
+
+This is useful when a boundary layer should normalize and log an error before handing it to the rest of the system.
+
+## When not to use it
+
+If you are creating the error yourself, prefer [createError](/docs/errors/create-error). `parseError()` is for hydration and normalization, not primary error construction.

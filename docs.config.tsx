@@ -6,11 +6,24 @@ import {
   Database,
   FileText,
   FolderOpen,
+  GlobeIcon,
   Link,
   Rocket,
   Settings,
   Terminal,
 } from "lucide-react";
+import Image from "next/image";
+
+const logoIcon = (src: string, alt: string) => (
+
+    <Image
+      src={src}
+      alt={alt}
+      width={18}
+      height={18}
+      className="object-contain dark:invert dark:grayscale"
+    />
+);
 
 export default defineDocs({
   entry: "docs",
@@ -53,6 +66,17 @@ export default defineDocs({
     settings: <Settings size={16} />,
     folder: <FolderOpen size={16} />,
     link: <Link size={13} />,
+    client: <GlobeIcon size={16} />,
+    elysia: logoIcon("/logos/elysia-seeklogo.svg", "Elysia"),
+    expo: logoIcon("/logos/expo-icon.svg", "Expo"),
+    express: logoIcon("/logos/express.svg", "Express"),
+    fastify: logoIcon("/logos/fastify-icon.svg", "Fastify"),
+    hono: logoIcon("/logos/hono.svg", "Hono"),
+    nestjs: logoIcon("/logos/nestjs.svg", "NestJS"),
+    nextjs: logoIcon("/logos/nextjs-icon.svg", "Next.js"),
+    svelte: logoIcon("/logos/svelte-icon.svg", "SvelteKit"),
+    workers: logoIcon("/logos/cloudflare-workers-icon.svg", "Cloudflare Workers"),
+    tanstack: logoIcon("/logos/tanstack-start.png", "TanStack"),
     database: <Database size={16} />,
     code: <Code size={16} />,
   },

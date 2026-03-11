@@ -1,8 +1,8 @@
 ---
 title: "Client"
 description: "Send browser logs to the console, queue and retry remote delivery, and parse failed fetch responses safely."
-icon: "link"
-order: 5
+icon: "client"
+order: 10
 ---
 
 # Client
@@ -37,6 +37,24 @@ logger.error(new Error("button failed to render"));
 logger.child({ feature: "checkout" }).warn("client validation failed");
 ```
 
+## When to use it
+
+Use the browser client when you want Blyp to:
+
+- mirror logs to the browser console during development
+- forward browser events to your backend ingestion endpoint
+- buffer transient failures and retry when connectivity returns
+- turn failed `fetch()` responses into structured `BlypError` instances
+
+If your app only needs local browser logging and no remote sync, disable `remoteSync`.
+
+```ts
+const logger = createClientLogger({
+  endpoint: "/inngest",
+  remoteSync: false,
+});
+```
+
 ## Defaults
 
 | Option | Default |
@@ -51,7 +69,7 @@ logger.child({ feature: "checkout" }).warn("client validation failed");
 
 ## Delivery behavior
 
-Remote browser delivery is now managed by a shared in-memory dispatcher:
+Remote browser delivery is managed by a shared in-memory dispatcher:
 
 - failed events are queued in memory
 - retryable failures are retried up to `3` times by default
@@ -139,6 +157,8 @@ if (!response.ok) {
   throw await parseError(response);
 }
 ```
+
+See [Parse Error](/docs/errors/parse-error) for server and browser parsing patterns in more detail.
 
 ## Pairing with server adapters
 

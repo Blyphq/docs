@@ -1,13 +1,13 @@
 ---
 title: "Integrations"
-description: "Framework and platform-specific logger setup for Elysia, Expo, Hono, Express, Fastify, NestJS, Next.js, TanStack Start, SvelteKit, and Workers."
-icon: "link"
+description: "Browser, mobile, framework, and platform-specific logger setup for Blyp integrations."
+icon: "blyp"
 order: 6
 ---
 
 # Integrations
 
-Most Blyp integrations are server-side adapters, but Expo is a client/mobile transport. Together they cover:
+Blyp integrations cover browser logging, mobile transport, and server-side adapters. Together they let you:
 
 - create or expose a `BlypLogger`
 - attach logging to the framework or runtime in a native way
@@ -18,6 +18,7 @@ Most Blyp integrations are server-side adapters, but Expo is a client/mobile tra
 
 | Framework | Import path | Main API | Where the logger is exposed |
 | --- | --- | --- | --- |
+| Client (Browser) | `blyp-js/client` | `createClientLogger()` | returned logger instance in the browser |
 | Elysia | `blyp-js/elysia` | `createLogger()` | `ctx.log` |
 | Expo | `blyp-js/expo` | `createExpoLogger()` | returned logger instance in the Expo app |
 | Hono | `blyp-js/hono` | `createLogger()` | `context.get("blypLog")` |
@@ -57,10 +58,12 @@ All server adapters accept the same core options:
 - When client logging is enabled, Blyp automatically excludes the ingestion path from normal HTTP request logging
 - Some adapters auto-register the endpoint for you; others return a handler you mount manually
 - If you mount a handler on the wrong path, adapters like Next.js, SvelteKit, and TanStack Start return a `500` mismatch response
+- The browser [Client](/docs/integrations/client) uses same-origin delivery by default and can fall back to `sendBeacon()` when possible
 - Expo is different: it sends logs directly to an absolute backend URL, queues failures in memory, resumes on connectivity changes via `expo-network`, and does not register a local ingestion handler
 
-Pick a framework page below for the exact wiring:
+Pick an integration page below for the exact wiring:
 
+- [Client](/docs/integrations/client)
 - [Elysia](/docs/integrations/elysia)
 - [Expo](/docs/integrations/expo)
 - [Hono](/docs/integrations/hono)
