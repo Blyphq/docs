@@ -13,6 +13,7 @@ Blyp is a high-performance logger built for Bun-first and Node-compatible TypeSc
 
 - root application logging
 - standalone logger instances
+- structured request batches
 - framework-aware HTTP logging
 - browser-to-server log ingestion
 - structured `BlypError` handling
@@ -24,7 +25,7 @@ The GitHub repository is `Blyphq/blyp`, but the published package name is `blyp-
 
 | Area | Import path | What you get |
 | --- | --- | --- |
-| Core logger + errors | `blyp-js` | `logger`, `createStandaloneLogger`, `createError`, `HTTP_CODES`, `parseError`, `readLogFile`, config/runtime helpers |
+| Core logger + errors | `blyp-js` | `logger`, `createStandaloneLogger`, `createStructuredLog`, `createError`, `HTTP_CODES`, `parseError`, `readLogFile`, config/runtime helpers |
 | Browser logger | `blyp-js/client` | `createClientLogger`, browser-safe `parseError`, `ClientLogger` types |
 | Framework adapters | `blyp-js/<framework>` | `createLogger()` or equivalent framework factory plus framework-specific types |
 | Workers | `blyp-js/workers` | `initWorkersLogger`, `createWorkersLogger`, Workers-specific request logger types |
@@ -60,6 +61,7 @@ throw createError({
 
 - [Installation](/docs/installation) for package managers, peer dependencies, and exported subpaths.
 - [Basic Usage](/docs/basic-usage) for logger methods, child loggers, and standalone instances.
+- [Structured Logs](/docs/structured-logs) for `createStructuredLog()`, typed fields, and request-scoped batch emission.
 - [Errors](/docs/errors) for `createError()`, `parseError()`, and `BlypError` behavior.
 - [Client](/docs/client) for browser logging and `/inngest` ingestion.
 - [Integrations](/docs/integrations) for framework-specific guides.

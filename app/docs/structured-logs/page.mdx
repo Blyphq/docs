@@ -1,0 +1,126 @@
+---
+title: "Structured Logs"
+description: "Batch related log events into one emitted payload with typed fields and request-aware metadata."
+icon: "logs"
+order: 4
+---
+
+# Structured Logs
+
+Use `createStructuredLog()` when multiple log lines belong to one logical unit of work and you want one final structured payload.
+
+## Root import
+
+`createStructuredLog` is a root export:
+
+```ts
+import { createStructuredLog } from "blyp-js";
+```
+
+## Standalone usage
+
+```ts
+import { createStructuredLog } from "blyp-js";
+
+const structuredLog = createStructuredLog("checkout", {
+  service: "web-api",
+  level: "info",
+  timestamp: new Date().toISOString(),
+});
+
+structuredLog.set({
+  user: { id: 1, plan: "pro" },
+  cart: { items: 3, total: 9999 },
+});
+
+structuredLog.info("user logged in");
+structuredLog.info("item added to cart");
+structuredLog.emit({ status: 200 });
+```
+
+Nothing is written until you call `.emit()`. The intermediate `info()`, `warn()`, `error()`, and `table()` calls accumulate events on the in-memory batch.
+
+## Typed fields
+
+If you want the final payload to be strongly typed, pass a generic:
+
+```ts
+import { createStructuredLog } from "blyp-js";
+
+const structuredLog = createStructuredLog<{
+  message: string;
+  level: string;
+  timestamp: string;
+  hostname?: string;
+  port?: number;
+}>("test", {
+  message: "Hello Elysia",
+  level: "info",
+  timestamp: new Date().toISOString(),
+  hostname: "127.0.0.1",
+  port: 3000,
+});
+```
+
+`set()` extends the field type, so later additions are reflected in the returned `StructuredLog<TFields>` instance.
+
+## Framework handler behavior
+
+Inside framework handlers, the imported `createStructuredLog(...)` automatically binds to the active request-scoped logger.
+
+- request metadata such as method, path, status, and duration is merged when you emit
+- framework `customProps` are merged into the final payload
+- a structured emit suppresses the normal auto `http_request` or `http_error` record for that request
+- if you start a request-scoped structured log and then call the root `logger` in the same request, Blyp warns once and ignores the root logger write
+
+That means you can keep the same root import in standalone code and in framework routes without switching APIs.
+
+## Emit options
+
+`emit()` accepts the fields Blyp uses to finalize the payload:
+
+```ts
+structuredLog.emit({
+  response,
+  status: 200,
+  level: "success",
+  message: "checkout completed",
+  error,
+});
+```
+
+Use:
+
+- `response` or `status` to set the final HTTP status
+- `error` to attach normalized error details
+- `level` and `message` to override the final emitted event summary
+
+## Emitted payload shape
+
+The returned payload contains your typed fields plus Blyp metadata:
+
+```ts
+import type {
+  StructuredLog,
+  StructuredLogEmitOptions,
+  StructuredLogEvent,
+  StructuredLogPayload,
+} from "blyp-js";
+```
+
+`StructuredLogPayload<TFields>` includes:
+
+- your initial and `set()` fields
+- `groupId`
+- `timestamp`
+- `level`
+- optional `method`, `path`, `status`, and `duration`
+- optional `events` collected before emit
+- optional normalized `error`
+
+## Related docs
+
+- [Basic Usage](/docs/basic-usage)
+- [Errors](/docs/errors)
+- [Server-Side Types](/docs/types/server-side)
+- [Utilities & Runtime](/docs/reference)

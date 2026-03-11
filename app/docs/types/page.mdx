@@ -12,6 +12,7 @@ Blyp exposes three main type families:
 - standalone and runtime types
 - server-side integration types
 - browser/client types
+- shared root types such as `BlypError` and `StructuredLog`
 
 ## Import paths
 
@@ -22,8 +23,11 @@ Blyp exposes three main type families:
 | Framework-specific server types | `blyp-js/<framework>` |
 | Shared core types | `blyp-js` |
 
+Shared root exports include `StructuredLog`, `StructuredLogPayload`, `StructuredLogEvent`, `StructuredLogEmitOptions`, and the `createStructuredLog()` helper documented in [Structured Logs](/docs/structured-logs).
+
 ## Read next
 
 - [Standalone Types](/docs/types/standalone)
 - [Server-Side Types](/docs/types/server-side)
 - [Browser Types](/docs/types/browser)
+- [Structured Logs](/docs/structured-logs)

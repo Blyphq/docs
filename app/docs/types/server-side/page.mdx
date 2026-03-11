@@ -41,3 +41,18 @@ Most server adapters also export `HttpRequestLog`, which includes:
 - `autoLogging.ignore(ctx)` when you want context-aware suppression
 - `clientLogging.validate(ctx, payload)` and `clientLogging.enrich(ctx, payload)`
 - wrapped handler helpers such as `NextJsLoggerFactory`, `TanStackStartLoggerFactory`, and `SvelteKitLoggerFactory`
+
+## Request-scoped structured logs
+
+Structured log types are shared root exports because the same `createStructuredLog()` helper works in standalone code and inside framework handlers:
+
+```ts
+import {
+  createStructuredLog,
+  type StructuredLog,
+  type StructuredLogEmitOptions,
+  type StructuredLogPayload,
+} from "blyp-js";
+```
+
+Inside a framework request, the emitted `StructuredLogPayload<TFields>` can also include request metadata such as `method`, `path`, `status`, and `duration`, plus anything returned by the adapter's `customProps(ctx)`.

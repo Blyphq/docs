@@ -52,6 +52,25 @@ paymentsLog.info("authorized");
 paymentsLog.error("capture failed", { provider: "stripe" });
 ```
 
+## Structured request batches
+
+Use `createStructuredLog()` when a request or workflow should produce one final structured payload instead of many unrelated lines.
+
+```ts
+import { createStructuredLog } from "blyp-js";
+
+const structuredLog = createStructuredLog("checkout", {
+  service: "web-api",
+  timestamp: new Date().toISOString(),
+});
+
+structuredLog.info("user logged in");
+structuredLog.info("item added to cart");
+structuredLog.emit({ status: 200 });
+```
+
+This is especially useful inside framework handlers because the same root import automatically binds to the active request logger. See [Structured Logs](/docs/structured-logs) for the typed generic form, emit options, and request-scoped behavior.
+
 ## Dedicated standalone instances
 
 If you need a logger with different level, output directory, or file options, create an instance explicitly.

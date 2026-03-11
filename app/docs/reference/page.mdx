@@ -58,3 +58,21 @@ import {
 ```
 
 Use them when you want to inspect defaults, merge overrides manually, or reset config state in tests.
+
+## Structured log exports
+
+The root package also exports the structured log helper and its public types:
+
+```ts
+import {
+  createStructuredLog,
+  type StructuredLog,
+  type StructuredLogEmitOptions,
+  type StructuredLogError,
+  type StructuredLogEvent,
+  type StructuredLogLevel,
+  type StructuredLogPayload,
+} from "blyp-js";
+```
+
+Use these when you want to type helper functions around batched request logs, inspect emitted payloads in tests, or build wrappers on top of Blyp's structured logging flow.
