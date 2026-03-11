@@ -75,6 +75,33 @@ const logger = createExpoLogger({
 
 `localConsole` defaults to `true` and `remoteSync` defaults to `true`.
 
+## Connector forwarding requests
+
+Expo can request server-side forwarding into PostHog, Sentry, or a named OTLP target:
+
+```ts
+const logger = createExpoLogger({
+  endpoint: "https://api.example.com/inngest",
+  connector: "posthog",
+});
+```
+
+```ts
+const logger = createExpoLogger({
+  endpoint: "https://api.example.com/inngest",
+  connector: "sentry",
+});
+```
+
+```ts
+const logger = createExpoLogger({
+  endpoint: "https://api.example.com/inngest",
+  connector: { type: "otlp", name: "grafana" },
+});
+```
+
+Expo still posts to Blyp first. Blyp forwards only when the matching server connector is configured and ready.
+
 ## Delivery hooks
 
 Expo supports the same delivery lifecycle callbacks as the browser logger:
@@ -128,6 +155,7 @@ Child loggers share the same in-memory dispatcher and queue, so `.child()` keeps
 import type {
   ExpoLogger,
   ExpoLoggerConfig,
+  ClientConnectorRequest,
   ClientLogEvent,
   ClientLogLevel,
   ClientLogDeviceContext,
@@ -138,3 +166,5 @@ import type {
   RemoteDeliveryDropContext,
 } from "blyp-js/expo";
 ```
+
+Use [Connectors](/docs/connectors) for the corresponding server-side PostHog, Sentry, and OTLP setup.

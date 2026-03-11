@@ -1,0 +1,103 @@
+---
+title: "OTLP"
+description: "Send Blyp logs to named OTLP-compatible targets such as Grafana Cloud, Datadog, Honeycomb, or your own collector."
+icon: "link"
+order: 3
+---
+
+# OTLP
+
+Use `connectors.otlp` when you want Blyp to forward logs to one or more OTLP-compatible backends.
+
+Common targets include:
+
+- Grafana Cloud
+- Datadog
+- Honeycomb
+- a self-hosted OpenTelemetry Collector
+
+## Config
+
+OTLP connectors are configured as a named array:
+
+```ts
+export default {
+  connectors: {
+    otlp: [
+      {
+        name: "grafana",
+        enabled: true,
+        mode: "auto",
+        endpoint: process.env.OTLP_HTTP_ENDPOINT,
+        auth: process.env.OTLP_AUTH_HEADER,
+        serviceName: "api",
+      },
+      {
+        name: "honeycomb",
+        enabled: true,
+        mode: "manual",
+        endpoint: process.env.HONEYCOMB_OTLP_ENDPOINT,
+        headers: {
+          "x-honeycomb-team": process.env.HONEYCOMB_API_KEY ?? "",
+        },
+      },
+    ],
+  },
+};
+```
+
+## Config fields
+
+- `name`: required identifier for the OTLP target
+- `enabled`: enables the target
+- `mode`: `auto` or `manual`
+- `endpoint`: absolute OTLP HTTP logs endpoint
+- `headers`: optional custom headers
+- `auth`: convenience value for the `Authorization` header
+- `serviceName`: defaults to `blyp-app`
+
+## Automatic server forwarding
+
+When a target is both enabled and ready and `mode: "auto"`, Blyp forwards normal server logs to that target automatically.
+
+## Manual APIs
+
+Manual OTLP APIs always target a named connector:
+
+```ts
+import {
+  createOtlpLogger,
+  createStructuredOtlpLogger,
+} from "blyp-js/otlp";
+
+createOtlpLogger({
+  name: "grafana",
+}).info("manual otlp log");
+
+const structured = createStructuredOtlpLogger(
+  "checkout",
+  { orderId: "ord_123" },
+  { name: "grafana" }
+);
+
+structured.info("manual start");
+structured.emit({ status: 200 });
+```
+
+## Browser and Expo forwarding
+
+```ts
+const browserLogger = createClientLogger({
+  endpoint: "/inngest",
+  connector: { type: "otlp", name: "grafana" },
+});
+```
+
+```ts
+const expoLogger = createExpoLogger({
+  endpoint: "https://api.example.com/inngest",
+  connector: { type: "otlp", name: "grafana" },
+});
+```
+
+Browser and Expo still post to Blyp first. Blyp forwards to the named OTLP target only when that server connector is configured and ready.

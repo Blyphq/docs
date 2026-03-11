@@ -51,11 +51,14 @@ Blyp ships one package, but framework adapters rely on the framework you already
 
 ## Published subpaths
 
-These are the package exports exposed by `blyp-js@0.1.0`:
+These are the package exports exposed by `blyp-js@0.1.02`:
 
 - `blyp-js`
 - `blyp-js/standalone`
 - `blyp-js/client`
+- `blyp-js/posthog`
+- `blyp-js/sentry`
+- `blyp-js/otlp`
 - `blyp-js/elysia`
 - `blyp-js/expo`
 - `blyp-js/hono`
@@ -69,7 +72,7 @@ These are the package exports exposed by `blyp-js@0.1.0`:
 
 ## Bootstrapped local config
 
-When Blyp runs inside an application project, it will bootstrap a `blyp.config.json` file and add `logs` to `.gitignore` if they do not already exist. See [Configuration](/docs/configuration) before relying on the defaults in production.
+When Blyp runs inside an application project, it bootstraps a `blyp.config.json` file and adds `logs` to `.gitignore` if they do not already exist. Blyp can also load `blyp.config.ts`, `blyp.config.mts`, `blyp.config.cts`, `blyp.config.js`, `blyp.config.mjs`, and `blyp.config.cjs`. See [Configuration](/docs/configuration) before relying on the defaults in production.
 
 ## Expo-specific install
 

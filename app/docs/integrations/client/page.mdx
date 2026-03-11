@@ -11,6 +11,7 @@ The `blyp-js/client` entry gives you two major capabilities:
 
 - browser logging with optional remote sync
 - browser-safe error parsing with `parseError()`
+- connector requests for PostHog, Sentry, or named OTLP targets through Blyp ingestion
 
 For Expo apps, use the dedicated `blyp-js/expo` logger instead of `blyp-js/client`.
 
@@ -169,6 +170,36 @@ Most server-side adapters automatically register or expose a handler for the con
 - ingested events are tagged as `type: "client_log"` and `source: "client"`
 
 See the individual pages under [Integrations](/docs/integrations) for exact mounting patterns.
+
+## Connector forwarding requests
+
+The browser client can ask Blyp ingestion to forward logs into a configured connector:
+
+```ts
+const posthogLogger = createClientLogger({
+  endpoint: "/inngest",
+  connector: "posthog",
+});
+
+const sentryLogger = createClientLogger({
+  endpoint: "/inngest",
+  connector: "sentry",
+});
+
+const otlpLogger = createClientLogger({
+  endpoint: "/inngest",
+  connector: { type: "otlp", name: "grafana" },
+});
+```
+
+Important behavior:
+
+- the browser still posts to Blyp first
+- Blyp forwards only when the matching server connector is configured
+- Blyp warns once if the requested connector is missing on the server
+- PostHog client `error` and `critical` logs are promoted into Error Tracking only when server-side PostHog error tracking runs in `auto` mode
+
+Use [Connectors](/docs/connectors) for the server-side setup behind these requests.
 
 ## Expo mobile logging
 

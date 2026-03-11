@@ -1,23 +1,37 @@
 ---
 title: "Configuration"
-description: "Control log level, file rotation, ingestion paths, ignore rules, and custom props with code or blyp.config.json."
+description: "Control log level, connectors, file rotation, ingestion paths, and config loading with code or blyp.config files."
 icon: "settings"
-order: 7
+order: 8
 ---
 
 # Configuration
 
 Blyp configuration comes from two places:
 
-- `blyp.config.json` in your project root
+- `blyp.config.*` in your project root
 - per-logger runtime overrides passed to `createStandaloneLogger()` or a framework adapter
 
 Runtime overrides are merged on top of the loaded config.
 
-## `blyp.config.json`
+## Supported config files
 
-```json
-{
+Blyp loads the first matching config file from:
+
+- `blyp.config.ts`
+- `blyp.config.mts`
+- `blyp.config.cts`
+- `blyp.config.js`
+- `blyp.config.mjs`
+- `blyp.config.cjs`
+- `blyp.config.json`
+
+Executable config files are loaded through `jiti`.
+
+## Example `blyp.config.ts`
+
+```ts
+export default {
   "pretty": true,
   "level": "info",
   "file": {
@@ -33,8 +47,32 @@ Runtime overrides are merged on top of the loaded config.
   "clientLogging": {
     "enabled": true,
     "path": "/inngest"
+  },
+  "connectors": {
+    "posthog": {
+      "enabled": true,
+      "mode": "auto",
+      "projectKey": process.env.POSTHOG_PROJECT_KEY,
+      "errorTracking": {
+        "enabled": true,
+        "mode": "auto"
+      }
+    },
+    "sentry": {
+      "enabled": true,
+      "mode": "auto",
+      "dsn": process.env.SENTRY_DSN
+    },
+    "otlp": [
+      {
+        "name": "grafana",
+        "enabled": true,
+        "mode": "auto",
+        "endpoint": process.env.OTLP_HTTP_ENDPOINT
+      }
+    ]
   }
-}
+};
 ```
 
 ## Default behavior
@@ -45,6 +83,7 @@ Runtime overrides are merged on top of the loaded config.
 - client logging is enabled
 - default client ingestion path is `/inngest`
 - default rotation is `10 MB`, `5` archives, gzip compression enabled
+- connectors are disabled unless configured
 
 ## Common server adapter options
 
@@ -78,12 +117,52 @@ createLogger({
 });
 ```
 
+## Connector config
+
+Connectors live under `connectors`:
+
+```ts
+export default {
+  connectors: {
+    posthog: {
+      enabled: true,
+      mode: "auto",
+      projectKey: process.env.POSTHOG_PROJECT_KEY,
+      errorTracking: {
+        enabled: true,
+        mode: "auto",
+        enableExceptionAutocapture: true,
+      },
+    },
+    sentry: {
+      enabled: true,
+      mode: "auto",
+      dsn: process.env.SENTRY_DSN,
+      environment: process.env.NODE_ENV,
+      release: process.env.RELEASE_SHA,
+    },
+    otlp: [
+      {
+        name: "grafana",
+        enabled: true,
+        mode: "auto",
+        endpoint: process.env.OTLP_HTTP_ENDPOINT,
+        auth: process.env.OTLP_AUTH_HEADER,
+        serviceName: "api",
+      },
+    ],
+  },
+};
+```
+
 ## Notes that matter in production
 
 - `ignorePaths` applies to both automatic request logs and error logs.
 - When client logging is enabled, the ingestion path is auto-added to the ignore list so Blyp does not emit duplicate `http_request` records for `POST /inngest`.
 - `logErrors: false` disables HTTP error record emission for the adapter.
 - `customProps()` is merged into emitted request records and is the right place for request IDs, user IDs, tenant IDs, and controller/action names.
+- connector `auto` mode forwards from server runtimes directly
+- browser and Expo connector requests still flow through Blyp ingestion first
 
 ## Config helpers from the root package
 
@@ -98,3 +177,5 @@ import {
 ```
 
 Use these if you need to inspect or recompute configuration in tests or custom bootstrap code.
+
+Use [Connectors](/docs/connectors) for provider-specific behavior and manual APIs.

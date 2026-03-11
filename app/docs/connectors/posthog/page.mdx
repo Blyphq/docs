@@ -1,0 +1,111 @@
+---
+title: "PostHog"
+description: "Use Blyp's PostHog connector for automatic log forwarding, manual logger APIs, and server-side error tracking."
+icon: "link"
+order: 1
+---
+
+# PostHog
+
+Blyp's PostHog connector covers two related flows on server runtimes:
+
+- log forwarding into PostHog Logs
+- exception capture into PostHog Error Tracking
+
+## Config
+
+Configure PostHog under `connectors.posthog`:
+
+```ts
+export default {
+  connectors: {
+    posthog: {
+      enabled: true,
+      mode: "auto",
+      projectKey: process.env.POSTHOG_PROJECT_KEY,
+      host: "https://us.i.posthog.com",
+      serviceName: "api",
+      errorTracking: {
+        enabled: true,
+        mode: "auto",
+        enableExceptionAutocapture: true,
+      },
+    },
+  },
+};
+```
+
+## Config fields
+
+- `enabled`: enables PostHog delivery
+- `mode`: `auto` or `manual`
+- `projectKey`: PostHog project API key
+- `host`: defaults to `https://us.i.posthog.com`
+- `serviceName`: defaults to `blyp-app`
+- `errorTracking.enabled`: enables PostHog exception capture
+- `errorTracking.mode`: `auto` or `manual`
+- `errorTracking.enableExceptionAutocapture`: enables uncaught exception and unhandled rejection autocapture through `posthog-node`
+
+## Automatic server forwarding
+
+When `mode: "auto"` is enabled, normal Blyp server loggers forward into PostHog automatically.
+
+When `errorTracking.mode: "auto"` is enabled, Blyp handled server errors can also be captured into PostHog Error Tracking.
+
+## Manual APIs
+
+Use `blyp-js/posthog` when you want explicit control:
+
+```ts
+import {
+  capturePosthogException,
+  createPosthogErrorTracker,
+  createPosthogLogger,
+  createStructuredPosthogLogger,
+} from "blyp-js/posthog";
+
+createPosthogLogger().info("manual posthog log");
+
+createPosthogErrorTracker().capture(new Error("manual posthog exception"));
+
+capturePosthogException(new Error("wrapped posthog exception"), {
+  distinctId: "usr_123",
+  properties: {
+    feature: "checkout",
+  },
+});
+
+const structured = createStructuredPosthogLogger("checkout", {
+  orderId: "ord_123",
+});
+
+structured.info("manual start");
+structured.emit({ status: 200 });
+```
+
+## Browser and Expo forwarding
+
+Browser and Expo do not use `posthog-node` directly. They request forwarding through Blyp ingestion:
+
+```ts
+const logger = createClientLogger({
+  endpoint: "/inngest",
+  connector: "posthog",
+});
+```
+
+```ts
+const logger = createExpoLogger({
+  endpoint: "https://api.example.com/inngest",
+  connector: "posthog",
+});
+```
+
+Client `error` and `critical` logs requested through the PostHog connector are promoted into PostHog exceptions only when server-side PostHog error tracking is enabled in `auto` mode.
+
+## Notes
+
+- PostHog direct delivery is for Node/Bun server runtimes
+- browser and Expo still post to Blyp first
+- Blyp warns once when the client or Expo app requests PostHog forwarding but the server connector is missing
+- Workers remain out of scope for PostHog error tracking

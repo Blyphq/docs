@@ -1,0 +1,84 @@
+---
+title: "Connectors"
+description: "Forward Blyp logs and structured events to PostHog, Sentry, and OTLP backends across server, browser, and Expo runtimes."
+icon: "link"
+order: 7
+---
+
+# Connectors
+
+Connectors let Blyp forward logs beyond the local console, files, or request logger pipeline.
+
+In `blyp-js@0.1.02`, Blyp ships first-party connector support for:
+
+- [PostHog](/docs/connectors/posthog)
+- [Sentry](/docs/connectors/sentry)
+- [OTLP](/docs/connectors/otlp)
+
+## Runtime model
+
+The connector model differs by runtime:
+
+| Runtime | How it forwards |
+| --- | --- |
+| Server adapters and standalone loggers | direct connector delivery from the Node/Bun runtime |
+| Browser client | sends to Blyp ingestion first, then the server forwards when configured |
+| Expo | sends to Blyp ingestion first, then the server forwards when configured |
+| Workers | not covered by PostHog error tracking |
+
+## Auto vs manual
+
+Each server-side connector supports two modes:
+
+- `mode: "auto"` forwards regular Blyp server logs automatically
+- `mode: "manual"` disables automatic forwarding so you can use dedicated connector APIs directly
+
+The dedicated helper entry points are:
+
+- `blyp-js/posthog`
+- `blyp-js/sentry`
+- `blyp-js/otlp`
+
+## Client and Expo connector requests
+
+Browser and Expo loggers do not talk directly to PostHog, Sentry, or OTLP vendor SDKs. They request forwarding through Blyp ingestion instead.
+
+```ts
+import { createClientLogger } from "blyp-js/client";
+
+const posthogClient = createClientLogger({
+  endpoint: "/inngest",
+  connector: "posthog",
+});
+
+const sentryClient = createClientLogger({
+  endpoint: "/inngest",
+  connector: "sentry",
+});
+
+const otlpClient = createClientLogger({
+  endpoint: "/inngest",
+  connector: { type: "otlp", name: "grafana" },
+});
+```
+
+Use the same `connector` values in `blyp-js/expo`.
+
+## Config file support
+
+Blyp now loads configuration from any of these files in your project root:
+
+- `blyp.config.ts`
+- `blyp.config.mts`
+- `blyp.config.cts`
+- `blyp.config.js`
+- `blyp.config.mjs`
+- `blyp.config.cjs`
+- `blyp.config.json`
+
+## Read next
+
+- [PostHog](/docs/connectors/posthog)
+- [Sentry](/docs/connectors/sentry)
+- [OTLP](/docs/connectors/otlp)
+- [Configuration](/docs/configuration)

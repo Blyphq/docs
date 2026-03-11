@@ -27,6 +27,7 @@ The GitHub repository is `Blyphq/blyp`, but the published package name is `blyp-
 | --- | --- | --- |
 | Core logger + errors | `blyp-js` | `logger`, `createStandaloneLogger`, `createStructuredLog`, `createError`, `HTTP_CODES`, `parseError`, `readLogFile`, config/runtime helpers |
 | Browser logger | `blyp-js/client` | `createClientLogger`, browser-safe `parseError`, `ClientLogger` types |
+| Connector helpers | `blyp-js/posthog`, `blyp-js/sentry`, `blyp-js/otlp` | manual connector loggers, structured connector helpers, and PostHog exception capture |
 | Framework adapters | `blyp-js/<framework>` | `createLogger()` or equivalent framework factory plus framework-specific types |
 | Workers | `blyp-js/workers` | `initWorkersLogger`, `createWorkersLogger`, Workers-specific request logger types |
 
@@ -64,7 +65,8 @@ throw createError({
 - [Structured Logs](/docs/structured-logs) for `createStructuredLog()`, typed fields, and request-scoped batch emission.
 - [Errors](/docs/errors) for `createError()`, `parseError()`, and `BlypError` behavior.
 - [Integrations](/docs/integrations) for browser, framework, and runtime-specific guides.
+- [Connectors](/docs/connectors) for PostHog, Sentry, OTLP, and client/expo forwarding.
 - [Client](/docs/integrations/client) for browser logging and `/inngest` ingestion.
 - [Expo](/docs/integrations/expo) if you are shipping a mobile app and need remote client log sync from Expo.
-- [Configuration](/docs/configuration) for `blyp.config.json`, `ignorePaths`, and client ingestion config.
+- [Configuration](/docs/configuration) for `blyp.config.*`, connector setup, `ignorePaths`, and client ingestion config.
 - [Type Surfaces](/docs/types) for standalone, server-side, and browser-facing types.
