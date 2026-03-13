@@ -1,0 +1,37 @@
+---
+title: "Client + Expo"
+description: "Blyp skill preset for browser and Expo logging, retry queues, and connector forwarding requests through Blyp ingestion."
+icon: "client"
+order: 7
+---
+
+import { SkillInstall } from "@/app/components/skill-install";
+import { SkillSource } from "@/app/components/skill-source";
+
+# Blyp Client and Expo
+
+Install `blyp-client-expo` after `blyp-core` when the application needs Blyp outside the server runtime. This preset covers both `blyp-js/client` for browsers and `blyp-js/expo` for Expo apps, including remote sync, retry queues, and connector forwarding requests through Blyp ingestion.
+
+## When to install it
+
+- the repo logs from browsers with `createClientLogger()`
+- the repo logs from Expo with `createExpoLogger()`
+- client-side logs should be mirrored to Blyp ingestion or forwarded into configured connectors
+
+## What it covers
+
+- default browser ingestion path at `/inngest`
+- retry queue behavior for browser and Expo delivery
+- absolute endpoint requirement for Expo
+- `expo-network` requirement for Expo remote sync
+- client connector requests for PostHog, Sentry, and named OTLP targets
+
+<SkillInstall slug="client-expo" />
+
+## Related docs
+
+- [Client](/docs/integrations/client)
+- [Expo](/docs/integrations/expo)
+- [Connectors](/docs/connectors)
+
+<SkillSource slug="client-expo" />

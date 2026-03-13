@@ -1,0 +1,37 @@
+---
+title: "PostHog"
+description: "Blyp skill preset for connectors.posthog, auto and manual modes, and Blyp-mediated forwarding from browser and Expo clients."
+icon: "link"
+order: 8
+---
+
+import { SkillInstall } from "@/app/components/skill-install";
+import { SkillSource } from "@/app/components/skill-source";
+
+# Blyp PostHog
+
+Install `blyp-posthog` after `blyp-core` when Blyp logs or errors must flow into PostHog. This preset keeps agents on the official connector model, including `mode: "auto"` or `mode: "manual"` and Blyp-managed forwarding from browser or Expo clients.
+
+## When to install it
+
+- the repo configures `connectors.posthog`
+- logs should flow into PostHog Logs
+- Blyp-managed errors should flow into PostHog Error Tracking
+- browser or Expo code requests `connector: "posthog"`
+
+## What it covers
+
+- `connectors.posthog`
+- auto vs manual mode
+- error tracking configuration
+- client and Expo forwarding through Blyp first
+
+<SkillInstall slug="posthog" />
+
+## Related docs
+
+- [PostHog](/docs/connectors/posthog)
+- [Client](/docs/integrations/client)
+- [Expo](/docs/integrations/expo)
+
+<SkillSource slug="posthog" />

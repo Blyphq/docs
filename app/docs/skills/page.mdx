@@ -1,0 +1,75 @@
+---
+title: "Skills"
+description: "Copy-pasteable Blyp skills for Codex, OpenCode, and Claude Code, with supported presets for core setup, integrations, and connectors."
+icon: "skills"
+order: 6
+---
+
+import { skillPresets } from "@/lib/skills";
+
+# Skills
+
+Blyp skills are portable markdown files that help AI coding agents install and wire Blyp correctly. Start with `blyp-core`, then add only the supported presets that match the runtime or connector used by the repo.
+
+This first release covers **supported presets only**. It does not claim full coverage for every Blyp export.
+
+## Install flow
+
+1. Install `blyp-core` first.
+2. Add only the runtime or connector presets the repo actually needs.
+3. Copy the canonical `SKILL.md` file into the matching agent directory.
+
+## Agent install paths
+
+| Agent | Project-local path | Global path |
+| --- | --- | --- |
+| Codex | `.agents/skills/<skill>/SKILL.md` | `~/.agents/skills/<skill>/SKILL.md` |
+| OpenCode | `.opencode/skills/<skill>/SKILL.md` | `~/.config/opencode/skills/<skill>/SKILL.md` |
+| Claude Code | `.claude/skills/<skill>/SKILL.md` | `~/.claude/skills/<skill>/SKILL.md` |
+
+## Supported preset matrix
+
+<table>
+  <thead>
+    <tr>
+      <th>Preset</th>
+      <th>Category</th>
+      <th>Covers</th>
+      <th>When to install</th>
+      <th>Docs</th>
+      <th>Raw file</th>
+    </tr>
+  </thead>
+  <tbody>
+    {skillPresets.map((skill) => (
+      <tr key={skill.slug}>
+        <td><code>{skill.skillId}</code></td>
+        <td>{skill.category}</td>
+        <td>{skill.coverage}</td>
+        <td>{skill.whenToInstall}</td>
+        <td><a href={skill.docsPath}>{skill.title}</a></td>
+        <td><a href={skill.rawPath}>{skill.rawPath}</a></td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+## What each preset gives agents
+
+- `blyp-core`: package install, runtime export selection, `blyp.config.*`, `/inngest`, and production-safe Blyp defaults
+- `blyp-nextjs`: `blyp-js/nextjs`, `withLogger(...)`, and `clientLogHandler`
+- `blyp-express`: `blyp-js/express`, `req.blypLog`, and `createExpressErrorLogger()`
+- `blyp-hono`: `blyp-js/hono`, middleware on `"*"`, and `context.get("blypLog")`
+- `blyp-elysia`: `blyp-js/elysia` and `ctx.log`
+- `blyp-workers`: Workers-only logging with `initWorkersLogger()`, `createWorkersLogger()`, and manual `emit()`
+- `blyp-client-expo`: browser and Expo logging, delivery queues, and connector forwarding requests through Blyp
+- `blyp-posthog`: `connectors.posthog`, auto or manual mode, and error tracking
+- `blyp-sentry`: `connectors.sentry`, auto or manual mode, and existing client reuse
+- `blyp-otlp`: named OTLP targets and explicit connector names for manual or client forwarding
+
+## Read next
+
+- [Core skill](/docs/skills/core)
+- [Integrations](/docs/integrations)
+- [Connectors](/docs/connectors)
+- [Configuration](/docs/configuration)

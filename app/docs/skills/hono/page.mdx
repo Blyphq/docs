@@ -1,0 +1,35 @@
+---
+title: "Hono"
+description: "Blyp skill preset for Hono middleware, context.get(\"blypLog\"), and automatic ingestion interception."
+icon: "hono"
+order: 4
+---
+
+import { SkillInstall } from "@/app/components/skill-install";
+import { SkillSource } from "@/app/components/skill-source";
+
+# Blyp Hono
+
+Install `blyp-hono` after `blyp-core` when the server uses Hono. This preset keeps agents on the official Hono adapter path, mounts middleware on `"*"`, and uses `context.get("blypLog")` for request logging.
+
+## When to install it
+
+- the repo runs a Hono server
+- request handlers need Blyp request logs
+- client ingestion is enabled in a Hono app
+
+## What it covers
+
+- `createLogger()` from `blyp-js/hono`
+- middleware on `"*"`
+- `context.get("blypLog")`
+- automatic interception of the configured ingestion path when enabled
+
+<SkillInstall slug="hono" />
+
+## Related docs
+
+- [Hono](/docs/integrations/hono)
+- [Client](/docs/integrations/client)
+
+<SkillSource slug="hono" />

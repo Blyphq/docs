@@ -1,0 +1,37 @@
+---
+title: "Core"
+description: "Base Blyp skill for package install, config files, /inngest ingestion, and safe runtime selection."
+icon: "skills"
+order: 1
+---
+
+import { SkillInstall } from "@/app/components/skill-install";
+import { SkillSource } from "@/app/components/skill-source";
+
+# Blyp Core
+
+Install `blyp-core` in any repo where an agent may add or change Blyp usage. It covers the non-negotiable Blyp baseline: install `blyp-js`, pick the right runtime export, prefer `blyp.config.*` for shared settings, and keep client ingestion aligned with `/inngest` unless the project has an intentional override.
+
+## When to install it
+
+- before any other Blyp skill
+- when the repo is adding Blyp for the first time
+- when an agent needs shared guidance for config, ingestion, or connector prerequisites
+
+## What it covers
+
+- package install and export selection
+- supported `blyp.config.*` file names
+- default client ingestion path at `/inngest`
+- browser and Expo connector requests flowing through Blyp first
+- production-safe defaults over demo-only snippets
+
+<SkillInstall slug="core" />
+
+## Related docs
+
+- [Configuration](/docs/configuration)
+- [Installation](/docs/installation)
+- [Client](/docs/integrations/client)
+
+<SkillSource slug="core" />

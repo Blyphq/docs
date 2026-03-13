@@ -1,0 +1,35 @@
+---
+title: "Express"
+description: "Blyp skill preset for Express middleware, req.blypLog, and error middleware ordering."
+icon: "express"
+order: 3
+---
+
+import { SkillInstall } from "@/app/components/skill-install";
+import { SkillSource } from "@/app/components/skill-source";
+
+# Blyp Express
+
+Install `blyp-express` after `blyp-core` when the application runs on Express. This preset focuses on correct middleware order, `req.blypLog`, and making sure `createExpressErrorLogger()` runs before the final error responder.
+
+## When to install it
+
+- Blyp is mounted in an Express app or router
+- handlers need request-scoped logging via `req.blypLog`
+- the app needs reliable `http_error` emission for thrown errors
+
+## What it covers
+
+- `createLogger()` middleware
+- `req.blypLog`
+- `createExpressErrorLogger()`
+- safe Express error middleware ordering
+
+<SkillInstall slug="express" />
+
+## Related docs
+
+- [Express](/docs/integrations/express)
+- [Configuration](/docs/configuration)
+
+<SkillSource slug="express" />

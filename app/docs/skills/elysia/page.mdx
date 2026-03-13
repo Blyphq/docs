@@ -1,0 +1,34 @@
+---
+title: "Elysia"
+description: "Blyp skill preset for Elysia plugin setup and ctx.log request logging."
+icon: "elysia"
+order: 5
+---
+
+import { SkillInstall } from "@/app/components/skill-install";
+import { SkillSource } from "@/app/components/skill-source";
+
+# Blyp Elysia
+
+Install `blyp-elysia` after `blyp-core` when the application uses Elysia. This preset tells agents to integrate Blyp as an Elysia plugin and keep request-scoped logs on `ctx.log`.
+
+## When to install it
+
+- the repo uses Elysia
+- Blyp should be mounted through `.use(createLogger(...))`
+- handlers need request-scoped logging via `ctx.log`
+
+## What it covers
+
+- `createLogger()` from `blyp-js/elysia`
+- plugin mounting with `.use(...)`
+- request-scoped logging through `ctx.log`
+
+<SkillInstall slug="elysia" />
+
+## Related docs
+
+- [Elysia](/docs/integrations/elysia)
+- [Configuration](/docs/configuration)
+
+<SkillSource slug="elysia" />

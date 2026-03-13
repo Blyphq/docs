@@ -1,0 +1,35 @@
+---
+title: "Next.js"
+description: "Blyp skill preset for Next.js App Router route handlers and client ingestion."
+icon: "nextjs"
+order: 2
+---
+
+import { SkillInstall } from "@/app/components/skill-install";
+import { SkillSource } from "@/app/components/skill-source";
+
+# Blyp Next.js
+
+Install `blyp-nextjs` after `blyp-core` when the project uses Next.js App Router. This preset tells agents to import from `blyp-js/nextjs`, wrap route handlers with `withLogger(...)`, and mount `clientLogHandler` on the exact configured ingestion path.
+
+## When to install it
+
+- the repo logs inside `app/**/route.ts`
+- Blyp browser ingestion is exposed through a Next.js route
+- route handlers need request-scoped logging via the injected `log`
+
+## What it covers
+
+- `createLogger()` from `blyp-js/nextjs`
+- `withLogger(...)` wrapper usage
+- `clientLogHandler` mounting
+- `500` mismatch behavior when the mounted path and configured path diverge
+
+<SkillInstall slug="nextjs" />
+
+## Related docs
+
+- [Next.js App Router](/docs/integrations/nextjs)
+- [Client](/docs/integrations/client)
+
+<SkillSource slug="nextjs" />

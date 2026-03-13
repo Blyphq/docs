@@ -1,0 +1,36 @@
+---
+title: "Sentry"
+description: "Blyp skill preset for connectors.sentry, auto and manual modes, and reuse of existing Sentry initialization."
+icon: "link"
+order: 9
+---
+
+import { SkillInstall } from "@/app/components/skill-install";
+import { SkillSource } from "@/app/components/skill-source";
+
+# Blyp Sentry
+
+Install `blyp-sentry` after `blyp-core` when Blyp needs to forward logs or structured events into Sentry. This preset tells agents to configure `connectors.sentry`, choose an explicit mode, and avoid replacing an app-level Sentry client Blyp can reuse.
+
+## When to install it
+
+- the repo configures `connectors.sentry`
+- Blyp events should reach Sentry Logs
+- browser or Expo code requests `connector: "sentry"`
+
+## What it covers
+
+- `connectors.sentry`
+- auto vs manual mode
+- reuse of an existing Sentry client
+- client and Expo forwarding through Blyp first
+
+<SkillInstall slug="sentry" />
+
+## Related docs
+
+- [Sentry](/docs/connectors/sentry)
+- [Client](/docs/integrations/client)
+- [Expo](/docs/integrations/expo)
+
+<SkillSource slug="sentry" />

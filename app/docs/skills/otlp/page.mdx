@@ -1,0 +1,36 @@
+---
+title: "OTLP"
+description: "Blyp skill preset for named OTLP targets, auto and manual delivery, and explicit connector names in client forwarding requests."
+icon: "link"
+order: 10
+---
+
+import { SkillInstall } from "@/app/components/skill-install";
+import { SkillSource } from "@/app/components/skill-source";
+
+# Blyp OTLP
+
+Install `blyp-otlp` after `blyp-core` when Blyp should forward logs into Grafana, Datadog, Honeycomb, or another OTLP-compatible backend. This preset keeps agents on the named-target model used by `connectors.otlp`.
+
+## When to install it
+
+- the repo configures one or more OTLP connectors
+- manual OTLP logging is needed
+- browser or Expo code requests a named OTLP target through Blyp
+
+## What it covers
+
+- `connectors.otlp` as a named array
+- auto vs manual mode
+- required target names for manual APIs
+- explicit OTLP connector names in client or Expo requests
+
+<SkillInstall slug="otlp" />
+
+## Related docs
+
+- [OTLP](/docs/connectors/otlp)
+- [Client](/docs/integrations/client)
+- [Expo](/docs/integrations/expo)
+
+<SkillSource slug="otlp" />

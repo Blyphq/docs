@@ -1,0 +1,34 @@
+---
+title: "Cloudflare Workers"
+description: "Blyp skill preset for Workers-specific logging with initWorkersLogger(), createWorkersLogger(), and manual emit()."
+icon: "workers"
+order: 6
+---
+
+import { SkillInstall } from "@/app/components/skill-install";
+import { SkillSource } from "@/app/components/skill-source";
+
+# Blyp Workers
+
+Install `blyp-workers` after `blyp-core` when the runtime is Cloudflare Workers. This preset deliberately overrides Node.js and Bun assumptions: there is no `blyp.config.*`, no file logging, no auto client ingestion, and request emission is manual.
+
+## When to install it
+
+- the runtime is Cloudflare Workers
+- request logs are emitted manually with `emit()`
+- the implementation needs worker-scoped setup plus per-request loggers
+
+## What it covers
+
+- `initWorkersLogger()`
+- `createWorkersLogger(request)`
+- manual `emit({ response })` and `emit({ error })`
+- Workers limitations around config files, file logging, and client ingestion
+
+<SkillInstall slug="workers" />
+
+## Related docs
+
+- [Cloudflare Workers](/docs/integrations/workers)
+
+<SkillSource slug="workers" />

@@ -2,6 +2,7 @@ import { defineDocs } from "@farming-labs/docs";
 import { fumadocs } from "@farming-labs/theme";
 import {
   BookOpen,
+  Bot,
   Code,
   Database,
   FileText,
@@ -79,6 +80,7 @@ export default defineDocs({
     tanstack: logoIcon("/logos/tanstack-start.png", "TanStack"),
     database: <Database size={16} />,
     code: <Code size={16} />,
+    skills: <Bot size={16} />,
   },
   sidebar: {
     flat: false,
