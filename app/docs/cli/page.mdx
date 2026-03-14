@@ -1,0 +1,57 @@
+---
+title: "CLI"
+description: "Use the Blyp CLI for Studio, environment checks, and project skill installation."
+icon: "terminal"
+order: 3
+---
+
+# CLI
+
+Blyp now has a separate CLI project for local developer workflows.
+
+- GitHub: [Blyphq/cli](https://github.com/Blyphq/cli)
+- npm: [`@blyp/cli`](https://www.npmjs.com/package/@blyp/cli)
+
+The CLI repository documents the package as `@blyp/cli`, while the executable command is `blyphq`.
+
+## What it does
+
+The current CLI README describes `blyphq` as the local entrypoint for:
+
+- launching Blyp Studio for a target project
+- printing runtime and workspace diagnostics
+- installing Blyp skills into a project-local `.agents/skills` directory
+
+## Commands
+
+### `blyphq studio [targetPath]`
+
+Starts or reuses the local Studio app for the target project. If `targetPath` is omitted, the current directory is used.
+
+### `blyphq health`
+
+Prints runtime details such as the current directory, runtime versions, detected workspace root, and the Studio web app path.
+
+### `blyphq skills install [source-or-skill-name] [--force]`
+
+Installs a local skill folder, installs a bundled skill by name, or opens the bundled skill picker.
+
+Installed skills are copied into:
+
+```text
+./.agents/skills/<skill-name>
+```
+
+### `blyphq help`
+
+Shows command usage.
+
+### `blyphq --version`
+
+Prints the CLI version.
+
+## Notes
+
+- The CLI lives in a separate repository from `blyp-js`.
+- The published command name is `blyphq`.
+- The CLI README also documents a local Studio app that runs on `http://localhost:3003`.

@@ -1,6 +1,6 @@
 ---
 title: "Connectors"
-description: "Forward Blyp logs and structured events to PostHog, Sentry, and OTLP backends across server, browser, and Expo runtimes."
+description: "Forward Blyp logs and structured events to Better Stack, PostHog, Sentry, and OTLP backends across supported runtimes."
 icon: "link"
 order: 8
 ---
@@ -9,8 +9,9 @@ order: 8
 
 Connectors let Blyp forward logs beyond the local console, files, or request logger pipeline.
 
-In `blyp-js@0.1.02`, Blyp ships first-party connector support for:
+Blyp ships first-party connector support for:
 
+- Better Stack
 - [PostHog](/docs/connectors/posthog)
 - [Sentry](/docs/connectors/sentry)
 - [OTLP](/docs/connectors/otlp)
@@ -35,13 +36,14 @@ Each server-side connector supports two modes:
 
 The dedicated helper entry points are:
 
+- `blyp-js/betterstack`
 - `blyp-js/posthog`
 - `blyp-js/sentry`
 - `blyp-js/otlp`
 
 ## Client and Expo connector requests
 
-Browser and Expo loggers do not talk directly to PostHog, Sentry, or OTLP vendor SDKs. They request forwarding through Blyp ingestion instead.
+Browser and Expo loggers do not talk directly to Better Stack, PostHog, Sentry, or OTLP vendor SDKs. They request forwarding through Blyp ingestion instead.
 
 ```ts
 import { createClientLogger } from "blyp-js/client";

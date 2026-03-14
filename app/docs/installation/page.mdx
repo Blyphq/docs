@@ -51,11 +51,12 @@ Blyp ships one package, but framework adapters rely on the framework you already
 
 ## Published subpaths
 
-These are the package exports exposed by `blyp-js@0.1.02`:
+These are the package exports covered by the current docs:
 
 - `blyp-js`
 - `blyp-js/standalone`
 - `blyp-js/client`
+- `blyp-js/betterstack`
 - `blyp-js/posthog`
 - `blyp-js/sentry`
 - `blyp-js/otlp`
@@ -69,6 +70,21 @@ These are the package exports exposed by `blyp-js@0.1.02`:
 - `blyp-js/tanstack-start`
 - `blyp-js/sveltekit`
 - `blyp-js/workers`
+
+## CLI
+
+Blyp now also has a separate CLI repository. The CLI repo documents the package as `@blyp/cli`, and the executable command is `blyphq`.
+
+- GitHub: [Blyphq/cli](https://github.com/Blyphq/cli)
+- npm: [`@blyp/cli`](https://www.npmjs.com/package/@blyp/cli)
+
+The CLI README currently documents these commands:
+
+- `blyphq studio [targetPath]`
+- `blyphq health`
+- `blyphq skills install [source-or-skill-name] [--force]`
+- `blyphq help`
+- `blyphq --version`
 
 ## Bootstrapped local config
 

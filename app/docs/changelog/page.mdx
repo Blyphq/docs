@@ -13,4 +13,33 @@ Track what shipped in each Blyp release. This page reads the published release s
 
 GitHub Releases remain the source of truth for version publishing and the original release-note text.
 
+## Pending upstream sync: `blyp-js v0.1.03`
+
+> As of March 14, 2026, the public GitHub Releases feed below still ends at `v0.1.02`, and npm still reports `blyp-js@0.1.2` as the latest published package. This `v0.1.03` entry is documented here ahead of that upstream sync.
+
+This release adds Better Stack integration, introduces the new Blyp CLI, improves compression performance, and fixes TypeScript issues in the NestJS and HTTP error code APIs.
+
+### What's new
+
+- Added Better Stack connector support and logger exports.
+- Added Better Stack error tracking and exception capture helpers.
+- We now have a CLI:
+  - GitHub: [Blyphq/cli](https://github.com/Blyphq/cli)
+  - npm: [`@blyp/cli`](https://www.npmjs.com/package/@blyp/cli)
+
+### Performance
+
+- Compression is now 80% smaller.
+- Compression is now 20x faster.
+
+### Fixes
+
+- Fixed NestJS type imports for the logger state used by the exception filter, interceptor, and middleware.
+- Tightened `HTTP_CODES` registry typings so built-in presets like `BAD_REQUEST` and `NOT_FOUND` resolve cleanly during type-checking.
+- Restored clean `tsc --noEmit` output.
+
+### Notes
+
+- Version bumped to `0.1.03`.
+
 <ChangelogFeed />
