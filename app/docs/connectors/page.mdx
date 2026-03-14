@@ -11,7 +11,7 @@ Connectors let Blyp forward logs beyond the local console, files, or request log
 
 Blyp ships first-party connector support for:
 
-- Better Stack
+- [Better Stack](/docs/connectors/betterstack)
 - [PostHog](/docs/connectors/posthog)
 - [Sentry](/docs/connectors/sentry)
 - [OTLP](/docs/connectors/otlp)
@@ -53,6 +53,11 @@ const posthogClient = createClientLogger({
   connector: "posthog",
 });
 
+const betterStackClient = createClientLogger({
+  endpoint: "/inngest",
+  connector: "betterstack",
+});
+
 const sentryClient = createClientLogger({
   endpoint: "/inngest",
   connector: "sentry",
@@ -80,6 +85,7 @@ Blyp now loads configuration from any of these files in your project root:
 
 ## Read next
 
+- [Better Stack](/docs/connectors/betterstack)
 - [PostHog](/docs/connectors/posthog)
 - [Sentry](/docs/connectors/sentry)
 - [OTLP](/docs/connectors/otlp)

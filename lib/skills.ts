@@ -10,6 +10,7 @@ export type SkillPreset = {
     | "elysia"
     | "workers"
     | "client-expo"
+    | "betterstack"
     | "posthog"
     | "sentry"
     | "otlp";
@@ -121,6 +122,20 @@ export const skillPresets: SkillPreset[] = [
     relatedLabel: "Client and Expo",
     docsPath: "/docs/skills/client-expo",
     rawPath: "/skills/blyp-client-expo/SKILL.md",
+  },
+  {
+    slug: "betterstack",
+    skillId: "blyp-betterstack",
+    title: "Better Stack",
+    category: "connector",
+    coverage:
+      "connectors.betterstack, auto/manual log forwarding, and Better Stack error tracking",
+    whenToInstall:
+      "Install when the codebase forwards Blyp logs or handled errors into Better Stack.",
+    relatedHref: "/docs/connectors/betterstack",
+    relatedLabel: "Better Stack",
+    docsPath: "/docs/skills/betterstack",
+    rawPath: "/skills/blyp-betterstack/SKILL.md",
   },
   {
     slug: "posthog",

@@ -1,0 +1,119 @@
+---
+title: "Better Stack"
+description: "Use Blyp's Better Stack connector for automatic log forwarding, manual helper APIs, and Better Stack error tracking."
+icon: "link"
+order: 1
+---
+
+# Better Stack
+
+Blyp's Better Stack connector covers two related server-side flows:
+
+- log forwarding into Better Stack Logs through `@logtail/node`
+- exception capture into Better Stack error tracking through the Sentry SDK
+
+## Config
+
+Configure Better Stack under `connectors.betterstack`:
+
+```ts
+export default {
+  connectors: {
+    betterstack: {
+      enabled: true,
+      mode: "auto",
+      sourceToken: process.env.SOURCE_TOKEN,
+      ingestingHost: process.env.INGESTING_HOST,
+      serviceName: "api",
+      errorTracking: {
+        enabled: true,
+        dsn: process.env.BETTERSTACK_ERROR_TRACKING_DSN,
+        tracesSampleRate: 1.0,
+        environment: process.env.NODE_ENV,
+        release: "2026.03.11",
+      },
+    },
+  },
+};
+```
+
+## Config fields
+
+- `enabled`: enables Better Stack delivery
+- `mode`: `auto` or `manual` for server log forwarding
+- `sourceToken`: Better Stack source token for log delivery
+- `ingestingHost`: absolute `http://` or `https://` Better Stack ingest URL
+- `serviceName`: defaults to `blyp-app`
+- `errorTracking.enabled`: enables Better Stack error tracking and defaults to the connector `enabled` value
+- `errorTracking.dsn`: Better Stack error tracking DSN
+- `errorTracking.tracesSampleRate`: defaults to `1.0`
+- `errorTracking.environment`: optional Sentry environment value used for Better Stack error tracking
+- `errorTracking.release`: optional release string
+
+## Automatic server forwarding
+
+When `mode: "auto"` is enabled and the connector is ready, Blyp server logs forward into Better Stack automatically.
+
+If `errorTracking.dsn` is configured, Blyp also captures handled server errors into Better Stack error tracking automatically.
+
+## Manual APIs
+
+Use `blyp-js/betterstack` when you want explicit control:
+
+```ts
+import {
+  captureBetterStackException,
+  createBetterStackErrorTracker,
+  createBetterStackLogger,
+  createStructuredBetterStackLogger,
+} from "blyp-js/betterstack";
+
+createBetterStackLogger().info("manual better stack log");
+
+createBetterStackErrorTracker().capture(
+  new Error("manual better stack exception")
+);
+
+captureBetterStackException(new Error("wrapped better stack exception"), {
+  context: {
+    feature: "checkout",
+  },
+});
+
+const structured = createStructuredBetterStackLogger("checkout", {
+  orderId: "ord_123",
+});
+
+structured.info("manual start");
+structured.emit({ status: 200 });
+```
+
+## Browser and Expo forwarding
+
+Browser and Expo do not use Better Stack SDKs directly. They request forwarding through Blyp ingestion:
+
+```ts
+const logger = createClientLogger({
+  endpoint: "/inngest",
+  connector: "betterstack",
+});
+```
+
+```ts
+const logger = createExpoLogger({
+  endpoint: "https://api.example.com/inngest",
+  connector: "betterstack",
+});
+```
+
+Client `error` and `critical` logs requested through the Better Stack connector are promoted into Better Stack exceptions when server-side Better Stack error tracking is configured.
+
+## Notes
+
+- `ingestingHost` must be a full absolute `http://` or `https://` URL
+- Blyp does not auto-read `SOURCE_TOKEN` or `INGESTING_HOST`; wire them through `blyp.config.*` explicitly
+- if `@sentry/node` is already initialized, Blyp reuses the existing Sentry client for Better Stack error tracking
+- if that existing Sentry client uses different DSN, environment, or release options, Blyp warns and keeps the existing client
+- browser and Expo still post to Blyp first
+- browser and Expo do not use `@logtail/browser` directly
+- Workers remain out of scope for this connector

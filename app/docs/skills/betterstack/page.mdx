@@ -1,0 +1,38 @@
+---
+title: "Better Stack"
+description: "Blyp skill preset for connectors.betterstack, auto and manual log forwarding, and Better Stack error tracking."
+icon: "link"
+order: 8
+---
+
+import { SkillInstall } from "@/app/components/skill-install";
+import { SkillSource } from "@/app/components/skill-source";
+
+# Blyp Better Stack
+
+Install `blyp-betterstack` after `blyp-core` when Blyp logs or handled errors must flow into Better Stack. This preset keeps agents on the official `connectors.betterstack` model, including `mode: "auto"` or `mode: "manual"` for log forwarding and Better Stack error tracking through the Sentry SDK.
+
+## When to install it
+
+- the repo configures `connectors.betterstack`
+- logs should flow into Better Stack Logs
+- Blyp-managed handled errors should flow into Better Stack error tracking
+- browser or Expo code requests `connector: "betterstack"`
+
+## What it covers
+
+- `connectors.betterstack`
+- auto vs manual log forwarding
+- Better Stack error tracking configuration
+- reuse of an existing Sentry client when Better Stack error tracking is enabled
+- client and Expo forwarding through Blyp first
+
+<SkillInstall slug="betterstack" />
+
+## Related docs
+
+- [Better Stack](/docs/connectors/betterstack)
+- [Client](/docs/integrations/client)
+- [Expo](/docs/integrations/expo)
+
+<SkillSource slug="betterstack" />
