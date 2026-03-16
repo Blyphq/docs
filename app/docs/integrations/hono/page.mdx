@@ -7,11 +7,11 @@ order: 2
 
 # Hono
 
-Import from `blyp-js/hono`.
+Import from `@blyp/core/hono`.
 
 ```ts
 import { Hono } from "hono";
-import { createLogger } from "blyp-js/hono";
+import { createLogger } from "@blyp/core/hono";
 
 const app = new Hono();
 
@@ -38,5 +38,5 @@ app.get("/hello", (context) => {
 import type {
   HonoLoggerConfig,
   HonoLoggerVariables,
-} from "blyp-js/hono";
+} from "@blyp/core/hono";
 ```

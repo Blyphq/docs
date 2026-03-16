@@ -58,7 +58,7 @@ If `errorTracking.dsn` is configured, Blyp also captures handled server errors i
 
 ## Manual APIs
 
-Use `blyp-js/betterstack` when you want explicit control:
+Use `@blyp/core/betterstack` when you want explicit control:
 
 ```ts
 import {
@@ -66,7 +66,7 @@ import {
   createBetterStackErrorTracker,
   createBetterStackLogger,
   createStructuredBetterStackLogger,
-} from "blyp-js/betterstack";
+} from "@blyp/core/betterstack";
 
 createBetterStackLogger().info("manual better stack log");
 

@@ -52,7 +52,7 @@ export const skillPresets: SkillPreset[] = [
     category: "integration",
     coverage: "Next.js App Router routes with withLogger() and clientLogHandler",
     whenToInstall:
-      "Install when the codebase uses Next.js App Router and imports from blyp-js/nextjs.",
+      "Install when the codebase uses Next.js App Router and imports from @blyp/core/nextjs.",
     relatedHref: "/docs/integrations/nextjs",
     relatedLabel: "Next.js App Router",
     docsPath: "/docs/skills/nextjs",
@@ -78,7 +78,7 @@ export const skillPresets: SkillPreset[] = [
     category: "integration",
     coverage: "Hono middleware, context.get(\"blypLog\"), and ingestion interception",
     whenToInstall:
-      "Install when the app uses Hono middleware and request logging via blyp-js/hono.",
+      "Install when the app uses Hono middleware and request logging via @blyp/core/hono.",
     relatedHref: "/docs/integrations/hono",
     relatedLabel: "Hono",
     docsPath: "/docs/skills/hono",

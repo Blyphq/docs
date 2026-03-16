@@ -10,7 +10,7 @@ import { SkillSource } from "@/app/components/skill-source";
 
 # Blyp Next.js
 
-Install `blyp-nextjs` after `blyp-core` when the project uses Next.js App Router. This preset tells agents to import from `blyp-js/nextjs`, wrap route handlers with `withLogger(...)`, and mount `clientLogHandler` on the exact configured ingestion path.
+Install `blyp-nextjs` after `blyp-core` when the project uses Next.js App Router. This preset tells agents to import from `@blyp/core/nextjs`, wrap route handlers with `withLogger(...)`, and mount `clientLogHandler` on the exact configured ingestion path.
 
 ## When to install it
 
@@ -20,7 +20,7 @@ Install `blyp-nextjs` after `blyp-core` when the project uses Next.js App Router
 
 ## What it covers
 
-- `createLogger()` from `blyp-js/nextjs`
+- `createLogger()` from `@blyp/core/nextjs`
 - `withLogger(...)` wrapper usage
 - `clientLogHandler` mounting
 - `500` mismatch behavior when the mounted path and configured path diverge

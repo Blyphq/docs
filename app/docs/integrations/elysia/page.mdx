@@ -7,11 +7,11 @@ order: 1
 
 # Elysia
 
-Import from `blyp-js/elysia`.
+Import from `@blyp/core/elysia`.
 
 ```ts
 import { Elysia } from "elysia";
-import { createLogger } from "blyp-js/elysia";
+import { createLogger } from "@blyp/core/elysia";
 
 const app = new Elysia()
   .use(createLogger({
@@ -42,5 +42,5 @@ import type {
   ElysiaLoggerConfig,
   ElysiaContext,
   ResolveCtx,
-} from "blyp-js/elysia";
+} from "@blyp/core/elysia";
 ```

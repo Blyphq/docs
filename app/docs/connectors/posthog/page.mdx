@@ -54,7 +54,7 @@ When `errorTracking.mode: "auto"` is enabled, Blyp handled server errors can als
 
 ## Manual APIs
 
-Use `blyp-js/posthog` when you want explicit control:
+Use `@blyp/core/posthog` when you want explicit control:
 
 ```ts
 import {
@@ -62,7 +62,7 @@ import {
   createPosthogErrorTracker,
   createPosthogLogger,
   createStructuredPosthogLogger,
-} from "blyp-js/posthog";
+} from "@blyp/core/posthog";
 
 createPosthogLogger().info("manual posthog log");
 

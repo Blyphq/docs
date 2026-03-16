@@ -1,6 +1,6 @@
 ---
 name: blyp-express
-description: Portable Blyp add-on skill for Express apps using blyp-js/express, req.blypLog, and createExpressErrorLogger() in the correct middleware order.
+description: Portable Blyp add-on skill for Express apps using @blyp/core/express, req.blypLog, and createExpressErrorLogger() in the correct middleware order.
 ---
 
 # Blyp Express
@@ -19,14 +19,14 @@ Use this add-on when the project runs on Express and needs Blyp middleware, requ
 ## Blyp-specific rules and constraints
 
 - Install `blyp-core` first.
-- Import from `blyp-js/express`.
+- Import from `@blyp/core/express`.
 - Use `createLogger()` as standard Express middleware.
 - Use `req.blypLog` for request-scoped logging.
 - `createExpressErrorLogger()` must run before the app's final error handler so Blyp can capture thrown errors on `res.locals`.
 
 ## Required implementation steps
 
-1. Import `createLogger` and `createExpressErrorLogger` from `blyp-js/express`.
+1. Import `createLogger` and `createExpressErrorLogger` from `@blyp/core/express`.
 2. Mount `createLogger(...)` before routes that need request-scoped logging.
 3. Replace ad hoc request log access with `req.blypLog`.
 4. If browser ingestion is enabled, keep the configured path aligned with the mounted Blyp middleware behavior.
@@ -35,7 +35,7 @@ Use this add-on when the project runs on Express and needs Blyp middleware, requ
 
 ## Verification checklist
 
-- The server imports from `blyp-js/express`
+- The server imports from `@blyp/core/express`
 - Routes log through `req.blypLog`
 - `createLogger()` runs before routes
 - `createExpressErrorLogger()` runs before the final error handler
@@ -43,6 +43,6 @@ Use this add-on when the project runs on Express and needs Blyp middleware, requ
 
 ## References
 
-- Import path: `blyp-js/express`
+- Import path: `@blyp/core/express`
 - Main APIs: `createLogger()`, `createExpressErrorLogger()`
 - Request logger: `req.blypLog`

@@ -14,7 +14,7 @@ Expo is a mobile/client integration rather than a server adapter. Use it when yo
 Install the package and the Expo network module:
 
 ```bash
-bun add blyp-js
+bun add @blyp/core
 ```
 
 ```bash
@@ -24,7 +24,7 @@ npx expo install expo-network
 ## Basic setup
 
 ```ts
-import { createExpoLogger } from "blyp-js/expo";
+import { createExpoLogger } from "@blyp/core/expo";
 
 const logger = createExpoLogger({
   endpoint: "https://api.example.com/inngest",
@@ -130,7 +130,7 @@ These hooks are useful when you want to monitor mobile delivery health, surface 
 
 ## Payload shape
 
-Expo emits a client log payload with the same base structure as `blyp-js/client`, but includes Expo-specific device data:
+Expo emits a client log payload with the same base structure as `@blyp/core/client`, but includes Expo-specific device data:
 
 ```ts
 {
@@ -164,7 +164,7 @@ import type {
   RemoteDeliverySuccessContext,
   RemoteDeliveryFailureContext,
   RemoteDeliveryDropContext,
-} from "blyp-js/expo";
+} from "@blyp/core/expo";
 ```
 
 Use [Connectors](/docs/connectors) for the corresponding server-side PostHog, Sentry, and OTLP setup.

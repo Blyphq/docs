@@ -12,7 +12,7 @@ Blyp exposes a full HTTP status registry through `HTTP_CODES`. The registry cove
 ## Basic usage
 
 ```ts
-import { HTTP_CODES } from "blyp-js";
+import { HTTP_CODES } from "@blyp/core";
 
 throw HTTP_CODES.NOT_FOUND.create();
 throw HTTP_CODES.BAD_REQUEST.create({
@@ -57,7 +57,7 @@ const CHECKOUT_INVALID_PAYMENT_AMOUNT = INVALID_PAYMENT_AMOUNT.extend({
 ## Look up a status dynamically
 
 ```ts
-import { getHttpCode } from "blyp-js";
+import { getHttpCode } from "@blyp/core";
 
 const preset = getHttpCode(429);
 

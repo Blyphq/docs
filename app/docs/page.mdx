@@ -34,29 +34,27 @@ See the [CLI docs](/docs/cli) for full Studio usage.
 
 Blyp also now has a separate CLI project for local developer workflows, documented in `Blyphq/cli` as `@blyp/cli` with the `blyp` command.
 
-The GitHub repository is `Blyphq/blyp`, but the published package name is `blyp-js`.
-
 ## What Blyp exports
 
 | Area | Import path | What you get |
 | --- | --- | --- |
-| Core logger + errors | `blyp-js` | `logger`, `createStandaloneLogger`, `createStructuredLog`, `createError`, `HTTP_CODES`, `parseError`, `readLogFile`, config/runtime helpers |
-| Browser logger | `blyp-js/client` | `createClientLogger`, browser-safe `parseError`, `ClientLogger` types |
-| Database adapters | `blyp-js/database` | `createPrismaDatabaseAdapter`, `createDrizzleDatabaseAdapter`, and database config types |
-| Connector helpers | `blyp-js/betterstack`, `blyp-js/posthog`, `blyp-js/sentry`, `blyp-js/otlp` | manual connector loggers, structured connector helpers, and provider-specific exception capture |
-| Framework adapters | `blyp-js/<framework>` | `createLogger()` or equivalent framework factory plus framework-specific types |
-| Workers | `blyp-js/workers` | `initWorkersLogger`, `createWorkersLogger`, Workers-specific request logger types |
+| Core logger + errors | `@blyp/core` | `logger`, `createStandaloneLogger`, `createStructuredLog`, `createError`, `HTTP_CODES`, `parseError`, `readLogFile`, config/runtime helpers |
+| Browser logger | `@blyp/core/client` | `createClientLogger`, browser-safe `parseError`, `ClientLogger` types |
+| Database adapters | `@blyp/core/database` | `createPrismaDatabaseAdapter`, `createDrizzleDatabaseAdapter`, and database config types |
+| Connector helpers | `@blyp/core/betterstack`, `@blyp/core/posthog`, `@blyp/core/sentry`, `@blyp/core/otlp` | manual connector loggers, structured connector helpers, and provider-specific exception capture |
+| Framework adapters | `@blyp/core/<framework>` | `createLogger()` or equivalent framework factory plus framework-specific types |
+| Workers | `@blyp/core/workers` | `initWorkersLogger`, `createWorkersLogger`, Workers-specific request logger types |
 
 ## Quick start
 
 ```bash
-bun add blyp-js
+bun add @blyp/core
 ```
 
-> The published npm package is `blyp-js`. The project, org, and tooling all use the name **Blyp**.
+> The published npm package is `@blyp/core`. The project, org, and tooling all use the name **Blyp**.
 
 ```ts
-import { logger, createError } from "blyp-js";
+import { logger, createError } from "@blyp/core";
 
 logger.info("server started");
 logger.success("cache warmed");
@@ -69,16 +67,16 @@ throw createError({
 
 ## Supported integrations
 
-- `blyp-js/elysia`
-- `blyp-js/expo`
-- `blyp-js/hono`
-- `blyp-js/express`
-- `blyp-js/fastify`
-- `blyp-js/nestjs`
-- `blyp-js/nextjs`
-- `blyp-js/tanstack-start`
-- `blyp-js/sveltekit`
-- `blyp-js/workers`
+- `@blyp/core/elysia`
+- `@blyp/core/expo`
+- `@blyp/core/hono`
+- `@blyp/core/express`
+- `@blyp/core/fastify`
+- `@blyp/core/nestjs`
+- `@blyp/core/nextjs`
+- `@blyp/core/tanstack-start`
+- `@blyp/core/sveltekit`
+- `@blyp/core/workers`
 
 ## Recommended reading order
 

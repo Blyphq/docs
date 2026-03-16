@@ -30,7 +30,7 @@ Use this add-on when Blyp forwards logs to Grafana Cloud, Datadog, Honeycomb, or
 1. Add or update the `connectors.otlp` array in `blyp.config.*`.
 2. For each target, set `name`, `enabled`, `mode`, and `endpoint`.
 3. Add `auth`, `headers`, or `serviceName` if required by the backend.
-4. If manual control is required, import from `blyp-js/otlp` and pass the target `name`.
+4. If manual control is required, import from `@blyp/core/otlp` and pass the target `name`.
 5. If browser or Expo code requests OTLP forwarding, use `{ type: "otlp", name: "<target>" }` and verify the named server connector exists.
 
 ## Verification checklist
@@ -44,5 +44,5 @@ Use this add-on when Blyp forwards logs to Grafana Cloud, Datadog, Honeycomb, or
 ## References
 
 - Config key: `connectors.otlp`
-- Manual import path: `blyp-js/otlp`
+- Manual import path: `@blyp/core/otlp`
 - Manual APIs: `createOtlpLogger()`, `createStructuredOtlpLogger()`

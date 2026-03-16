@@ -12,15 +12,15 @@ Each server adapter exports its own config and factory types from its subpath.
 ## Commonly used imports
 
 ```ts
-import type { ElysiaLoggerConfig, ElysiaContext } from "blyp-js/elysia";
-import type { HonoLoggerConfig, HonoLoggerVariables } from "blyp-js/hono";
-import type { ExpressLoggerConfig, ExpressLoggerMiddleware } from "blyp-js/express";
-import type { FastifyLoggerConfig, FastifyLoggerPlugin } from "blyp-js/fastify";
-import type { NestLoggerConfig, NestAdapterType } from "blyp-js/nestjs";
-import type { NextJsLoggerFactory, NextJsLoggerConfig } from "blyp-js/nextjs";
-import type { TanStackStartLoggerFactory } from "blyp-js/tanstack-start";
-import type { SvelteKitLoggerFactory } from "blyp-js/sveltekit";
-import type { WorkersLoggerConfig, WorkersRequestLogger } from "blyp-js/workers";
+import type { ElysiaLoggerConfig, ElysiaContext } from "@blyp/core/elysia";
+import type { HonoLoggerConfig, HonoLoggerVariables } from "@blyp/core/hono";
+import type { ExpressLoggerConfig, ExpressLoggerMiddleware } from "@blyp/core/express";
+import type { FastifyLoggerConfig, FastifyLoggerPlugin } from "@blyp/core/fastify";
+import type { NestLoggerConfig, NestAdapterType } from "@blyp/core/nestjs";
+import type { NextJsLoggerFactory, NextJsLoggerConfig } from "@blyp/core/nextjs";
+import type { TanStackStartLoggerFactory } from "@blyp/core/tanstack-start";
+import type { SvelteKitLoggerFactory } from "@blyp/core/sveltekit";
+import type { WorkersLoggerConfig, WorkersRequestLogger } from "@blyp/core/workers";
 ```
 
 ## `HttpRequestLog`
@@ -52,7 +52,7 @@ import {
   type StructuredLog,
   type StructuredLogEmitOptions,
   type StructuredLogPayload,
-} from "blyp-js";
+} from "@blyp/core";
 ```
 
 Inside a framework request, the emitted `StructuredLogPayload<TFields>` can also include request metadata such as `method`, `path`, `status`, and `duration`, plus anything returned by the adapter's `customProps(ctx)`.

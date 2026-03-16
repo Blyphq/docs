@@ -10,7 +10,7 @@ order: 12
 ## Runtime detection
 
 ```ts
-import { runtime, createRuntimeAdapter, createLogDir } from "blyp-js";
+import { runtime, createRuntimeAdapter, createLogDir } from "@blyp/core";
 
 console.log(runtime.type);   // "bun" or "node"
 console.log(runtime.isBun);  // boolean
@@ -36,7 +36,7 @@ import {
   getResponseTimeColor,
   getColoredLevel,
   colors,
-} from "blyp-js";
+} from "@blyp/core";
 ```
 
 These helpers power Blyp's pretty console output and are useful in custom CLIs or reporting tools.
@@ -57,7 +57,7 @@ import {
   resolveConfig,
   resetConfigCache,
   type ResolvedBlypConfig,
-} from "blyp-js";
+} from "@blyp/core";
 ```
 
 Use them when you want to inspect defaults, merge overrides manually, or reset config state in tests.
@@ -74,7 +74,7 @@ import {
   type DatabaseDialect,
   type DatabaseLoggerConfig,
   type ResolvedDatabaseLoggerConfig,
-} from "blyp-js/database";
+} from "@blyp/core/database";
 ```
 
 Use these when `destination: "database"` is the primary sink and you want typed adapter configuration for Prisma or Drizzle.
@@ -92,7 +92,7 @@ import {
   type StructuredLogEvent,
   type StructuredLogLevel,
   type StructuredLogPayload,
-} from "blyp-js";
+} from "@blyp/core";
 ```
 
 Use these when you want to type helper functions around batched request logs, inspect emitted payloads in tests, or build wrappers on top of Blyp's structured logging flow.

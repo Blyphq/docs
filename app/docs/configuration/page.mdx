@@ -112,7 +112,7 @@ Database mode requires an executable config file such as `blyp.config.ts`, `blyp
 
 ```ts
 import { PrismaClient } from "@prisma/client";
-import { createPrismaDatabaseAdapter } from "blyp-js/database";
+import { createPrismaDatabaseAdapter } from "@blyp/core/database";
 
 const prisma = new PrismaClient();
 
@@ -233,7 +233,7 @@ import {
   resolveConfig,
   resetConfigCache,
   type ResolvedBlypConfig,
-} from "blyp-js";
+} from "@blyp/core";
 ```
 
 `loadConfig()`, `resolveConfig()`, and `getConfig()` now return `ResolvedBlypConfig`, so the returned shape includes normalized defaults for `destination`, `file`, `clientLogging`, connector readiness, and database delivery.

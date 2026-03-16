@@ -19,7 +19,7 @@ It is the right fit when you need:
 ## Basic example
 
 ```ts
-import { createError } from "blyp-js";
+import { createError } from "@blyp/core";
 
 throw createError({
   status: 402,
@@ -116,7 +116,7 @@ try {
 If you repeat the same error shape in multiple places, promote it to a reusable preset with [HTTP Codes](/docs/errors/http-codes) instead of repeating `createError()` calls inline.
 
 ```ts
-import { HTTP_CODES } from "blyp-js";
+import { HTTP_CODES } from "@blyp/core";
 
 const INVALID_COUPON = HTTP_CODES.BAD_REQUEST.extend({
   code: "INVALID_COUPON",

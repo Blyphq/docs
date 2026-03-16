@@ -32,7 +32,7 @@ Database mode changes Blyp's primary sink from files to your database. Connector
 
 ```ts
 import { PrismaClient } from "@prisma/client";
-import { createPrismaDatabaseAdapter } from "blyp-js/database";
+import { createPrismaDatabaseAdapter } from "@blyp/core/database";
 
 const prisma = new PrismaClient();
 
@@ -51,7 +51,7 @@ export default {
 ## Drizzle example
 
 ```ts
-import { createDrizzleDatabaseAdapter } from "blyp-js/database";
+import { createDrizzleDatabaseAdapter } from "@blyp/core/database";
 import { db } from "./db";
 import { blypLogs } from "./db/schema/blyp";
 
@@ -134,8 +134,8 @@ bunx @blyp/cli db:generate
 
 Use:
 
-- `blyp-js/database` for adapter factories and database-specific types
-- `blyp-js` for config helpers such as `resolveConfig()` and `ResolvedBlypConfig`
+- `@blyp/core/database` for adapter factories and database-specific types
+- `@blyp/core` for config helpers such as `resolveConfig()` and `ResolvedBlypConfig`
 
 ## Related docs
 

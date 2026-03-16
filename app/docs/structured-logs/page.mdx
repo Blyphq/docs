@@ -14,13 +14,13 @@ Use `createStructuredLog()` when multiple log lines belong to one logical unit o
 `createStructuredLog` is a root export:
 
 ```ts
-import { createStructuredLog } from "blyp-js";
+import { createStructuredLog } from "@blyp/core";
 ```
 
 ## Standalone usage
 
 ```ts
-import { createStructuredLog } from "blyp-js";
+import { createStructuredLog } from "@blyp/core";
 
 const structuredLog = createStructuredLog("checkout", {
   service: "web-api",
@@ -45,7 +45,7 @@ Nothing is written until you call `.emit()`. The intermediate `info()`, `warn()`
 If you want the final payload to be strongly typed, pass a generic:
 
 ```ts
-import { createStructuredLog } from "blyp-js";
+import { createStructuredLog } from "@blyp/core";
 
 const structuredLog = createStructuredLog<{
   message: string;
@@ -105,7 +105,7 @@ import type {
   StructuredLogEmitOptions,
   StructuredLogEvent,
   StructuredLogPayload,
-} from "blyp-js";
+} from "@blyp/core";
 ```
 
 `StructuredLogPayload<TFields>` includes:

@@ -70,10 +70,10 @@ This first release covers **supported presets only**. It does not claim full cov
 ## What each preset gives agents
 
 - `blyp-core`: package install, runtime export selection, `blyp.config.*`, `/inngest`, and production-safe Blyp defaults
-- `blyp-nextjs`: `blyp-js/nextjs`, `withLogger(...)`, and `clientLogHandler`
-- `blyp-express`: `blyp-js/express`, `req.blypLog`, and `createExpressErrorLogger()`
-- `blyp-hono`: `blyp-js/hono`, middleware on `"*"`, and `context.get("blypLog")`
-- `blyp-elysia`: `blyp-js/elysia` and `ctx.log`
+- `blyp-nextjs`: `@blyp/core/nextjs`, `withLogger(...)`, and `clientLogHandler`
+- `blyp-express`: `@blyp/core/express`, `req.blypLog`, and `createExpressErrorLogger()`
+- `blyp-hono`: `@blyp/core/hono`, middleware on `"*"`, and `context.get("blypLog")`
+- `blyp-elysia`: `@blyp/core/elysia` and `ctx.log`
 - `blyp-workers`: Workers-only logging with `initWorkersLogger()`, `createWorkersLogger()`, and manual `emit()`
 - `blyp-client-expo`: browser and Expo logging, delivery queues, and connector forwarding requests through Blyp
 - `blyp-betterstack`: `connectors.betterstack`, auto or manual log forwarding, and Better Stack error tracking

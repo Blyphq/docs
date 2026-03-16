@@ -18,17 +18,17 @@ Blyp integrations cover browser logging, mobile transport, and server-side adapt
 
 | Framework | Import path | Main API | Where the logger is exposed |
 | --- | --- | --- | --- |
-| Client (Browser) | `blyp-js/client` | `createClientLogger()` | returned logger instance in the browser |
-| Elysia | `blyp-js/elysia` | `createLogger()` | `ctx.log` |
-| Expo | `blyp-js/expo` | `createExpoLogger()` | returned logger instance in the Expo app |
-| Hono | `blyp-js/hono` | `createLogger()` | `context.get("blypLog")` |
-| Express | `blyp-js/express` | `createLogger()` | `req.blypLog` |
-| Fastify | `blyp-js/fastify` | `createLogger()` | `request.blypLog` |
-| NestJS | `blyp-js/nestjs` | `createLogger()` + `BlypModule.forRoot()` | `req.blypLog` and root `logger` |
-| Next.js App Router | `blyp-js/nextjs` | `createLogger()` | `withLogger(..., { log })` |
-| TanStack Start | `blyp-js/tanstack-start` | `createLogger()` | `context.blypLog` |
-| SvelteKit | `blyp-js/sveltekit` | `createLogger()` | `event.locals.blypLog` |
-| Cloudflare Workers | `blyp-js/workers` | `initWorkersLogger()` + `createWorkersLogger()` | request-scoped logger returned per request |
+| Client (Browser) | `@blyp/core/client` | `createClientLogger()` | returned logger instance in the browser |
+| Elysia | `@blyp/core/elysia` | `createLogger()` | `ctx.log` |
+| Expo | `@blyp/core/expo` | `createExpoLogger()` | returned logger instance in the Expo app |
+| Hono | `@blyp/core/hono` | `createLogger()` | `context.get("blypLog")` |
+| Express | `@blyp/core/express` | `createLogger()` | `req.blypLog` |
+| Fastify | `@blyp/core/fastify` | `createLogger()` | `request.blypLog` |
+| NestJS | `@blyp/core/nestjs` | `createLogger()` + `BlypModule.forRoot()` | `req.blypLog` and root `logger` |
+| Next.js App Router | `@blyp/core/nextjs` | `createLogger()` | `withLogger(..., { log })` |
+| TanStack Start | `@blyp/core/tanstack-start` | `createLogger()` | `context.blypLog` |
+| SvelteKit | `@blyp/core/sveltekit` | `createLogger()` | `event.locals.blypLog` |
+| Cloudflare Workers | `@blyp/core/workers` | `initWorkersLogger()` + `createWorkersLogger()` | request-scoped logger returned per request |
 
 ## Shared server-adapter config shape
 

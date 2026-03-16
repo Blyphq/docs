@@ -1,6 +1,6 @@
 ---
 name: blyp-core
-description: Portable Blyp integration skill for installing blyp-js, choosing the right runtime export, configuring blyp.config.*, wiring /inngest ingestion, and keeping server, browser, and Expo logging production-safe.
+description: Portable Blyp integration skill for installing @blyp/core, choosing the right runtime export, configuring blyp.config.*, wiring /inngest ingestion, and keeping server, browser, and Expo logging production-safe.
 ---
 
 # Blyp Core
@@ -11,7 +11,7 @@ Use this skill whenever an agent needs to add, review, or change Blyp logging in
 
 ## When to use it
 
-- Installing `blyp-js` in a new project
+- Installing `@blyp/core` in a new project
 - Choosing the correct Blyp import path for the runtime
 - Adding or updating `blyp.config.*`
 - Enabling browser or Expo log ingestion
@@ -19,7 +19,7 @@ Use this skill whenever an agent needs to add, review, or change Blyp logging in
 
 ## Blyp-specific rules and constraints
 
-- The npm package name is `blyp-js`.
+- The npm package name is `@blyp/core`.
 - Always choose the subpath that matches the runtime instead of forcing the root package everywhere.
 - Prefer shared project config in `blyp.config.ts`, `blyp.config.mts`, `blyp.config.cts`, `blyp.config.js`, `blyp.config.mjs`, `blyp.config.cjs`, or `blyp.config.json`.
 - Default client ingestion path is `/inngest`.
@@ -30,12 +30,12 @@ Use this skill whenever an agent needs to add, review, or change Blyp logging in
 
 ## Required implementation steps
 
-1. Install `blyp-js` with the package manager already used by the repo.
+1. Install `@blyp/core` with the package manager already used by the repo.
 2. Identify the runtime and select the matching Blyp entry:
-   - `blyp-js` for root logger, standalone logger, config helpers, structured logs, and errors
-   - `blyp-js/client` for browser logging
-   - `blyp-js/expo` for Expo apps
-   - `blyp-js/<framework>` for framework adapters such as `nextjs`, `express`, `hono`, `elysia`, or `workers`
+   - `@blyp/core` for root logger, standalone logger, config helpers, structured logs, and errors
+   - `@blyp/core/client` for browser logging
+   - `@blyp/core/expo` for Expo apps
+   - `@blyp/core/<framework>` for framework adapters such as `nextjs`, `express`, `hono`, `elysia`, or `workers`
 3. Add or update `blyp.config.*` if the project needs shared log level, file logging, client ingestion, or connector configuration.
 4. If browser logging is enabled, keep the ingestion path aligned across config and server route mounting. Default to `/inngest` unless the repo already standardizes a different path.
 5. If connectors are involved, configure them on the server side first. Client and Expo requests depend on server connector configuration.
@@ -49,7 +49,7 @@ Use this skill whenever an agent needs to add, review, or change Blyp logging in
 
 ## Verification checklist
 
-- `blyp-js` is installed and imported from the correct subpath
+- `@blyp/core` is installed and imported from the correct subpath
 - Any shared Blyp settings live in a supported `blyp.config.*` file
 - Client ingestion uses the expected path, defaulting to `/inngest`
 - Browser or Expo connector requests are backed by server connector configuration
@@ -58,7 +58,7 @@ Use this skill whenever an agent needs to add, review, or change Blyp logging in
 
 ## References
 
-- Package: `blyp-js`
+- Package: `@blyp/core`
 - Config files: `blyp.config.ts`, `blyp.config.mts`, `blyp.config.cts`, `blyp.config.js`, `blyp.config.mjs`, `blyp.config.cjs`, `blyp.config.json`
 - Core imports: `logger`, `createStandaloneLogger`, `createStructuredLog`, `createError`, `parseError`
 - Related add-ons: `blyp-nextjs`, `blyp-express`, `blyp-hono`, `blyp-elysia`, `blyp-workers`, `blyp-client-expo`, `blyp-posthog`, `blyp-sentry`, `blyp-otlp`

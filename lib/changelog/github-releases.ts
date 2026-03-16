@@ -10,7 +10,7 @@ export const CHANGELOG_SOURCES: Record<GitHubReleaseSource["id"], GitHubReleaseS
   blyp: {
     id: "blyp",
     label: "Blyp",
-    packageName: "blyp-js",
+    packageName: "@blyp/core",
     apiUrl: "https://api.github.com/repos/Blyphq/blyp/releases",
     sourceUrl: "https://github.com/Blyphq/blyp/releases",
   },

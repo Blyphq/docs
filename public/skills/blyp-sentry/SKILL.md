@@ -29,7 +29,7 @@ Use this add-on when Blyp logs or structured events should be forwarded into Sen
 1. Add or update `connectors.sentry` in `blyp.config.*`.
 2. Set `enabled: true` and choose `mode: "auto"` or `mode: "manual"`.
 3. Provide `dsn` and optional `environment` or `release`.
-4. If manual control is required, import from `blyp-js/sentry`.
+4. If manual control is required, import from `@blyp/core/sentry`.
 5. If browser or Expo code requests `connector: "sentry"`, verify the server connector is configured first.
 
 ## Verification checklist
@@ -38,10 +38,10 @@ Use this add-on when Blyp logs or structured events should be forwarded into Sen
 - The connector mode is explicit
 - Existing app-level Sentry initialization is not accidentally replaced
 - Browser or Expo forwarding still targets Blyp ingestion first
-- Manual code imports from `blyp-js/sentry` when needed
+- Manual code imports from `@blyp/core/sentry` when needed
 
 ## References
 
 - Config key: `connectors.sentry`
-- Manual import path: `blyp-js/sentry`
+- Manual import path: `@blyp/core/sentry`
 - Manual APIs: `createSentryLogger()`, `createStructuredSentryLogger()`

@@ -31,7 +31,7 @@ Use this add-on when Blyp logs or errors should be forwarded into PostHog.
 2. Set `enabled: true` and choose `mode: "auto"` or `mode: "manual"`.
 3. Provide `projectKey` and optional `host` or `serviceName`.
 4. If the application wants Blyp-managed exception capture, configure `errorTracking`.
-5. If manual control is required, use `blyp-js/posthog` APIs instead of assuming auto delivery.
+5. If manual control is required, use `@blyp/core/posthog` APIs instead of assuming auto delivery.
 6. If browser or Expo code requests `connector: "posthog"`, verify the server connector is configured first.
 
 ## Verification checklist
@@ -40,10 +40,10 @@ Use this add-on when Blyp logs or errors should be forwarded into PostHog.
 - The chosen mode is explicit: `auto` or `manual`
 - Error tracking is configured intentionally when needed
 - Browser or Expo PostHog forwarding still targets Blyp ingestion first
-- Manual code imports from `blyp-js/posthog` when auto mode is not desired
+- Manual code imports from `@blyp/core/posthog` when auto mode is not desired
 
 ## References
 
 - Config key: `connectors.posthog`
-- Manual import path: `blyp-js/posthog`
+- Manual import path: `@blyp/core/posthog`
 - Manual APIs: `createPosthogLogger()`, `createStructuredPosthogLogger()`, `createPosthogErrorTracker()`, `capturePosthogException()`

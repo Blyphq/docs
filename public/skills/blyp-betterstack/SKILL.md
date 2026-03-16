@@ -33,7 +33,7 @@ Use this add-on when Blyp logs or handled errors should be forwarded into Better
 2. Set `enabled: true` and choose `mode: "auto"` or `mode: "manual"` for log forwarding.
 3. Provide `sourceToken`, `ingestingHost`, and optional `serviceName`.
 4. If the application wants Blyp-managed handled error capture, configure `errorTracking.dsn` and related options.
-5. If manual control is required, use `blyp-js/betterstack` APIs instead of assuming auto delivery.
+5. If manual control is required, use `@blyp/core/betterstack` APIs instead of assuming auto delivery.
 6. If browser or Expo code requests `connector: "betterstack"`, verify the server connector is configured first.
 
 ## Verification checklist
@@ -44,10 +44,10 @@ Use this add-on when Blyp logs or handled errors should be forwarded into Better
 - Better Stack error tracking is configured intentionally when needed
 - Existing app-level Sentry initialization is not accidentally replaced
 - Browser or Expo Better Stack forwarding still targets Blyp ingestion first
-- Manual code imports from `blyp-js/betterstack` when auto mode is not desired
+- Manual code imports from `@blyp/core/betterstack` when auto mode is not desired
 
 ## References
 
 - Config key: `connectors.betterstack`
-- Manual import path: `blyp-js/betterstack`
+- Manual import path: `@blyp/core/betterstack`
 - Manual APIs: `createBetterStackLogger()`, `createStructuredBetterStackLogger()`, `createBetterStackErrorTracker()`, `captureBetterStackException()`

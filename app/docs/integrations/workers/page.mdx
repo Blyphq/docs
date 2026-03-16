@@ -10,7 +10,7 @@ order: 9
 Workers use a separate API from the Node/Bun server adapters.
 
 ```ts
-import { initWorkersLogger, createWorkersLogger } from "blyp-js/workers";
+import { initWorkersLogger, createWorkersLogger } from "@blyp/core/workers";
 
 initWorkersLogger({
   env: { service: "my-worker" },
@@ -64,5 +64,5 @@ import type {
   WorkersLoggerConfig,
   WorkersEmitOptions,
   WorkersRequestLogger,
-} from "blyp-js/workers";
+} from "@blyp/core/workers";
 ```

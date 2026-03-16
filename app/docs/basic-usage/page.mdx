@@ -12,7 +12,7 @@ order: 3
 The root `logger` export is a proxy around a default standalone logger instance.
 
 ```ts
-import { logger } from "blyp-js";
+import { logger } from "@blyp/core";
 
 logger.info("server started");
 logger.success("worker ready");
@@ -57,7 +57,7 @@ paymentsLog.error("capture failed", { provider: "stripe" });
 Use `createStructuredLog()` when a request or workflow should produce one final structured payload instead of many unrelated lines.
 
 ```ts
-import { createStructuredLog } from "blyp-js";
+import { createStructuredLog } from "@blyp/core";
 
 const structuredLog = createStructuredLog("checkout", {
   service: "web-api",
@@ -76,7 +76,7 @@ This is especially useful inside framework handlers because the same root import
 If you need a logger with different level, output directory, or file options, create an instance explicitly.
 
 ```ts
-import { createStandaloneLogger } from "blyp-js";
+import { createStandaloneLogger } from "@blyp/core";
 
 const log = createStandaloneLogger({
   level: "debug",
@@ -91,16 +91,16 @@ const log = createStandaloneLogger({
 log.info("standalone logger ready");
 ```
 
-## Root import vs `blyp-js/standalone`
+## Root import vs `@blyp/core/standalone`
 
 Both of these are valid:
 
 ```ts
-import { logger, createStandaloneLogger } from "blyp-js";
+import { logger, createStandaloneLogger } from "@blyp/core";
 ```
 
 ```ts
-import type { StandaloneLogger, StandaloneLoggerConfig } from "blyp-js/standalone";
+import type { StandaloneLogger, StandaloneLoggerConfig } from "@blyp/core/standalone";
 ```
 
 Use the root import for app code and the subpath import when you specifically want standalone type surfaces.

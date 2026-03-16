@@ -21,7 +21,7 @@ That usually means:
 The root `parseError()` accepts payload-like objects and normalizes them into a `BlypError`.
 
 ```ts
-import { parseError } from "blyp-js";
+import { parseError } from "@blyp/core";
 
 const error = parseError({
   error: {
@@ -37,7 +37,7 @@ throw error;
 ## Parse a failed `Response`
 
 ```ts
-import { parseError } from "blyp-js";
+import { parseError } from "@blyp/core";
 
 const response = await fetch("https://api.example.com/payments");
 
@@ -60,7 +60,7 @@ if (!response.ok) {
 Use the browser-safe client entry in frontend code:
 
 ```ts
-import { parseError } from "blyp-js/client";
+import { parseError } from "@blyp/core/client";
 
 const response = await fetch("/api/users/does-not-exist");
 

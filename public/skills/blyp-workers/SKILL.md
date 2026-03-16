@@ -1,6 +1,6 @@
 ---
 name: blyp-workers
-description: Portable Blyp add-on skill for Cloudflare Workers using blyp-js/workers, initWorkersLogger(), createWorkersLogger(), and explicit request emit() calls.
+description: Portable Blyp add-on skill for Cloudflare Workers using @blyp/core/workers, initWorkersLogger(), createWorkersLogger(), and explicit request emit() calls.
 ---
 
 # Blyp Workers
@@ -18,7 +18,7 @@ Use this add-on when the runtime is Cloudflare Workers rather than Node.js or Bu
 ## Blyp-specific rules and constraints
 
 - Install `blyp-core` first, but override its Node/Bun assumptions with Workers rules.
-- Import from `blyp-js/workers`.
+- Import from `@blyp/core/workers`.
 - Use `initWorkersLogger()` for shared worker-level setup.
 - Use `createWorkersLogger(request)` per request.
 - Workers do not use `blyp.config.*`.
@@ -28,7 +28,7 @@ Use this add-on when the runtime is Cloudflare Workers rather than Node.js or Bu
 
 ## Required implementation steps
 
-1. Import `initWorkersLogger` and `createWorkersLogger` from `blyp-js/workers`.
+1. Import `initWorkersLogger` and `createWorkersLogger` from `@blyp/core/workers`.
 2. Initialize the worker logger once during startup.
 3. Create a request logger inside the `fetch` handler.
 4. Set request-scoped fields with `log.set(...)` as needed.
@@ -37,7 +37,7 @@ Use this add-on when the runtime is Cloudflare Workers rather than Node.js or Bu
 
 ## Verification checklist
 
-- The worker imports from `blyp-js/workers`
+- The worker imports from `@blyp/core/workers`
 - `initWorkersLogger()` runs once
 - `createWorkersLogger(request)` is used per request
 - `emit()` is called explicitly
@@ -45,6 +45,6 @@ Use this add-on when the runtime is Cloudflare Workers rather than Node.js or Bu
 
 ## References
 
-- Import path: `blyp-js/workers`
+- Import path: `@blyp/core/workers`
 - Main APIs: `initWorkersLogger()`, `createWorkersLogger()`
 - Request emission: `emit()`

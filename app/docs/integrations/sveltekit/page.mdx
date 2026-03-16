@@ -7,10 +7,10 @@ order: 8
 
 # SvelteKit
 
-Import from `blyp-js/sveltekit`.
+Import from `@blyp/core/sveltekit`.
 
 ```ts
-import { createLogger } from "blyp-js/sveltekit";
+import { createLogger } from "@blyp/core/sveltekit";
 
 const svelteLogger = createLogger({
   level: "info",
@@ -30,7 +30,7 @@ event.locals.blypLog?.info("sveltekit-route");
 
 ```ts
 // src/routes/inngest/+server.ts
-import { createLogger } from "blyp-js/sveltekit";
+import { createLogger } from "@blyp/core/sveltekit";
 
 const svelteLogger = createLogger();
 
@@ -47,5 +47,5 @@ import type {
   SvelteKitLoggerFactory,
   SvelteKitRequestEvent,
   SvelteKitLocals,
-} from "blyp-js/sveltekit";
+} from "@blyp/core/sveltekit";
 ```
