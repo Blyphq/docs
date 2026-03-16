@@ -39,6 +39,8 @@ When `mode: "auto"` is enabled, Blyp server logs and structured logs are forward
 
 If Sentry was already initialized by the app, Blyp reuses the existing client instead of replacing it.
 
+> In `auto` mode, Blyp log lines appear in Sentry Logs. `error` and `critical` logs carry the same structured context, which makes the linked exception or log entry easier to inspect.
+
 ## Manual APIs
 
 ```ts

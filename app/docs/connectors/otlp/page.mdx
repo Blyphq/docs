@@ -60,6 +60,8 @@ export default {
 
 When a target is both enabled and ready and `mode: "auto"`, Blyp forwards normal server logs to that target automatically.
 
+> Blyp forwards each log as an OTLP `LogRecord`, mapping the log message to the body, the Blyp level to `severityText`, and structured fields to OTLP attributes.
+
 ## Manual APIs
 
 Manual OTLP APIs always target a named connector:

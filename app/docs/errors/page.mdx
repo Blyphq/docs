@@ -41,6 +41,50 @@ That makes the same error useful for runtime logging, API responses, and operato
 2. Throw or return the resulting `BlypError`.
 3. Reuse [`HTTP_CODES`](/docs/errors/http-codes) when the same pattern appears across multiple handlers or services.
 
+## What a `BlypError` looks like end to end
+
+**Code:**
+
+```ts
+throw createError({
+  status: 402,
+  message: "Payment failed",
+});
+```
+
+**What Blyp logs:**
+
+```text
+[ERROR] Payment failed
+  status=402 type=BlypError
+```
+
+**HTTP response body:**
+
+```json
+{
+  "status": 402,
+  "message": "Payment failed"
+}
+```
+
+## `parseError()` output
+
+```ts
+const parsed = parseError(err);
+```
+
+**Result shape:**
+
+```json
+{
+  "status": 500,
+  "message": "Unexpected token in JSON",
+  "type": "SyntaxError",
+  "stack": "SyntaxError: Unexpected token...\\n    at JSON.parse (<anonymous>)"
+}
+```
+
 ## Read next
 
 - [createError](/docs/errors/create-error)

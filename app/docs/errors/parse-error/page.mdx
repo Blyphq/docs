@@ -34,6 +34,17 @@ const error = parseError({
 throw error;
 ```
 
+**Result shape:**
+
+```json
+{
+  "status": 404,
+  "message": "User not found",
+  "fix": "Check the user id",
+  "type": "BlypError"
+}
+```
+
 ## Parse a failed `Response`
 
 ```ts
@@ -44,6 +55,16 @@ const response = await fetch("https://api.example.com/payments");
 if (!response.ok) {
   const error = await parseError(response);
   throw error;
+}
+```
+
+**Result shape after parsing the failed response:**
+
+```json
+{
+  "status": 502,
+  "message": "Payment provider request failed",
+  "type": "BlypError"
 }
 ```
 

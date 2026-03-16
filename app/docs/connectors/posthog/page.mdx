@@ -52,6 +52,8 @@ When `mode: "auto"` is enabled, normal Blyp server loggers forward into PostHog 
 
 When `errorTracking.mode: "auto"` is enabled, Blyp handled server errors can also be captured into PostHog Error Tracking.
 
+> In `auto` mode, Blyp forwards each log line to PostHog with the log level, message, and structured fields preserved for querying and filtering.
+
 ## Manual APIs
 
 Use `@blyp/core/posthog` when you want explicit control:

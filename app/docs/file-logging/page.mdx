@@ -17,6 +17,19 @@ Blyp writes structured NDJSON logs to disk and rotates them automatically.
 
 Client-ingested browser logs are written into the same combined stream, with the original payload stored under `data`.
 
+## What the log files look like
+
+Blyp writes newline-delimited JSON to disk. Each line is one complete event:
+
+```jsonl
+{"level":"info","time":1710000000000,"msg":"server started","pid":12345}
+{"level":"info","time":1710000000001,"msg":"GET /health","type":"http_request","method":"GET","url":"/health","statusCode":200,"responseTime":2}
+{"level":"error","time":1710000000002,"msg":"database query failed","error":"connection timeout","query":"SELECT * FROM users"}
+{"level":"info","time":1710000000003,"msg":"POST /checkout","type":"http_request","method":"POST","url":"/checkout","statusCode":200,"responseTime":234}
+```
+
+Each line is independently parseable JSON, which makes the files easy to ingest with `jq`, Datadog, Better Stack, Grafana, and similar tooling.
+
 ## Defaults
 
 - rotation enabled
@@ -39,6 +52,20 @@ const logger = createStandaloneLogger({
     },
   },
 });
+```
+
+## Log rotation
+
+When the active files reach the configured size limit, Blyp rotates them into `logs/archive/` automatically:
+
+```text
+logs/
+|-- log.ndjson
+|-- log.error.ndjson
+`-- archive/
+    |-- log.20260309T101530Z.ndjson.gz
+    |-- log.20260309T121530Z.ndjson.gz
+    `-- log.error.20260309T121530Z.ndjson.gz
 ```
 
 ## Read stored logs

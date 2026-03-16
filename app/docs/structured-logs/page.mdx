@@ -9,6 +9,8 @@ order: 4
 
 Use `createStructuredLog()` when multiple log lines belong to one logical unit of work and you want one final structured payload.
 
+> Structured logs emit nothing until `.emit()` is called. Everything you `.set()` is held silently and flushed as a single rich event.
+
 ## Root import
 
 `createStructuredLog` is a root export:
@@ -31,14 +33,48 @@ const structuredLog = createStructuredLog("checkout", {
 structuredLog.set({
   user: { id: 1, plan: "pro" },
   cart: { items: 3, total: 9999 },
+  payment: { method: "card", status: "success" },
 });
 
-structuredLog.info("user logged in");
-structuredLog.info("item added to cart");
-structuredLog.emit({ status: 200 });
+structuredLog.info("payment authorized");
+structuredLog.emit({
+  status: 200,
+  message: "checkout",
+});
 ```
 
 Nothing is written until you call `.emit()`. The intermediate `info()`, `warn()`, `error()`, and `table()` calls accumulate events on the in-memory batch.
+
+**Without structured logs** - scattered output, hard to correlate:
+
+```text
+[INFO] user authenticated
+[INFO] item added to cart
+[INFO] payment processing
+[INFO] order created
+```
+
+**With structured logs** - one rich event on `.emit()`:
+
+```text
+[INFO] checkout
+  service=web-api
+  user.id=1 user.plan=pro
+  cart.items=3 cart.total=9999
+  payment.method=card payment.status=success
+  status=200
+```
+
+**Terminal output on `.emit()`:**
+
+```text
+[INFO] checkout
+  service=web-api
+  user.id=1 user.plan=pro
+  cart.items=3 cart.total=9999
+  payment.method=card payment.status=success
+  status=200
+```
 
 ## Typed fields
 
@@ -63,6 +99,16 @@ const structuredLog = createStructuredLog<{
 ```
 
 `set()` extends the field type, so later additions are reflected in the returned `StructuredLog<TFields>` instance.
+
+## What happens if you forget `.emit()`
+
+If a request or workflow completes without calling `.emit()`, Blyp does not flush the structured payload.
+
+```text
+(no structured log output - .emit() was never called)
+```
+
+This is the main failure mode to watch for during development: every `set()`, `info()`, `warn()`, `error()`, or `table()` call stays in memory until the final emit happens.
 
 ## Framework handler behavior
 
@@ -117,6 +163,16 @@ import type {
 - optional `method`, `path`, `status`, and `duration`
 - optional `events` collected before emit
 - optional normalized `error`
+
+## Production output (NDJSON)
+
+In production, the same structured log emits as a single NDJSON line:
+
+```json
+{"level":"info","time":1710000000000,"msg":"checkout","service":"web-api","user":{"id":1,"plan":"pro"},"cart":{"items":3,"total":9999},"payment":{"method":"card","status":"success"},"status":200}
+```
+
+This is what gets written to your log file or forwarded to a connector such as PostHog, Sentry, Better Stack, or OTLP.
 
 ## Related docs
 

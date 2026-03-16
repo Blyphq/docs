@@ -56,6 +56,8 @@ When `mode: "auto"` is enabled and the connector is ready, Blyp server logs forw
 
 If `errorTracking.dsn` is configured, Blyp also captures handled server errors into Better Stack error tracking automatically.
 
+> Blyp forwards logs to Better Stack as structured JSON events. Each Blyp log line becomes one Better Stack log entry with the original message, level, and structured fields preserved.
+
 ## Manual APIs
 
 Use `@blyp/core/betterstack` when you want explicit control:

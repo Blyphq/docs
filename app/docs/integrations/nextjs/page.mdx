@@ -37,6 +37,26 @@ export const POST = nextLogger.clientLogHandler;
 
 If you mount the handler on a path that does not match the configured ingestion path, Blyp returns a `500` mismatch response.
 
+## What auto-logged requests look like
+
+With automatic request logging enabled, Blyp emits terminal output like:
+
+```text
+[INFO]  GET  /health        200  2ms
+[INFO]  POST /checkout      200  143ms
+[INFO]  GET  /users/42      404  8ms
+[ERROR] POST /payments      500  1203ms
+```
+
+Fields included automatically: method, path, status code, and duration.
+
+**In production (NDJSON):**
+
+```json
+{"level":"info","time":1710000000000,"msg":"GET /health","type":"http_request","method":"GET","url":"/health","statusCode":200,"responseTime":2}
+{"level":"info","time":1710000000001,"msg":"POST /checkout","type":"http_request","method":"POST","url":"/checkout","statusCode":200,"responseTime":143}
+```
+
 ## Relevant types
 
 ```ts

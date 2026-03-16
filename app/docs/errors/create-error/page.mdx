@@ -32,6 +32,29 @@ throw createError({
 });
 ```
 
+**What Blyp logs when the error is caught:**
+
+```text
+[ERROR] Payment failed
+  status=402 code=PAYMENT_DECLINED type=BlypError
+```
+
+**What the HTTP response body looks like:**
+
+```json
+{
+  "status": 402,
+  "code": "PAYMENT_DECLINED",
+  "message": "Payment failed",
+  "why": "Card declined by issuer",
+  "fix": "Try a different payment method",
+  "link": "https://docs.example.com/payments/declined",
+  "details": {
+    "paymentId": "pay_123"
+  }
+}
+```
+
 ## What it gives you
 
 - a throwable `BlypError`
