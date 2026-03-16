@@ -7,24 +7,24 @@ order: 2
 
 # Installation
 
+> **Package name vs project name:** The npm package is published as `blyp-js`. The project, CLI, and all tooling use the name **Blyp**. The CLI is `@blyp/cli` with the `blyp` command.
+
 ## Package managers
 
 Install the npm package `blyp-js`. The source repository remains `Blyphq/blyp`.
 
 ```bash
+# Bun (recommended)
 bun add blyp-js
-```
 
-```bash
+# npm
 npm install blyp-js
-```
 
-```bash
-yarn add blyp-js
-```
-
-```bash
+# pnpm
 pnpm add blyp-js
+
+# yarn
+yarn add blyp-js
 ```
 
 ## Runtime and language requirements
@@ -75,21 +75,21 @@ These are the package exports covered by the current docs:
 
 ## CLI
 
-Blyp now also has a separate CLI repository. The CLI repo documents the package as `@blyp/cli`, and the executable command is `blyphq`.
+Blyp now also has a separate CLI repository. The CLI package is `@blyp/cli`, and the executable command is `blyp`.
 
 - GitHub: [Blyphq/cli](https://github.com/Blyphq/cli)
 - npm: [`@blyp/cli`](https://www.npmjs.com/package/@blyp/cli)
 
 The CLI README currently documents these commands:
 
-- `blyphq studio [targetPath]`
-- `blyphq health`
-- `blyphq skills install [source-or-skill-name] [--force]`
-- `blyphq db:init`
-- `blyphq db:migrate`
-- `blyphq db:generate`
-- `blyphq help`
-- `blyphq --version`
+- `blyp studio [targetPath]`
+- `blyp health`
+- `blyp skills install [source-or-skill-name] [--force]`
+- `blyp db:init`
+- `blyp db:migrate`
+- `blyp db:generate`
+- `blyp help`
+- `blyp --version`
 
 ## Bootstrapped local config
 

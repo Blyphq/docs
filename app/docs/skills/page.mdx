@@ -15,6 +15,18 @@ This first release covers **supported presets only**. It does not claim full cov
 
 ## Install flow
 
+> You can install bundled skills automatically using the CLI:
+>
+> ```bash
+> blyp skills install
+> ```
+>
+> This opens an interactive picker. To install a specific skill by name:
+>
+> ```bash
+> blyp skills install blyp-core
+> ```
+
 1. Install `blyp-core` first.
 2. Add only the runtime or connector presets the repo actually needs.
 3. Copy the canonical `SKILL.md` file into the matching agent directory.
@@ -26,6 +38,7 @@ This first release covers **supported presets only**. It does not claim full cov
 | Codex | `.agents/skills/<skill>/SKILL.md` | `~/.agents/skills/<skill>/SKILL.md` |
 | OpenCode | `.opencode/skills/<skill>/SKILL.md` | `~/.config/opencode/skills/<skill>/SKILL.md` |
 | Claude Code | `.claude/skills/<skill>/SKILL.md` | `~/.claude/skills/<skill>/SKILL.md` |
+| Cursor | `.cursor/rules/<skill>/SKILL.md` | `~/.cursor/rules/<skill>/SKILL.md` |
 
 ## Supported preset matrix
 

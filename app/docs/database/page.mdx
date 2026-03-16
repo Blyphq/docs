@@ -26,6 +26,8 @@ Database mode changes Blyp's primary sink from files to your database. Connector
 - Drizzle + Postgres
 - Drizzle + MySQL
 
+> **CLI setup available:** You can scaffold the schema, run migrations, and generate `blyp.config.ts` automatically using `blyp db:init`. See the [CLI docs](/docs/cli) for the guided setup flow.
+
 ## Prisma example
 
 ```ts
@@ -113,14 +115,20 @@ For callback-style servers such as Express, Fastify, and NestJS, call `await log
 As of CLI `v0.1.3`, the recommended setup flow is:
 
 ```bash
-bunx @blyp/cli db:init
-bunx @blyp/cli db:migrate
-bunx @blyp/cli db:generate
+blyp db:init
+blyp db:migrate
+blyp db:generate
 ```
 
 `db:generate` is only needed for Prisma projects.
 
-These commands replace the earlier `blyphq logs init --adapter ... --dialect ...` flow.
+Without a global install:
+
+```bash
+bunx @blyp/cli db:init
+bunx @blyp/cli db:migrate
+bunx @blyp/cli db:generate
+```
 
 ## Import paths
 

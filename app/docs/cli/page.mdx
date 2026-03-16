@@ -12,30 +12,60 @@ Blyp now has a separate CLI project for local developer workflows.
 - GitHub: [Blyphq/cli](https://github.com/Blyphq/cli)
 - npm: [`@blyp/cli`](https://www.npmjs.com/package/@blyp/cli)
 
-The CLI repository documents the package as `@blyp/cli`, while the executable command is `blyphq`.
+The CLI package is `@blyp/cli`, and the executable command is `blyp`.
 
-As of March 16, 2026, the latest published CLI release is [`v0.1.3`](https://github.com/Blyphq/cli/releases/tag/v0.1.3).
+If you do not want a global install, use:
+
+```bash
+bunx @blyp/cli <command>
+```
 
 ## What it does
 
-The current CLI README describes `blyphq` as the local entrypoint for:
+The current CLI README describes `blyp` as the local entrypoint for:
 
 - launching Blyp Studio for a target project
 - printing runtime and workspace diagnostics
 - installing Blyp skills into a project-local `.agents/skills` directory
 - guiding Prisma or Drizzle database logging setup for `blyp-js`
 
+## Studio
+
+Studio is the local web UI that ships with the Blyp CLI. It runs at `http://localhost:3003` and connects to a target project on your machine.
+
+### What Studio does
+
+- Inspects the target project from your local machine
+- Connects assistant workflows to a specific project path
+- Uses project-level AI settings via `OPENROUTER_API_KEY` and `OPENROUTER_MODEL`
+
+### Launching Studio
+
+Launch for the current directory:
+
+```bash
+blyp studio
+```
+
+Launch for a specific subdirectory:
+
+```bash
+blyp studio ./apps/my-app
+```
+
+If Studio is already running, the CLI reuses the existing instance and opens the correct project in the browser.
+
 ## Commands
 
-### `blyphq studio [targetPath]`
+### `blyp studio [targetPath]`
 
 Starts or reuses the local Studio app for the target project. If `targetPath` is omitted, the current directory is used.
 
-### `blyphq health`
+### `blyp health`
 
 Prints runtime details such as the current directory, runtime versions, detected workspace root, and the Studio web app path.
 
-### `blyphq skills install [source-or-skill-name] [--force]`
+### `blyp skills install [source-or-skill-name] [--force]`
 
 Installs a local skill folder, installs a bundled skill by name, or opens the bundled skill picker.
 
@@ -45,7 +75,7 @@ Installed skills are copied into:
 ./.agents/skills/<skill-name>
 ```
 
-### `blyphq db:init`
+### `blyp db:init`
 
 Guided Blyp database logging setup.
 
@@ -55,21 +85,21 @@ Guided Blyp database logging setup.
 - runs the generated migration workflow
 - writes `blyp.config.ts` for the project
 
-### `blyphq db:migrate`
+### `blyp db:migrate`
 
 Runs the configured Prisma or Drizzle migration workflow after the project has been initialized.
 
-### `blyphq db:generate`
+### `blyp db:generate`
 
 Runs Prisma client generation for configured Prisma projects.
 
 This command is Prisma-only and is not used for Drizzle projects.
 
-### `blyphq help`
+### `blyp help`
 
 Shows command usage.
 
-### `blyphq --version`
+### `blyp --version`
 
 Prints the CLI version.
 
@@ -82,8 +112,17 @@ Prints the CLI version.
 
 ## Upgrade note
 
-CLI `v0.1.3` replaces the earlier database bootstrap flow based on `blyphq logs init ...`.
+> **Upgrade note:** Use `blyp db:init` for guided database setup.
+
 Use the shorter top-level commands instead:
+
+```bash
+blyp db:init
+blyp db:migrate
+blyp db:generate
+```
+
+Without a global install:
 
 ```bash
 bunx @blyp/cli db:init
@@ -94,5 +133,5 @@ bunx @blyp/cli db:generate
 ## Notes
 
 - The CLI lives in a separate repository from `blyp-js`.
-- The published command name is `blyphq`.
-- The CLI README also documents a local Studio app that runs on `http://localhost:3003`.
+- The published command name is `blyp`.
+- Studio runs locally at `http://localhost:3003`.

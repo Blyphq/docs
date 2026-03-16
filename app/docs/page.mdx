@@ -20,7 +20,19 @@ Blyp is a high-performance logger built for Bun-first and Node-compatible TypeSc
 - NDJSON file logging with rotation and archives
 - database-backed primary logging with Prisma and Drizzle adapters
 
-Blyp also now has a separate CLI project for local developer workflows, documented in `Blyphq/cli` as `@blyp/cli` with the `blyphq` command.
+## Studio
+
+Blyp includes a local developer UI called **Studio**, launched via the CLI. Studio runs at `http://localhost:3003` and lets you inspect your project, work with logs, and manage AI assistant workflows tied to your codebase.
+
+To launch it:
+
+```bash
+blyp studio
+```
+
+See the [CLI docs](/docs/cli) for full Studio usage.
+
+Blyp also now has a separate CLI project for local developer workflows, documented in `Blyphq/cli` as `@blyp/cli` with the `blyp` command.
 
 The GitHub repository is `Blyphq/blyp`, but the published package name is `blyp-js`.
 
@@ -36,6 +48,12 @@ The GitHub repository is `Blyphq/blyp`, but the published package name is `blyp-
 | Workers | `blyp-js/workers` | `initWorkersLogger`, `createWorkersLogger`, Workers-specific request logger types |
 
 ## Quick start
+
+```bash
+bun add blyp-js
+```
+
+> The published npm package is `blyp-js`. The project, org, and tooling all use the name **Blyp**.
 
 ```ts
 import { logger, createError } from "blyp-js";
@@ -65,7 +83,7 @@ throw createError({
 ## Recommended reading order
 
 - [Installation](/docs/installation) for package managers, peer dependencies, and exported subpaths.
-- [CLI](/docs/cli) for the `blyphq` command, Studio launch flow, health checks, and skill installation.
+- [CLI](/docs/cli) for the `blyp` command, Studio launch flow, health checks, and skill installation.
 - [Basic Usage](/docs/basic-usage) for logger methods, child loggers, and standalone instances.
 - [Database Logging](/docs/database) for `destination: "database"`, Prisma and Drizzle adapters, delivery, and CLI-assisted schema setup.
 - [Structured Logs](/docs/structured-logs) for `createStructuredLog()`, typed fields, and request-scoped batch emission.
