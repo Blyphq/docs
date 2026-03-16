@@ -38,8 +38,24 @@ const SECTION_ORDER: ChangelogSectionTitle[] = ["Added", "Improved", "Fixed", "H
 
 const RECOGNIZED_HEADINGS: Record<string, ChangelogSectionTitle> = {
   added: "Added",
+  "what's new": "Added",
+  "whats new": "Added",
+  studio: "Highlights",
+  skills: "Highlights",
+  "cli behavior": "Highlights",
+  "supported setups": "Highlights",
   improved: "Improved",
+  changed: "Improved",
+  performance: "Improved",
   fixed: "Fixed",
+  internal: "Notes",
+  packaging: "Notes",
+  "packaging and release": "Notes",
+  upgrade: "Notes",
+  install: "Notes",
+  example: "Notes",
+  examples: "Notes",
+  impact: "Notes",
   notes: "Notes",
 };
 

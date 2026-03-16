@@ -47,6 +47,8 @@ These helpers power Blyp's pretty console output and are useful in custom CLIs o
 import {
   DEFAULT_CONFIG,
   DEFAULT_CLIENT_LOGGING_CONFIG,
+  DEFAULT_DATABASE_DELIVERY_CONFIG,
+  DEFAULT_DATABASE_RETRY_CONFIG,
   DEFAULT_FILE_CONFIG,
   DEFAULT_ROTATION_CONFIG,
   getConfig,
@@ -54,10 +56,28 @@ import {
   mergeBlypConfig,
   resolveConfig,
   resetConfigCache,
+  type ResolvedBlypConfig,
 } from "blyp-js";
 ```
 
 Use them when you want to inspect defaults, merge overrides manually, or reset config state in tests.
+
+`loadConfig()`, `resolveConfig()`, and `getConfig()` return `ResolvedBlypConfig`, which means the returned object already has normalized `destination`, `file`, `clientLogging`, and connector/database state.
+
+## Database helpers
+
+```ts
+import {
+  createDrizzleDatabaseAdapter,
+  createPrismaDatabaseAdapter,
+  type DatabaseAdapterConfig,
+  type DatabaseDialect,
+  type DatabaseLoggerConfig,
+  type ResolvedDatabaseLoggerConfig,
+} from "blyp-js/database";
+```
+
+Use these when `destination: "database"` is the primary sink and you want typed adapter configuration for Prisma or Drizzle.
 
 ## Structured log exports
 

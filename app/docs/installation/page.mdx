@@ -48,6 +48,7 @@ Blyp ships one package, but framework adapters rely on the framework you already
 | TanStack Start | `blyp-js/tanstack-start` | `@tanstack/react-start` |
 | SvelteKit | `blyp-js/sveltekit` | `@sveltejs/kit` |
 | Cloudflare Workers | `blyp-js/workers` | none |
+| Database adapters | `blyp-js/database` | `@prisma/client` or `drizzle-orm` |
 
 ## Published subpaths
 
@@ -56,6 +57,7 @@ These are the package exports covered by the current docs:
 - `blyp-js`
 - `blyp-js/standalone`
 - `blyp-js/client`
+- `blyp-js/database`
 - `blyp-js/betterstack`
 - `blyp-js/posthog`
 - `blyp-js/sentry`
@@ -83,6 +85,9 @@ The CLI README currently documents these commands:
 - `blyphq studio [targetPath]`
 - `blyphq health`
 - `blyphq skills install [source-or-skill-name] [--force]`
+- `blyphq db:init`
+- `blyphq db:migrate`
+- `blyphq db:generate`
 - `blyphq help`
 - `blyphq --version`
 

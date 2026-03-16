@@ -1,0 +1,137 @@
+---
+title: "Database Logging"
+description: "Use Prisma or Drizzle as Blyp's primary sink when local file writes are not reliable."
+icon: "database"
+order: 10
+---
+
+# Database Logging
+
+Use database logging when your deployment cannot rely on local file persistence, especially in serverless environments.
+
+Database mode changes Blyp's primary sink from files to your database. Connectors such as Better Stack, PostHog, Sentry, and OTLP continue to work independently.
+
+## Requirements
+
+- set `destination: "database"`
+- use an executable config file such as `blyp.config.ts`
+- provide a Prisma or Drizzle adapter at runtime
+
+`blyp.config.json` alone is not enough for this mode because adapters are runtime objects.
+
+## Supported setups
+
+- Prisma + Postgres
+- Prisma + MySQL
+- Drizzle + Postgres
+- Drizzle + MySQL
+
+## Prisma example
+
+```ts
+import { PrismaClient } from "@prisma/client";
+import { createPrismaDatabaseAdapter } from "blyp-js/database";
+
+const prisma = new PrismaClient();
+
+export default {
+  destination: "database",
+  database: {
+    dialect: "postgres",
+    adapter: createPrismaDatabaseAdapter({
+      client: prisma,
+      model: "blypLog",
+    }),
+  },
+};
+```
+
+## Drizzle example
+
+```ts
+import { createDrizzleDatabaseAdapter } from "blyp-js/database";
+import { db } from "./db";
+import { blypLogs } from "./db/schema/blyp";
+
+export default {
+  destination: "database",
+  database: {
+    dialect: "mysql",
+    adapter: createDrizzleDatabaseAdapter({
+      db,
+      table: blypLogs,
+    }),
+  },
+};
+```
+
+## Delivery behavior
+
+The database delivery queue supports immediate writes and batched writes.
+
+Default values:
+
+- `strategy: "immediate"`
+- `batchSize: 1`
+- `flushIntervalMs: 250`
+- `maxQueueSize: 1000`
+- `overflowStrategy: "drop-oldest"`
+- `flushTimeoutMs: 5000`
+- `retry.maxRetries: 1`
+- `retry.backoffMs: 100`
+
+```ts
+export default {
+  destination: "database",
+  database: {
+    dialect: "postgres",
+    adapter,
+    delivery: {
+      strategy: "batch",
+      batchSize: 50,
+      flushIntervalMs: 1000,
+    },
+  },
+};
+```
+
+## Flushing and shutdown
+
+All Blyp loggers expose:
+
+```ts
+await logger.flush();
+await logger.shutdown();
+```
+
+Promise-based integrations such as Elysia, Hono, Next.js, SvelteKit, and TanStack Start flush automatically in database mode before the request completes.
+
+For callback-style servers such as Express, Fastify, and NestJS, call `await logger.flush()` at your own boundary when you need a hard durability point.
+
+## CLI-assisted setup
+
+As of CLI `v0.1.3`, the recommended setup flow is:
+
+```bash
+bunx @blyp/cli db:init
+bunx @blyp/cli db:migrate
+bunx @blyp/cli db:generate
+```
+
+`db:generate` is only needed for Prisma projects.
+
+These commands replace the earlier `blyphq logs init --adapter ... --dialect ...` flow.
+
+## Import paths
+
+Use:
+
+- `blyp-js/database` for adapter factories and database-specific types
+- `blyp-js` for config helpers such as `resolveConfig()` and `ResolvedBlypConfig`
+
+## Related docs
+
+- [CLI](/docs/cli)
+- [Configuration](/docs/configuration)
+- [File Logging](/docs/file-logging)
+- [Utilities & Runtime](/docs/reference)

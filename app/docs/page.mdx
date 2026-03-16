@@ -18,6 +18,7 @@ Blyp is a high-performance logger built for Bun-first and Node-compatible TypeSc
 - browser-to-server log ingestion
 - structured `BlypError` handling
 - NDJSON file logging with rotation and archives
+- database-backed primary logging with Prisma and Drizzle adapters
 
 Blyp also now has a separate CLI project for local developer workflows, documented in `Blyphq/cli` as `@blyp/cli` with the `blyphq` command.
 
@@ -29,6 +30,7 @@ The GitHub repository is `Blyphq/blyp`, but the published package name is `blyp-
 | --- | --- | --- |
 | Core logger + errors | `blyp-js` | `logger`, `createStandaloneLogger`, `createStructuredLog`, `createError`, `HTTP_CODES`, `parseError`, `readLogFile`, config/runtime helpers |
 | Browser logger | `blyp-js/client` | `createClientLogger`, browser-safe `parseError`, `ClientLogger` types |
+| Database adapters | `blyp-js/database` | `createPrismaDatabaseAdapter`, `createDrizzleDatabaseAdapter`, and database config types |
 | Connector helpers | `blyp-js/betterstack`, `blyp-js/posthog`, `blyp-js/sentry`, `blyp-js/otlp` | manual connector loggers, structured connector helpers, and provider-specific exception capture |
 | Framework adapters | `blyp-js/<framework>` | `createLogger()` or equivalent framework factory plus framework-specific types |
 | Workers | `blyp-js/workers` | `initWorkersLogger`, `createWorkersLogger`, Workers-specific request logger types |
@@ -65,6 +67,7 @@ throw createError({
 - [Installation](/docs/installation) for package managers, peer dependencies, and exported subpaths.
 - [CLI](/docs/cli) for the `blyphq` command, Studio launch flow, health checks, and skill installation.
 - [Basic Usage](/docs/basic-usage) for logger methods, child loggers, and standalone instances.
+- [Database Logging](/docs/database) for `destination: "database"`, Prisma and Drizzle adapters, delivery, and CLI-assisted schema setup.
 - [Structured Logs](/docs/structured-logs) for `createStructuredLog()`, typed fields, and request-scoped batch emission.
 - [Errors](/docs/errors) for `createError()`, `parseError()`, and `BlypError` behavior.
 - [Skills](/docs/skills) for copy-pasteable AI agent presets that help tools install and wire Blyp correctly.

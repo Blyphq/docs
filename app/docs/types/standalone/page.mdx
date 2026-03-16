@@ -1,6 +1,6 @@
 ---
 title: "Standalone Types"
-description: "Standalone logger configuration, runtime detection, and file/client config types."
+description: "Standalone logger configuration, runtime detection, and file or database destination types."
 icon: "terminal"
 order: 1
 ---
@@ -13,7 +13,9 @@ Import these from `blyp-js/standalone` when you want the standalone logger surfa
 import type {
   StandaloneLogger,
   StandaloneLoggerConfig,
+  BlypDestination,
   ClientLoggingConfig,
+  DatabaseLoggerConfig,
   LogFileConfig,
   LogRotationConfig,
   RuntimeAdapter,
@@ -24,8 +26,10 @@ import type {
 
 ## Main interfaces
 
-- `StandaloneLogger`: the logger instance with `info`, `warning`, `error`, `critical`, `success`, `debug`, `table`, and `child`
-- `StandaloneLoggerConfig`: `pretty`, `level`, `logDir`, `file`, and `clientLogging`
+- `StandaloneLogger`: the logger instance with `info`, `warning`, `error`, `critical`, `success`, `debug`, `table`, `child`, `flush()`, and `shutdown()`
+- `StandaloneLoggerConfig`: `pretty`, `level`, `destination`, `logDir`, `file`, `database`, and `clientLogging`
+- `BlypDestination`: `"file" | "database"`
+- `DatabaseLoggerConfig`: dialect, adapter, and delivery config for database-backed primary logging
 - `RuntimeAdapter`: runtime abstraction for file, path, env, and `cwd`
 - `RuntimeType`: `"bun" | "node"`
 - `LogLevel`: `"error" | "critical" | "warning" | "info" | "success" | "debug" | "table"`
@@ -34,11 +38,10 @@ import type {
 
 ```ts
 const config: StandaloneLoggerConfig = {
+  destination: "database",
   level: "debug",
-  file: {
-    rotation: {
-      maxArchives: 10,
-    },
+  database: {
+    dialect: "postgres",
   },
 };
 ```

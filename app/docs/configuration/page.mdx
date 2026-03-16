@@ -34,6 +34,7 @@ Executable config files are loaded through `jiti`.
 export default {
   "pretty": true,
   "level": "info",
+  "destination": "database",
   "file": {
     "enabled": true,
     "format": "ndjson",
@@ -42,6 +43,21 @@ export default {
       "maxSizeBytes": 10485760,
       "maxArchives": 5,
       "compress": true
+    }
+  },
+  "database": {
+    "dialect": "postgres",
+    "delivery": {
+      "strategy": "immediate",
+      "batchSize": 1,
+      "flushIntervalMs": 250,
+      "maxQueueSize": 1000,
+      "overflowStrategy": "drop-oldest",
+      "flushTimeoutMs": 5000,
+      "retry": {
+        "maxRetries": 1,
+        "backoffMs": 100
+      }
     }
   },
   "clientLogging": {
@@ -79,11 +95,54 @@ export default {
 
 - pretty console logging is enabled
 - default level is `info`
+- default destination is `file`
 - file logging is enabled
 - client logging is enabled
 - default client ingestion path is `/inngest`
 - default rotation is `10 MB`, `5` archives, gzip compression enabled
+- database delivery defaults are immediate writes, queue size `1000`, flush timeout `5000ms`, and one retry with `100ms` backoff
 - connectors are disabled unless configured
+
+## Database logging config
+
+Use `destination: "database"` when local file persistence is not a good fit, especially in serverless deployments.
+
+Database mode requires an executable config file such as `blyp.config.ts`, `blyp.config.mts`, `blyp.config.js`, or `blyp.config.cjs` because Prisma and Drizzle adapters are runtime objects.
+`blyp.config.json` cannot hold adapter instances by itself.
+
+```ts
+import { PrismaClient } from "@prisma/client";
+import { createPrismaDatabaseAdapter } from "blyp-js/database";
+
+const prisma = new PrismaClient();
+
+export default {
+  destination: "database",
+  database: {
+    dialect: "postgres",
+    adapter: createPrismaDatabaseAdapter({
+      client: prisma,
+      model: "blypLog",
+    }),
+    delivery: {
+      strategy: "batch",
+      batchSize: 50,
+      flushIntervalMs: 1000,
+    },
+  },
+};
+```
+
+The database delivery config supports:
+
+- `strategy`: `"immediate"` or `"batch"`
+- `batchSize`
+- `flushIntervalMs`
+- `maxQueueSize`
+- `overflowStrategy`: `"drop-oldest"` or `"drop-new"`
+- `flushTimeoutMs`
+- `retry.maxRetries`
+- `retry.backoffMs`
 
 ## Common server adapter options
 
@@ -173,8 +232,11 @@ import {
   mergeBlypConfig,
   resolveConfig,
   resetConfigCache,
+  type ResolvedBlypConfig,
 } from "blyp-js";
 ```
+
+`loadConfig()`, `resolveConfig()`, and `getConfig()` now return `ResolvedBlypConfig`, so the returned shape includes normalized defaults for `destination`, `file`, `clientLogging`, connector readiness, and database delivery.
 
 Use these if you need to inspect or recompute configuration in tests or custom bootstrap code.
 

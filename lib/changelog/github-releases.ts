@@ -1,6 +1,28 @@
-const RELEASES_API_URL = "https://api.github.com/repos/Blyphq/blyp/releases";
+export interface GitHubReleaseSource {
+  id: "blyp" | "cli";
+  label: string;
+  packageName: string;
+  apiUrl: string;
+  sourceUrl: string;
+}
 
-export const UPSTREAM_RELEASES_URL = "https://github.com/Blyphq/blyp/releases";
+export const CHANGELOG_SOURCES: Record<GitHubReleaseSource["id"], GitHubReleaseSource> = {
+  blyp: {
+    id: "blyp",
+    label: "Blyp",
+    packageName: "blyp-js",
+    apiUrl: "https://api.github.com/repos/Blyphq/blyp/releases",
+    sourceUrl: "https://github.com/Blyphq/blyp/releases",
+  },
+  cli: {
+    id: "cli",
+    label: "CLI",
+    packageName: "@blyp/cli",
+    apiUrl: "https://api.github.com/repos/Blyphq/cli/releases",
+    sourceUrl: "https://github.com/Blyphq/cli/releases",
+  },
+};
+
 export const CHANGELOG_REVALIDATE_SECONDS = 3600;
 
 export interface GitHubRelease {
@@ -11,6 +33,7 @@ export interface GitHubRelease {
   url: string;
   isPrerelease: boolean;
   publishedAt: string;
+  source: GitHubReleaseSource;
 }
 
 interface GitHubReleaseApiResponse {
@@ -27,7 +50,7 @@ interface GitHubReleaseApiResponse {
 export interface GitHubReleasesResult {
   releases: GitHubRelease[];
   error?: string;
-  sourceUrl: string;
+  source: GitHubReleaseSource;
 }
 
 function isGitHubReleaseApiResponse(value: unknown): value is GitHubReleaseApiResponse {
@@ -49,7 +72,7 @@ function isGitHubReleaseApiResponse(value: unknown): value is GitHubReleaseApiRe
   );
 }
 
-export async function getGitHubReleases(): Promise<GitHubReleasesResult> {
+export async function getGitHubReleases(source: GitHubReleaseSource): Promise<GitHubReleasesResult> {
   const headers: HeadersInit = {
     Accept: "application/vnd.github+json",
     "User-Agent": "blyp-docs-changelog",
@@ -60,7 +83,7 @@ export async function getGitHubReleases(): Promise<GitHubReleasesResult> {
   }
 
   try {
-    const response = await fetch(RELEASES_API_URL, {
+    const response = await fetch(source.apiUrl, {
       headers,
       next: { revalidate: CHANGELOG_REVALIDATE_SECONDS },
     });
@@ -69,7 +92,7 @@ export async function getGitHubReleases(): Promise<GitHubReleasesResult> {
       return {
         releases: [],
         error: `GitHub releases request failed with status ${response.status}.`,
-        sourceUrl: UPSTREAM_RELEASES_URL,
+        source,
       };
     }
 
@@ -79,7 +102,7 @@ export async function getGitHubReleases(): Promise<GitHubReleasesResult> {
       return {
         releases: [],
         error: "GitHub releases response was not an array.",
-        sourceUrl: UPSTREAM_RELEASES_URL,
+        source,
       };
     }
 
@@ -97,11 +120,12 @@ export async function getGitHubReleases(): Promise<GitHubReleasesResult> {
         url: release.html_url,
         isPrerelease: release.prerelease,
         publishedAt: release.published_at as string,
+        source,
       }));
 
     return {
       releases,
-      sourceUrl: UPSTREAM_RELEASES_URL,
+      source,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
@@ -109,7 +133,7 @@ export async function getGitHubReleases(): Promise<GitHubReleasesResult> {
     return {
       releases: [],
       error: `Unable to load GitHub releases: ${message}`,
-      sourceUrl: UPSTREAM_RELEASES_URL,
+      source,
     };
   }
 }

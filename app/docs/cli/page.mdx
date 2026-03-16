@@ -1,6 +1,6 @@
 ---
 title: "CLI"
-description: "Use the Blyp CLI for Studio, environment checks, and project skill installation."
+description: "Use the Blyp CLI for Studio, environment checks, skills, and guided database logging setup."
 icon: "terminal"
 order: 3
 ---
@@ -14,6 +14,8 @@ Blyp now has a separate CLI project for local developer workflows.
 
 The CLI repository documents the package as `@blyp/cli`, while the executable command is `blyphq`.
 
+As of March 16, 2026, the latest published CLI release is [`v0.1.3`](https://github.com/Blyphq/cli/releases/tag/v0.1.3).
+
 ## What it does
 
 The current CLI README describes `blyphq` as the local entrypoint for:
@@ -21,6 +23,7 @@ The current CLI README describes `blyphq` as the local entrypoint for:
 - launching Blyp Studio for a target project
 - printing runtime and workspace diagnostics
 - installing Blyp skills into a project-local `.agents/skills` directory
+- guiding Prisma or Drizzle database logging setup for `blyp-js`
 
 ## Commands
 
@@ -42,6 +45,26 @@ Installed skills are copied into:
 ./.agents/skills/<skill-name>
 ```
 
+### `blyphq db:init`
+
+Guided Blyp database logging setup.
+
+- prompts for adapter: `prisma` or `drizzle`
+- prompts for dialect: `postgres` or `mysql`
+- scaffolds the `blyp_logs` schema
+- runs the generated migration workflow
+- writes `blyp.config.ts` for the project
+
+### `blyphq db:migrate`
+
+Runs the configured Prisma or Drizzle migration workflow after the project has been initialized.
+
+### `blyphq db:generate`
+
+Runs Prisma client generation for configured Prisma projects.
+
+This command is Prisma-only and is not used for Drizzle projects.
+
 ### `blyphq help`
 
 Shows command usage.
@@ -49,6 +72,24 @@ Shows command usage.
 ### `blyphq --version`
 
 Prints the CLI version.
+
+## Supported database setups
+
+- Prisma + Postgres
+- Prisma + MySQL
+- Drizzle + Postgres
+- Drizzle + MySQL
+
+## Upgrade note
+
+CLI `v0.1.3` replaces the earlier database bootstrap flow based on `blyphq logs init ...`.
+Use the shorter top-level commands instead:
+
+```bash
+bunx @blyp/cli db:init
+bunx @blyp/cli db:migrate
+bunx @blyp/cli db:generate
+```
 
 ## Notes
 

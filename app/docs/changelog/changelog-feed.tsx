@@ -1,6 +1,7 @@
 import {
+  CHANGELOG_SOURCES,
   getGitHubReleases,
-  UPSTREAM_RELEASES_URL,
+  type GitHubReleaseSource,
 } from "@/lib/changelog/github-releases";
 import {
   normalizeReleases,
@@ -43,22 +44,22 @@ function ReleaseBlock({ block }: { block: ChangelogSectionBlock }) {
   return <ReleaseList items={block.items} />;
 }
 
-export async function ChangelogFeed() {
-  const { releases, error, sourceUrl } = await getGitHubReleases();
+export async function ChangelogFeed({ source }: { source: GitHubReleaseSource }) {
+  const { releases, error } = await getGitHubReleases(source);
   const normalizedReleases = normalizeReleases(releases);
 
   if (error) {
     return (
       <div className="not-prose mt-8 rounded-2xl border border-amber-300/70 bg-amber-50/80 p-5 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100">
-        <p className="font-medium">Unable to load the latest changelog entries right now.</p>
+        <p className="font-medium">Unable to load the latest {source.label} changelog entries right now.</p>
         <p className="mt-2 leading-6">{error}</p>
         <a
-          href={sourceUrl}
+          href={source.sourceUrl}
           target="_blank"
           rel="noreferrer"
           className="mt-4 inline-flex text-sm font-medium text-amber-900 underline underline-offset-4 dark:text-amber-100"
         >
-          Open the upstream releases page
+          Open the upstream {source.label} releases page
         </a>
       </div>
     );
@@ -67,14 +68,14 @@ export async function ChangelogFeed() {
   if (normalizedReleases.length === 0) {
     return (
       <div className="not-prose mt-8 rounded-2xl border border-zinc-200 bg-zinc-50 p-5 text-sm text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-300">
-        <p className="font-medium">No published releases were returned from GitHub.</p>
+        <p className="font-medium">No published {source.label} releases were returned from GitHub.</p>
         <a
-          href={sourceUrl}
+          href={source.sourceUrl}
           target="_blank"
           rel="noreferrer"
           className="mt-4 inline-flex text-sm font-medium text-zinc-900 underline underline-offset-4 dark:text-zinc-100"
         >
-          Open the upstream releases page
+          Open the upstream {source.label} releases page
         </a>
       </div>
     );
@@ -105,6 +106,9 @@ export async function ChangelogFeed() {
 
           <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
             <div className="space-y-1">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500 dark:text-zinc-400">
+                {source.packageName}
+              </p>
               <h2 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
                 {release.title}
               </h2>
@@ -146,12 +150,12 @@ export async function ChangelogFeed() {
       <div className="rounded-2xl border border-dashed border-zinc-300/80 px-5 py-4 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">
         Need the raw release notes or package metadata? Check{" "}
         <a
-          href={UPSTREAM_RELEASES_URL}
+          href={source.sourceUrl}
           target="_blank"
           rel="noreferrer"
           className="font-medium text-zinc-900 underline underline-offset-4 dark:text-zinc-100"
         >
-          Blyphq/blyp releases
+          {CHANGELOG_SOURCES[source.id].label} releases
         </a>
         .
       </div>
