@@ -31,7 +31,7 @@ export default defineDocs({
   theme: fumadocs({
     ui: {
       colors: {
-        primary: "oklch(0.74 0.17 183)",
+        primary: "oklch(0.7116 0.1812 22.84)",
       },
       layout: {
         contentWidth: 820,

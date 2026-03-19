@@ -9,12 +9,16 @@
   },
   "dependencies": {
     "@farming-labs/docs": "0.0.15",
-    "@farming-labs/theme": "0.0.15",
     "@farming-labs/next": "0.0.15",
+    "@farming-labs/theme": "0.0.15",
     "lucide-react": "^0.564.0",
+    "motion": "^12.38.0",
     "next": "16.1.6",
+    "next-themes": "^0.4.6",
+    "postprocessing": "^6.38.3",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "three": "^0.183.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.18",
@@ -22,6 +26,7 @@
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.183.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3"
