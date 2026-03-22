@@ -617,42 +617,58 @@ export function BlypLandingPage() {
           </div>
         </section>
 
-        <footer className="border-y border-border">
-          <div className="mx-auto flex w-full max-w-[90rem] flex-col gap-10 px-5 py-20 sm:px-8 lg:flex-row lg:items-end lg:justify-between lg:px-10">
-            <div className="max-w-[40rem]">
-              <p className="text-[0.72rem] font-medium uppercase tracking-[0.24em] text-primary">
-                Start Here
-              </p>
-              <h2 className="mt-4 text-balance text-4xl font-semibold tracking-[-0.06em] text-foreground sm:text-5xl">
-                Install the core package, launch Studio, and let the docs carry
-                the rest.
-              </h2>
-            </div>
+        <footer className="relative overflow-hidden">
+          {/* PixelBlast animated background */}
+          <div className="pointer-events-none absolute inset-0 z-0" aria-hidden="true">
+            <PixelBlast
+              className="absolute inset-0 size-full"
+              variant="circle"
+              pixelSize={5}
+              color="#ff6b6b"
+              patternScale={2.2}
+              patternDensity={0.85}
+              pixelSizeJitter={0.35}
+              enableRipples
+              rippleSpeed={0.3}
+              rippleThickness={0.1}
+              rippleIntensityScale={1.3}
+              liquid={true}
+              liquidStrength={0.09}
+              liquidRadius={1.6}
+              liquidWobbleSpeed={3.5}
+              speed={0.35}
+              edgeFade={0.28}
+              transparent
+            />
+          </div>
+          {/* Readability overlay */}
+          <div className="pointer-events-none absolute inset-0 z-0 dark:bg-background/72" aria-hidden="true" />
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:justify-end">
-              <Link
-                href="/docs/installation"
-                className="inline-flex items-center justify-center gap-2 border border-primary bg-primary px-6 py-4 text-sm font-semibold text-primary-foreground transition-colors duration-200 hover:bg-transparent hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              >
-                Read Installation
-                <ArrowRight size={16} aria-hidden="true" />
-              </Link>
+          <div className="relative z-10 mx-auto flex w-full max-w-[90rem] flex-col items-center justify-center px-5 py-36 text-center sm:px-8 lg:px-10 lg:py-44">
+            <motion.h2
+              className="text-balance text-5xl font-semibold tracking-[-0.07em] text-foreground sm:text-6xl lg:text-[5rem] lg:leading-[0.94]"
+              initial={fadeUpInitial}
+              whileInView={fadeUpAnimate}
+              viewport={{ once: true }}
+              transition={fadeUpTransition(0)}
+            >
+              Less Grepping, More Prompting.
+            </motion.h2>
+            <motion.div
+              className="mt-10"
+              initial={fadeUpInitial}
+              whileInView={fadeUpAnimate}
+              viewport={{ once: true }}
+              transition={fadeUpTransition(0.12)}
+            >
               <Link
                 href="/docs"
-                className="inline-flex items-center justify-center border border-border px-6 py-4 text-sm font-medium text-muted-foreground transition-colors duration-200 hover:border-foreground/30 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="inline-flex items-center gap-2.5 border border-primary bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:bg-transparent hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 Browse Docs
+                <ArrowRight size={15} aria-hidden="true" />
               </Link>
-              <a
-                href="https://github.com/Blyphq/blyp"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2 border border-border px-6 py-4 text-sm font-medium text-muted-foreground transition-colors duration-200 hover:border-foreground/30 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              >
-                Open GitHub
-                <ArrowUpRight size={16} aria-hidden="true" />
-              </a>
-            </div>
+            </motion.div>
           </div>
         </footer>
       </main>
