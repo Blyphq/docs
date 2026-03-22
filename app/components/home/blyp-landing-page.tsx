@@ -269,7 +269,7 @@ export function BlypLandingPage() {
             </motion.h1>
 
             <motion.p
-              className="max-w-[40rem] text-pretty text-xl leading-9 text-muted-foreground"
+              className="max-w-[40rem] text-pretty text-xl leading-9 text-foreground"
               initial={fadeUpInitial}
               animate={fadeUpAnimate}
               transition={fadeUpTransition(0.28)}
