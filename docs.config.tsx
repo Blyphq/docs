@@ -14,6 +14,7 @@ import {
   Terminal,
 } from "lucide-react";
 import Image from "next/image";
+import { BlypThemeLogo } from "@/app/components/blyp-theme-logo";
 
 const logoIcon = (src: string, alt: string) => (
 
@@ -53,7 +54,7 @@ export default defineDocs({
   nav: {
     title: (
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Rocket size={14} />
+        <BlypThemeLogo width={22} height={22} alt="" />
         <span className="font-semibold tracking-tight">Blyp Docs</span>
       </div>
     ),

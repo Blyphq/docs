@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Copy } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
+import { BlypThemeLogo } from "@/app/components/blyp-theme-logo";
 import { HeroShowcase } from "@/app/components/home/hero-showcase";
 import { ThemeToggle } from "@/app/components/home/theme-toggle";
 import PixelBlast from "../react-bits/pixel-blast";
@@ -183,14 +184,10 @@ export function BlypLandingPage() {
         <div className="mx-auto flex w-full max-w-[90rem] items-center justify-between gap-8 px-5 py-5 sm:px-8 lg:px-10">
           <Link
             href="/"
+            aria-label="Blyp home"
             className="inline-flex min-w-0 items-center gap-3 text-sm font-medium text-foreground transition-colors duration-200 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
-            <span
-              aria-hidden="true"
-              className="inline-flex size-8 items-center justify-center border border-input bg-card text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-primary"
-            >
-              B
-            </span>
+            <BlypThemeLogo width={32} height={32} alt="" />
             <span className="truncate tracking-[-0.02em]">Blyp</span>
           </Link>
 
