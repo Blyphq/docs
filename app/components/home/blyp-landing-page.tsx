@@ -8,6 +8,7 @@ import { HeroShowcase } from "@/app/components/home/hero-showcase";
 import { ThemeToggle } from "@/app/components/home/theme-toggle";
 import PixelBlast from "../react-bits/pixel-blast";
 import Grainient from "../react-bits/grainient";
+import { useTheme } from "next-themes";
 
 const features = [
   {
@@ -42,7 +43,8 @@ const features = [
 const connectors = [
   {
     name: "Better Stack",
-    description: "Structured JSON log delivery with error tracking and exception capture.",
+    description:
+      "Structured JSON log delivery with error tracking and exception capture.",
     href: "/docs/connectors/betterstack",
   },
   {
@@ -57,7 +59,8 @@ const connectors = [
   },
   {
     name: "OTLP",
-    description: "Any OTLP-compatible target — Datadog, Grafana Cloud, Honeycomb.",
+    description:
+      "Any OTLP-compatible target — Datadog, Grafana Cloud, Honeycomb.",
     href: "/docs/connectors/otlp",
   },
 ];
@@ -90,22 +93,74 @@ const workflow = [
 ];
 
 const integrations = [
-  { name: "Next.js", src: "/logos/nextjs-icon.svg", darkInvert: true, href: "/docs/integrations/nextjs" },
-  { name: "Hono", src: "/logos/hono.svg", darkInvert: false, href: "/docs/integrations/hono" },
-  { name: "Express", src: "/logos/express.svg", darkInvert: true, href: "/docs/integrations/express" },
-  { name: "Fastify", src: "/logos/fastify-icon.svg", darkInvert: true, href: "/docs/integrations/fastify" },
-  { name: "NestJS", src: "/logos/nestjs.svg", darkInvert: false, href: "/docs/integrations/nestjs" },
-  { name: "SvelteKit", src: "/logos/svelte-icon.svg", darkInvert: false, href: "/docs/integrations/sveltekit" },
-  { name: "Elysia", src: "/logos/elysia-seeklogo.svg", darkInvert: true, href: "/docs/integrations/elysia" },
-  { name: "Workers", src: "/logos/cloudflare-workers-icon.svg", darkInvert: false, href: "/docs/integrations/workers" },
-  { name: "Expo", src: "/logos/expo-icon.svg", darkInvert: true, href: "/docs/integrations/expo" },
-  { name: "TanStack Start", src: "/logos/tanstack-start.png", darkInvert: false, href: "/docs/integrations/tanstack-start" },
+  {
+    name: "Next.js",
+    src: "/logos/nextjs-icon.svg",
+    darkInvert: true,
+    href: "/docs/integrations/nextjs",
+  },
+  {
+    name: "Hono",
+    src: "/logos/hono.svg",
+    darkInvert: false,
+    href: "/docs/integrations/hono",
+  },
+  {
+    name: "Express",
+    src: "/logos/express.svg",
+    darkInvert: true,
+    href: "/docs/integrations/express",
+  },
+  {
+    name: "Fastify",
+    src: "/logos/fastify-icon.svg",
+    darkInvert: true,
+    href: "/docs/integrations/fastify",
+  },
+  {
+    name: "NestJS",
+    src: "/logos/nestjs.svg",
+    darkInvert: false,
+    href: "/docs/integrations/nestjs",
+  },
+  {
+    name: "SvelteKit",
+    src: "/logos/svelte-icon.svg",
+    darkInvert: false,
+    href: "/docs/integrations/sveltekit",
+  },
+  {
+    name: "Elysia",
+    src: "/logos/elysia-seeklogo.svg",
+    darkInvert: true,
+    href: "/docs/integrations/elysia",
+  },
+  {
+    name: "Workers",
+    src: "/logos/cloudflare-workers-icon.svg",
+    darkInvert: false,
+    href: "/docs/integrations/workers",
+  },
+  {
+    name: "Expo",
+    src: "/logos/expo-icon.svg",
+    darkInvert: true,
+    href: "/docs/integrations/expo",
+  },
+  {
+    name: "TanStack Start",
+    src: "/logos/tanstack-start.png",
+    darkInvert: false,
+    href: "/docs/integrations/tanstack-start",
+  },
 ];
 
 const landingEase = [0.22, 1, 0.36, 1] as const;
 
 export function BlypLandingPage() {
   const reduceMotion = useReducedMotion() ?? false;
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   const fadeUpInitial = reduceMotion ? false : { opacity: 0, y: 16 };
   const fadeUpAnimate = { opacity: 1, y: 0 };
@@ -198,7 +253,7 @@ export function BlypLandingPage() {
         <section className="relative z-10 mx-auto grid w-full max-w-[90rem] gap-14 px-5 pb-20 pt-10 sm:px-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(24rem,0.85fr)] lg:items-start lg:gap-12 lg:px-10 lg:pb-24 lg:pt-14">
           <div className="flex max-w-[42rem] flex-col gap-8">
             <motion.div
-              className="inline-flex items-center gap-3 border-t border-border pt-3 text-xs font-medium uppercase tracking-[0.24em] text-primary"
+              className="inline-flex items-center gap-3 -border pt-3 text-xs font-medium uppercase tracking-[0.24em] text-primary"
               initial={fadeUpInitial}
               animate={fadeUpAnimate}
               transition={fadeUpTransition(0.05)}
@@ -236,7 +291,11 @@ export function BlypLandingPage() {
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                 <div className="inline-flex w-fit items-center gap-3 border border-primary/35 bg-primary/10 px-4 py-3 text-sm text-foreground backdrop-blur-sm">
                   <code className="font-mono">bun add @blyp/core</code>
-                  <Copy size={16} aria-hidden="true" className="cursor-pointer active:scale-75 transition-all duration-200 w-4 h-4" />
+                  <Copy
+                    size={16}
+                    aria-hidden="true"
+                    className="cursor-pointer active:scale-75 transition-all duration-200 w-4 h-4"
+                  />
                 </div>
                 <Link
                   href="/docs/cli"
@@ -252,7 +311,7 @@ export function BlypLandingPage() {
           <HeroShowcase />
         </section>
 
-        <section className="border-t border-border">
+        <section className="-border">
           <div className="mx-auto w-full max-w-[90rem] px-5 py-24 sm:px-8 lg:px-10">
             <motion.div
               className="max-w-[42rem]"
@@ -269,23 +328,32 @@ export function BlypLandingPage() {
               </h2>
             </motion.div>
 
-            {/* 3-col feature cards */}
-            <div className="mt-14 grid border-l border-t border-border lg:grid-cols-3">
+            {/* 3-col feature cards — individual floating cards */}
+            <div className="mt-14 grid gap-3.5 lg:grid-cols-3">
               {features.map((feature, index) => (
                 <motion.article
                   key={feature.id}
-                  className="group border-b border-r border-border p-7 lg:p-8"
-                  initial={fadeUpInitial}
-                  whileInView={fadeUpAnimate}
+                  className="group relative overflow-hidden border border-border/60 p-7 transition-all duration-300  hover:-translate-y-3 hover:border-primary/35 hover:shadow-[0_16px_48px_-12px_color-mix(in_srgb,var(--color-primary)_20%,transparent)] lg:p-8"
+                  initial={reduceMotion ? false : { opacity: 0, y: 40, scale: 0.97 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
                   viewport={{ once: true, margin: "-40px" }}
-                  transition={fadeUpTransition(index * 0.08)}
-                  whileHover={reduceMotion ? {} : { y: -2 }}
+                  transition={reduceMotion ? { duration: 0 } : {
+                    type: "spring",
+                    stiffness: 240,
+                    damping: 22,
+                    delay: index * 0.14,
+                  }}
                 >
+                  {/* Top accent bar — sweeps in on hover */}
+                  <div
+                    className="absolute left-0 right-0 top-0 h-px origin-left scale-x-0 bg-primary transition-transform duration-300 ease-out group-hover:scale-x-100"
+                    aria-hidden="true"
+                  />
                   <div className="flex items-center justify-between">
-                    <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-muted-foreground/45">
+                    <p className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-muted-foreground/40">
                       {feature.eyebrow}
                     </p>
-                    <span className="font-mono text-[0.58rem] text-muted-foreground/28">
+                    <span className="font-mono text-[0.55rem] text-muted-foreground/22">
                       {feature.id}
                     </span>
                   </div>
@@ -295,20 +363,27 @@ export function BlypLandingPage() {
                   <p className="mt-3 text-sm leading-7 text-muted-foreground">
                     {feature.description}
                   </p>
-                  <p className="mt-6 font-mono text-[0.65rem] text-muted-foreground/40">
-                    {feature.detail}
-                  </p>
+                  <div className="mt-6 border-t border-border/40 pt-4">
+                    <p className="font-mono text-[0.62rem] text-muted-foreground/40 transition-colors duration-200 group-hover:text-primary/50">
+                      {feature.detail}
+                    </p>
+                  </div>
                 </motion.article>
               ))}
             </div>
 
             {/* Connectors — full-width card */}
             <motion.div
-              className="border-b border-l border-r border-border"
-              initial={fadeUpInitial}
-              whileInView={fadeUpAnimate}
+              className="mt-3.5 border border-border/60"
+              initial={reduceMotion ? false : { opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
-              transition={fadeUpTransition(0.2)}
+              transition={reduceMotion ? { duration: 0 } : {
+                type: "spring",
+                stiffness: 240,
+                damping: 24,
+                delay: 0.36,
+              }}
             >
               <div className="p-7 lg:p-8">
                 <div className="flex flex-col gap-1 lg:flex-row lg:items-start lg:justify-between lg:gap-12">
@@ -320,7 +395,10 @@ export function BlypLandingPage() {
                       Connectors
                     </h3>
                     <p className="mt-2 text-sm leading-7 text-muted-foreground">
-                      Forward logs and structured events to the observability tools you already use. Configure once — each connector supports auto mode, manual APIs, and per-runtime targeting across server, browser, and Expo.
+                      Forward logs and structured events to the observability
+                      tools you already use. Configure once. Each connector
+                      supports auto mode, manual APIs, and per-runtime targeting
+                      across server, browser, and Expo.
                     </p>
                   </div>
                   <Link
@@ -336,18 +414,30 @@ export function BlypLandingPage() {
                   {connectors.map((connector, index) => (
                     <motion.div
                       key={connector.name}
-                      initial={fadeUpInitial}
-                      whileInView={fadeUpAnimate}
+                      initial={reduceMotion ? false : { opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true, margin: "-30px" }}
-                      transition={fadeUpTransition(0.26 + index * 0.06)}
+                      transition={reduceMotion ? { duration: 0 } : {
+                        type: "spring",
+                        stiffness: 280,
+                        damping: 24,
+                        delay: 0.42 + index * 0.07,
+                      }}
                     >
                       <Link
                         href={connector.href}
-                        className="group/c block border border-border/55 bg-muted/10 px-4 py-4 transition-all duration-200 hover:border-primary/30 hover:bg-primary/5"
+                        className="group/c block cursor-pointer border border-border/55 bg-muted/10 px-4 py-4 transition-[transform,border-color,background-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-primary/30 hover:bg-primary/5"
                       >
-                        <p className="text-sm font-medium text-foreground transition-colors duration-200 group-hover/c:text-primary">
-                          {connector.name}
-                        </p>
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="text-sm font-medium text-foreground transition-colors duration-200 group-hover/c:text-primary">
+                            {connector.name}
+                          </p>
+                          <ArrowUpRight
+                            size={12}
+                            aria-hidden="true"
+                            className="mt-0.5 shrink-0 text-primary opacity-0 transition-opacity duration-200 group-hover/c:opacity-100"
+                          />
+                        </div>
                         <p className="mt-1.5 text-xs leading-5 text-muted-foreground/55">
                           {connector.description}
                         </p>
@@ -368,36 +458,36 @@ export function BlypLandingPage() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden border-t border-border">
-          {/* Grainient ambient background */}
-          <div className="pointer-events-none absolute inset-0 z-0" aria-hidden="true">
+        <section className="relative overflow-hidden">
+          <div
+            className="pointer-events-none absolute inset-0 z-0 dark:opacity-50"
+            aria-hidden="true"
+          >
             <Grainient
-              color1="#FF9999"
-              color2="#CC2222"
-              color3="#1A0404"
-              timeSpeed={0.1}
-              colorBalance={0.08}
-              warpStrength={0.65}
-              warpFrequency={3.0}
-              warpSpeed={1.2}
-              warpAmplitude={85}
-              blendAngle={22}
-              blendSoftness={0.14}
-              rotationAmount={240}
-              noiseScale={1.6}
-              grainAmount={0.055}
-              grainScale={2.8}
+              color1="#ff6b6b"
+              color2={isDark ? "#000000" : "#FAFAFA"}
+              color3="#B19EEF"
+              timeSpeed={0.25}
+              colorBalance={0}
+              warpStrength={1}
+              warpFrequency={5}
+              warpSpeed={2}
+              warpAmplitude={50}
+              blendAngle={0}
+              blendSoftness={0.05}
+              rotationAmount={500}
+              noiseScale={2}
+              grainAmount={0.1}
+              grainScale={2}
               grainAnimated={false}
-              contrast={1.2}
-              gamma={1.05}
-              saturation={0.7}
+              contrast={1.5}
+              gamma={1}
+              saturation={1}
               centerX={0}
               centerY={0}
-              zoom={0.82}
+              zoom={0.9}
             />
           </div>
-          {/* Readability overlay — heavier in light mode, lighter in dark */}
-          <div className="pointer-events-none absolute inset-0 z-0 bg-background/88 dark:bg-background/68" aria-hidden="true" />
 
           <div className="relative z-10 mx-auto grid w-full max-w-[90rem] gap-12 px-5 py-24 sm:px-8 lg:grid-cols-[minmax(0,0.99fr)_minmax(0,1.0fr)] lg:gap-20 lg:px-10">
             <motion.div
@@ -419,7 +509,7 @@ export function BlypLandingPage() {
               </p>
               <Link
                 href="/docs/installation"
-                className="mt-8 inline-flex items-center gap-2 text-sm text-muted-foreground/55 transition-colors duration-200 hover:text-foreground"
+                className="mt-8 inline-flex items-center gap-2 text-sm text-foreground transition-colors duration-200 hover:text-foreground"
               >
                 Read the installation guide
                 <ArrowRight size={14} aria-hidden="true" />
@@ -430,7 +520,7 @@ export function BlypLandingPage() {
               {workflow.map((item, index) => (
                 <motion.article
                   key={item.step}
-                  className="group relative border-t border-border py-10 transition-colors duration-200 hover:border-primary lg:py-14"
+                  className="group relative -border py-10 transition-colors duration-200 hover:border-primary lg:py-14"
                   initial={fadeUpInitial}
                   whileInView={fadeUpAnimate}
                   viewport={{ once: true, margin: "-30px" }}
@@ -453,7 +543,9 @@ export function BlypLandingPage() {
                         {item.body}
                       </p>
                       <div className="mt-5 flex items-center gap-3 border border-border/55 bg-muted/15 px-4 py-3 font-mono text-sm transition-all duration-200 group-hover:border-primary/28 group-hover:bg-primary/5 w-fit">
-                        <span className="select-none text-[0.7rem] text-muted-foreground/30">$</span>
+                        <span className="select-none text-[0.7rem] text-muted-foreground/30">
+                          $
+                        </span>
                         <span className="text-foreground transition-colors duration-200 group-hover:text-primary">
                           {item.command}
                         </span>
@@ -466,9 +558,8 @@ export function BlypLandingPage() {
           </div>
         </section>
 
-        <section className="border-t border-border">
+        <section>
           <div className="mx-auto w-full max-w-[90rem] px-5 py-24 sm:px-8 lg:px-10">
-
             <motion.div
               className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
               initial={fadeUpInitial}
@@ -484,7 +575,9 @@ export function BlypLandingPage() {
                   Works with the frameworks and runtimes you already use.
                 </h2>
                 <p className="mt-5 max-w-[38rem] text-base leading-8 text-muted-foreground">
-                  Drop Blyp into your existing stack. Server frameworks, edge runtimes, mobile, and browser environments — all covered out of the box.
+                  Drop Blyp into your existing stack. Server frameworks, edge
+                  runtimes, mobile, and browser environments — all covered out
+                  of the box.
                 </p>
               </div>
             </motion.div>
