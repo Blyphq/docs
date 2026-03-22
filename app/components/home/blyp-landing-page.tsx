@@ -64,21 +64,27 @@ const connectors = [
 const workflow = [
   {
     step: "01",
-    title: "Install the Logger",
-    body: "Start with the core package and keep the root import for app code.",
+    eyebrow: "Package",
+    title: "Install the core package",
+    body: "One import covers plain logs, HTTP middleware, structured events, and browser ingestion across server and edge runtimes.",
     command: "bun add @blyp/core",
+    href: "/docs/installation",
   },
   {
     step: "02",
-    title: "Launch Studio Locally",
-    body: "Open Blyp Studio for the current directory or point it at a specific app path.",
-    command: "blyp studio",
+    eyebrow: "Studio",
+    title: "Launch Studio locally",
+    body: "Open a local UI for your current project directory. Inspect live log streams, request traces, and structured events in real time.",
+    command: "bunx @blyp/cli studio",
+    href: "/docs/studio",
   },
   {
     step: "03",
-    title: "Add Repo-Local Skills",
-    body: "Install the matching presets so agent tooling follows Blyp’s documented setup paths.",
-    command: "blyp skills install",
+    eyebrow: "Agent skills",
+    title: "Add repo-local skills",
+    body: "Install portable skill presets so AI coding agents follow Blyp’s documented setup paths and config conventions for your project.",
+    command: "bunx @blyp/cli skills install",
+    href: "/docs/cli",
   },
 ];
 
@@ -362,41 +368,68 @@ export function BlypLandingPage() {
         </section>
 
         <section className="border-t border-border">
-          <div className="mx-auto grid w-full max-w-[90rem] gap-16 px-5 py-24 sm:px-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:px-10">
-            <div className="max-w-[32rem]">
-              <p className="text-[0.72rem] font-medium uppercase tracking-[0.24em] text-primary">
+          <div className="mx-auto grid w-full max-w-[90rem] gap-12 px-5 py-24 sm:px-8 lg:grid-cols-[minmax(0,0.99fr)_minmax(0,1.0fr)] lg:gap-20 lg:px-10">
+            <motion.div
+              className="max-w-2xl"
+              initial={fadeUpInitial}
+              whileInView={fadeUpAnimate}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={fadeUpTransition(0)}
+            >
+              <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
                 Workflow
               </p>
               <h2 className="mt-4 text-balance text-4xl font-semibold tracking-[-0.06em] text-foreground sm:text-5xl">
-                A direct path from install to agent-aware logging.
+                Install, monitor, and prompt. Three commands to get there.
               </h2>
-              <p className="mt-6 text-lg leading-8 text-muted-foreground">
-                The docs already describe the steps. The homepage should let
-                those steps breathe.
+              <p className="mt-6 text-base leading-8 text-muted-foreground">
+                No config file required to start. Install the package, launch
+                Studio, and add agent skills. Each step is a single command.
               </p>
-            </div>
+              <Link
+                href="/docs/installation"
+                className="mt-8 inline-flex items-center gap-2 text-sm text-muted-foreground/55 transition-colors duration-200 hover:text-foreground"
+              >
+                Read the installation guide
+                <ArrowRight size={14} aria-hidden="true" />
+              </Link>
+            </motion.div>
 
-            <div className="border-t border-border">
+            <div>
               {workflow.map((item, index) => (
-                <article
+                <motion.article
                   key={item.step}
-                  className={`grid gap-5 py-8 lg:grid-cols-[5rem_minmax(0,1fr)_auto] lg:items-start ${index < workflow.length - 1 ? "border-b border-border" : ""}`}
+                  className="group relative border-t border-border py-10 transition-colors duration-200 hover:border-primary lg:py-14"
+                  initial={fadeUpInitial}
+                  whileInView={fadeUpAnimate}
+                  viewport={{ once: true, margin: "-30px" }}
+                  transition={fadeUpTransition(index * 0.1)}
+                  whileHover={reduceMotion ? {} : { x: 3 }}
                 >
-                  <p className="text-sm font-medium text-primary">
-                    {item.step}
-                  </p>
-                  <div className="max-w-[36rem]">
-                    <h3 className="text-2xl font-semibold tracking-[-0.04em] text-foreground">
-                      {item.title}
-                    </h3>
-                    <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                      {item.body}
-                    </p>
+                  <div className="flex items-start gap-5 sm:gap-7">
+                    <span className="shrink-0 pt-[0.2rem] font-mono text-[0.6rem] text-muted-foreground/30">
+                      {item.step}
+                    </span>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-muted-foreground/40">
+                        {item.eyebrow}
+                      </p>
+                      <h3 className="mt-2 text-lg font-semibold tracking-[-0.03em] text-foreground transition-colors duration-200 group-hover:text-primary">
+                        {item.title}
+                      </h3>
+                      <p className="mt-2 max-w-[34rem] text-sm leading-7 text-muted-foreground">
+                        {item.body}
+                      </p>
+                      <div className="mt-5 flex items-center gap-3 border border-border/55 bg-muted/15 px-4 py-3 font-mono text-sm transition-all duration-200 group-hover:border-primary/28 group-hover:bg-primary/5 w-fit">
+                        <span className="select-none text-[0.7rem] text-muted-foreground/30">$</span>
+                        <span className="text-foreground transition-colors duration-200 group-hover:text-primary">
+                          {item.command}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <code className="inline-flex border border-border bg-muted/50 px-4 py-2 font-mono text-[0.78rem] text-primary transition-colors duration-200 hover:border-foreground/25 hover:bg-muted">
-                    {item.command}
-                  </code>
-                </article>
+                </motion.article>
               ))}
             </div>
           </div>
