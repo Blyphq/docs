@@ -7,6 +7,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { HeroShowcase } from "@/app/components/home/hero-showcase";
 import { ThemeToggle } from "@/app/components/home/theme-toggle";
 import PixelBlast from "../react-bits/pixel-blast";
+import Grainient from "../react-bits/grainient";
 
 const features = [
   {
@@ -89,16 +90,16 @@ const workflow = [
 ];
 
 const integrations = [
-  { name: "Next.js", src: "/logos/nextjs-icon.svg" },
-  { name: "Hono", src: "/logos/hono.svg" },
-  { name: "Express", src: "/logos/express.svg" },
-  { name: "Fastify", src: "/logos/fastify-icon.svg" },
-  { name: "NestJS", src: "/logos/nestjs.svg" },
-  { name: "SvelteKit", src: "/logos/svelte-icon.svg" },
-  { name: "Elysia", src: "/logos/elysia-seeklogo.svg" },
-  { name: "Workers", src: "/logos/cloudflare-workers-icon.svg" },
-  { name: "Expo", src: "/logos/expo-icon.svg" },
-  { name: "TanStack Start", src: "/logos/tanstack-start.png" },
+  { name: "Next.js", src: "/logos/nextjs-icon.svg", darkInvert: true, href: "/docs/integrations/nextjs" },
+  { name: "Hono", src: "/logos/hono.svg", darkInvert: false, href: "/docs/integrations/hono" },
+  { name: "Express", src: "/logos/express.svg", darkInvert: true, href: "/docs/integrations/express" },
+  { name: "Fastify", src: "/logos/fastify-icon.svg", darkInvert: true, href: "/docs/integrations/fastify" },
+  { name: "NestJS", src: "/logos/nestjs.svg", darkInvert: false, href: "/docs/integrations/nestjs" },
+  { name: "SvelteKit", src: "/logos/svelte-icon.svg", darkInvert: false, href: "/docs/integrations/sveltekit" },
+  { name: "Elysia", src: "/logos/elysia-seeklogo.svg", darkInvert: true, href: "/docs/integrations/elysia" },
+  { name: "Workers", src: "/logos/cloudflare-workers-icon.svg", darkInvert: false, href: "/docs/integrations/workers" },
+  { name: "Expo", src: "/logos/expo-icon.svg", darkInvert: true, href: "/docs/integrations/expo" },
+  { name: "TanStack Start", src: "/logos/tanstack-start.png", darkInvert: false, href: "/docs/integrations/tanstack-start" },
 ];
 
 const landingEase = [0.22, 1, 0.36, 1] as const;
@@ -367,8 +368,38 @@ export function BlypLandingPage() {
           </div>
         </section>
 
-        <section className="border-t border-border">
-          <div className="mx-auto grid w-full max-w-[90rem] gap-12 px-5 py-24 sm:px-8 lg:grid-cols-[minmax(0,0.99fr)_minmax(0,1.0fr)] lg:gap-20 lg:px-10">
+        <section className="relative overflow-hidden border-t border-border">
+          {/* Grainient ambient background */}
+          <div className="pointer-events-none absolute inset-0 z-0" aria-hidden="true">
+            <Grainient
+              color1="#FF9999"
+              color2="#CC2222"
+              color3="#1A0404"
+              timeSpeed={0.1}
+              colorBalance={0.08}
+              warpStrength={0.65}
+              warpFrequency={3.0}
+              warpSpeed={1.2}
+              warpAmplitude={85}
+              blendAngle={22}
+              blendSoftness={0.14}
+              rotationAmount={240}
+              noiseScale={1.6}
+              grainAmount={0.055}
+              grainScale={2.8}
+              grainAnimated={false}
+              contrast={1.2}
+              gamma={1.05}
+              saturation={0.7}
+              centerX={0}
+              centerY={0}
+              zoom={0.82}
+            />
+          </div>
+          {/* Readability overlay — heavier in light mode, lighter in dark */}
+          <div className="pointer-events-none absolute inset-0 z-0 bg-background/88 dark:bg-background/68" aria-hidden="true" />
+
+          <div className="relative z-10 mx-auto grid w-full max-w-[90rem] gap-12 px-5 py-24 sm:px-8 lg:grid-cols-[minmax(0,0.99fr)_minmax(0,1.0fr)] lg:gap-20 lg:px-10">
             <motion.div
               className="max-w-2xl"
               initial={fadeUpInitial}
@@ -437,37 +468,57 @@ export function BlypLandingPage() {
 
         <section className="border-t border-border">
           <div className="mx-auto w-full max-w-[90rem] px-5 py-24 sm:px-8 lg:px-10">
-            <div className="max-w-[54rem]">
-              <p className="text-[0.72rem] font-medium uppercase tracking-[0.24em] text-primary">
-                Integrations
-              </p>
-              <h2 className="mt-4 text-balance text-4xl font-semibold tracking-[-0.06em] text-foreground sm:text-5xl">
-                One package, multiple runtimes, and framework-aware adapters
-                where you need them.
-              </h2>
-              <p className="mt-6 max-w-[40rem] text-lg leading-8 text-muted-foreground">
-                Blyp docs currently cover adapters for server frameworks,
-                browser logging, Expo, Workers, and connector forwarding.
-              </p>
-            </div>
 
-            <div className="mt-14 grid grid-cols-2 border-l border-t border-border sm:grid-cols-3 lg:grid-cols-5">
-              {integrations.map((integration) => (
-                <div
+            <motion.div
+              className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
+              initial={fadeUpInitial}
+              whileInView={fadeUpAnimate}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={fadeUpTransition(0)}
+            >
+              <div className="max-w-[42rem]">
+                <p className="text-[0.72rem] font-medium uppercase tracking-[0.24em] text-primary">
+                  Integrations
+                </p>
+                <h2 className="mt-4 text-balance text-4xl font-semibold tracking-[-0.06em] text-foreground sm:text-5xl">
+                  Works with the frameworks and runtimes you already use.
+                </h2>
+                <p className="mt-5 max-w-[38rem] text-base leading-8 text-muted-foreground">
+                  Drop Blyp into your existing stack. Server frameworks, edge runtimes, mobile, and browser environments — all covered out of the box.
+                </p>
+              </div>
+            </motion.div>
+
+            <div className="mt-12 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
+              {integrations.map((integration, index) => (
+                <motion.div
                   key={integration.name}
-                  className="group flex min-h-28 items-center gap-4 border-b border-r border-border px-5 py-5 transition-colors duration-200 hover:bg-muted/40"
+                  initial={fadeUpInitial}
+                  whileInView={fadeUpAnimate}
+                  viewport={{ once: true, margin: "-30px" }}
+                  transition={fadeUpTransition(index * 0.04)}
+                  whileHover={reduceMotion ? {} : { y: -3 }}
                 >
-                  <Image
-                    src={integration.src}
-                    alt={`${integration.name} logo`}
-                    width={22}
-                    height={22}
-                    className="h-[22px] w-[22px] object-contain opacity-80 transition-opacity duration-200 group-hover:opacity-100"
-                  />
-                  <span className="min-w-0 text-sm font-medium text-muted-foreground transition-colors duration-200 group-hover:text-foreground">
-                    {integration.name}
-                  </span>
-                </div>
+                  <Link
+                    href={integration.href}
+                    className="group flex flex-col items-center gap-4 border border-border/50 bg-muted/8 px-4 py-8 transition-all duration-200 hover:border-primary/25 hover:bg-primary/5 cursor-pointer"
+                  >
+                    <Image
+                      src={integration.src}
+                      alt={`${integration.name} logo`}
+                      width={28}
+                      height={28}
+                      className={`h-7 w-7 object-contain transition-all duration-200 ${
+                        integration.darkInvert
+                          ? "opacity-55 dark:invert dark:opacity-75 group-hover:opacity-80 dark:group-hover:opacity-95"
+                          : "opacity-70 group-hover:opacity-100"
+                      }`}
+                    />
+                    <span className="text-center text-xs font-medium text-muted-foreground transition-colors duration-200 group-hover:text-foreground">
+                      {integration.name}
+                    </span>
+                  </Link>
+                </motion.div>
               ))}
             </div>
           </div>
