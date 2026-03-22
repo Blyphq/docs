@@ -62,18 +62,7 @@ const showcasePanels: ShowcasePanel[] = [
   },
 ];
 
-const docsSourceMap: Record<ShowcasePanelId, string[]> = {
-  logs: ["Structured Logs", "Basic Usage"],
-  cli: ["Installation", "CLI", "Database Logging"],
-  ai: ["Structured Logs", "Database Logging", "CLI"],
-};
-
-const logLegend = [
-  { id: "plain", label: "plain" },
-  { id: "http", label: "http" },
-  { id: "structured", label: "structured" },
-  { id: "error", label: "error" },
-] as const;
+const logTimestamps = ["+0ms", "+84ms", "+142ms", "+189ms", "+243ms"];
 
 const logEntries: LogEntry[] = [
   {
@@ -136,40 +125,80 @@ const aiEvidenceCards: EvidenceCard[] = [
   {
     label: "Grouped event",
     value: "checkout emit",
-    delay: 1.05,
+    delay: 3.8,
   },
   {
     label: "Critical fields",
     value: "payment.status=declined user.plan=pro",
-    delay: 1.18,
+    delay: 3.95,
   },
   {
     label: "Next step",
     value: "Inspect Studio or enable database logging",
-    delay: 1.31,
+    delay: 4.1,
   },
 ];
 
 const aiResponse =
   "I found one grouped checkout event. The emit shows payment.status=declined, user.plan=pro, and status=402, so the failure happened during card authorization. If you want the full trail, open Studio or persist the same structured payload with database logging after db:init.";
 
+type ToolCall = {
+  id: string;
+  name: string;
+  params: Array<{ key: string; value: string }>;
+  result: string[];
+  callDelay: number;
+  resultDelay: number;
+};
+
+const aiToolCalls: ToolCall[] = [
+  {
+    id: "tool-1",
+    name: "query_logs",
+    params: [
+      { key: "trace_id", value: '"req_84f2"' },
+      { key: "filter", value: '"payment"' },
+    ],
+    result: [
+      'payment.status=declined  why="Card declined by issuer"',
+      "→ 1 match in trace_84f2",
+    ],
+    callDelay: 0.32,
+    resultDelay: 0.75,
+  },
+  {
+    id: "tool-2",
+    name: "get_structured_emit",
+    params: [
+      { key: "event", value: '"checkout"' },
+      { key: "trace_id", value: '"req_84f2"' },
+    ],
+    result: [
+      'msg="checkout"  status=402',
+      'user.id=1842  user.plan="pro"',
+      'payment.status="declined"',
+    ],
+    callDelay: 1.0,
+    resultDelay: 1.42,
+  },
+];
+
 function nextPanelId(current: ShowcasePanelId): ShowcasePanelId {
   const currentIndex = showcasePanels.findIndex((panel) => panel.id === current);
   const nextIndex = (currentIndex + 1) % showcasePanels.length;
-
   return showcasePanels[nextIndex].id;
 }
 
-function panelTone(kind: LogEntry["kind"]) {
+function entryTextColor(kind: LogEntry["kind"]) {
   switch (kind) {
     case "plain":
-      return "border-border/70 text-muted-foreground";
+      return "text-muted-foreground/55";
     case "http":
-      return "border-chart-3/50 text-chart-3";
+      return "text-chart-3";
     case "structured":
-      return "border-primary/45 text-foreground";
+      return "text-foreground/85";
     case "error":
-      return "border-destructive/40 text-destructive";
+      return "text-destructive";
   }
 }
 
@@ -246,147 +275,138 @@ function TerminalCursor() {
 
 function LogsPanel({ reduceMotion }: { reduceMotion: boolean }) {
   return (
-    <div className="grid gap-4 lg:grid-cols-[10rem_minmax(0,1fr)]">
-      <div className="space-y-3 border-b border-border/70 pb-4 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-4">
-        <p className="text-[0.68rem] uppercase tracking-[0.24em] text-muted-foreground/70">
-          Stream types
-        </p>
-        <div className="flex flex-wrap gap-2 lg:flex-col">
-          {logLegend.map((item, index) => (
-            <motion.span
-              key={item.id}
-              className={`inline-flex items-center gap-2 border px-3 py-2 text-[0.72rem] uppercase tracking-[0.2em] ${panelTone(item.id)}`}
-              initial={reduceMotion ? false : { opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{
-                duration: reduceMotion ? 0 : 0.28,
-                delay: reduceMotion ? 0 : 0.08 + index * 0.06,
-                ease: landingEase,
-              }}
-            >
-              <span aria-hidden="true" className="size-1.5 bg-current" />
-              {item.label}
-            </motion.span>
-          ))}
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        {logEntries.map((entry) => (
+    <div>
+      {/* Stream entries — timeline style */}
+      <div className="space-y-0.5">
+        {logEntries.map((entry, index) => (
           <motion.div
             key={entry.text}
-            className="flex items-start gap-3 border border-border/70 bg-background/55 px-3 py-3 text-sm leading-7 text-muted-foreground"
-            initial={reduceMotion ? false : { opacity: 0, y: 10, filter: "blur(4px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            className="grid items-baseline gap-x-3 px-1 py-2 transition-colors hover:bg-muted/20"
+            style={{ gridTemplateColumns: "3rem 4.75rem 1fr" }}
+            initial={reduceMotion ? false : { opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{
-              duration: reduceMotion ? 0 : 0.34,
+              duration: reduceMotion ? 0 : 0.3,
               delay: reduceMotion ? 0 : entry.delay,
               ease: landingEase,
             }}
           >
-            <span
-              className={`mt-1 inline-flex min-w-[4.75rem] justify-center border px-2 py-1 text-[0.62rem] uppercase tracking-[0.2em] ${panelTone(entry.kind)}`}
-            >
+            <span className="font-mono text-[0.6rem] tabular-nums text-right text-muted-foreground/30">
+              {logTimestamps[index]}
+            </span>
+            <span className={`font-mono text-[0.6rem] uppercase tracking-[0.1em] ${entryTextColor(entry.kind)}`}>
               {entry.label}
             </span>
-            <span
-              className={
-                entry.kind === "http"
-                  ? "text-chart-3"
-                  : entry.kind === "error"
-                    ? "text-destructive"
-                    : entry.kind === "structured"
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-              }
-            >
+            <span className={`font-mono text-xs leading-5 ${entryTextColor(entry.kind)}`}>
               {entry.text}
             </span>
           </motion.div>
         ))}
-
-        <motion.div
-          className="border border-primary/35 bg-primary/8 p-4 shadow-[0_18px_35px_-24px_color-mix(in_srgb,var(--color-primary)_70%,transparent)]"
-          initial={reduceMotion ? false : { opacity: 0, y: 12, scale: 0.985 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{
-            duration: reduceMotion ? 0 : 0.4,
-            delay: reduceMotion ? 0 : 0.92,
-            ease: landingEase,
-          }}
-        >
-          <p className="text-[0.68rem] uppercase tracking-[0.24em] text-primary">
-            Final emit
-          </p>
-          <div className="mt-3 space-y-2 border border-border/70 bg-background/80 p-4 font-mono text-sm text-foreground">
-            {emittedStructuredLines.map((line, index) => (
-              <motion.p
-                key={line}
-                className={index === 0 ? "text-primary" : ""}
-                initial={reduceMotion ? false : { opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{
-                  duration: reduceMotion ? 0 : 0.24,
-                  delay: reduceMotion ? 0 : 1.04 + index * 0.08,
-                  ease: landingEase,
-                }}
-              >
-                {line}
-              </motion.p>
-            ))}
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="border border-border/70 bg-background/60 p-4 font-mono text-xs leading-6 text-muted-foreground"
-          initial={reduceMotion ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{
-            duration: reduceMotion ? 0 : 0.35,
-            delay: reduceMotion ? 0 : 1.38,
-            ease: landingEase,
-          }}
-        >
-          {`{"level":"info","msg":"checkout","user":{"id":1842,"plan":"pro"},"status":402}`}
-        </motion.div>
       </div>
+
+      {/* Emit separator */}
+      <motion.div
+        className="my-5 flex items-center gap-3"
+        initial={reduceMotion ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{
+          duration: reduceMotion ? 0 : 0.35,
+          delay: reduceMotion ? 0 : 0.85,
+          ease: landingEase,
+        }}
+      >
+        <div className="h-px flex-1 bg-primary/18" />
+        <span className="font-mono text-[0.6rem] uppercase tracking-[0.18em] text-primary/55">emit</span>
+        <div className="h-px flex-1 bg-primary/18" />
+      </motion.div>
+
+      {/* Emit result — left-accent card */}
+      <motion.div
+        className="border-l-2 border-primary/40 bg-primary/5 py-3 pl-4 pr-3"
+        initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: reduceMotion ? 0 : 0.38,
+          delay: reduceMotion ? 0 : 0.92,
+          ease: landingEase,
+        }}
+      >
+        <div className="space-y-1 font-mono text-xs">
+          {emittedStructuredLines.map((line, index) => (
+            <motion.p
+              key={line}
+              className={index === 0 ? "font-medium text-primary" : "text-muted-foreground"}
+              initial={reduceMotion ? false : { opacity: 0, x: -6 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{
+                duration: reduceMotion ? 0 : 0.2,
+                delay: reduceMotion ? 0 : 1.0 + index * 0.07,
+                ease: landingEase,
+              }}
+            >
+              {line}
+            </motion.p>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Raw JSON */}
+      <motion.p
+        className="mt-3 px-1 font-mono text-[0.62rem] leading-5 text-muted-foreground/30"
+        initial={reduceMotion ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{
+          duration: reduceMotion ? 0 : 0.3,
+          delay: reduceMotion ? 0 : 1.38,
+          ease: landingEase,
+        }}
+      >
+        {`{"level":"info","msg":"checkout","user":{"id":1842,"plan":"pro"},"status":402}`}
+      </motion.p>
     </div>
   );
 }
 
 function CliPanel({ reduceMotion }: { reduceMotion: boolean }) {
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_12rem]">
-      <div className="border border-border/70 bg-background/60 p-4 font-mono text-sm leading-7 text-muted-foreground">
+    <div className="blyp-terminal-surface overflow-hidden">
+      {/* Terminal title bar */}
+      <div className="flex items-center justify-between border-b border-white/[0.05] px-4 py-2.5">
+        <span className="font-mono text-[0.65rem] text-white/22">zsh — blyp setup</span>
+        <span className="font-mono text-[0.62rem] text-white/16">~/workspace/app</span>
+      </div>
+      {/* Terminal body */}
+      <div className="p-5 font-mono text-sm leading-7">
         {cliSteps.map((step, index) => {
           if (step.kind === "command") {
             return (
-              <TypewriterText
-                key={step.text}
-                as="p"
-                text={`$ ${step.text}`}
-                delayMs={reduceMotion ? 0 : step.delay}
-                speedMs={14}
-                className="text-foreground"
-                persistentCursor={index === cliSteps.length - 1}
-              />
+              <div key={step.text} className="flex items-start gap-2.5">
+                <span className="mt-[0.1em] select-none text-emerald-400/55">$</span>
+                <TypewriterText
+                  as="span"
+                  text={step.text}
+                  delayMs={reduceMotion ? 0 : step.delay}
+                  speedMs={14}
+                  className="text-white/82"
+                  persistentCursor={index === cliSteps.length - 1}
+                />
+              </div>
             );
           }
-
           return (
             <motion.p
               key={step.text}
-              className={
+              className={`pl-[1.375rem] ${
                 step.kind === "success"
-                  ? "text-primary"
+                  ? "text-emerald-400/70"
                   : step.kind === "prompt"
-                    ? "text-foreground"
-                    : "text-muted-foreground"
-              }
-              initial={reduceMotion ? false : { opacity: 0, x: -8 }}
-              animate={{ opacity: 1, x: 0 }}
+                    ? "text-amber-300/65"
+                    : "text-white/28"
+              }`}
+              initial={reduceMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
               transition={{
-                duration: reduceMotion ? 0 : 0.22,
+                duration: reduceMotion ? 0 : 0.18,
                 delay: reduceMotion ? 0 : step.delay / 1000,
                 ease: landingEase,
               }}
@@ -396,114 +416,174 @@ function CliPanel({ reduceMotion }: { reduceMotion: boolean }) {
           );
         })}
       </div>
+    </div>
+  );
+}
 
+function ToolCallBlock({
+  tool,
+  reduceMotion,
+}: {
+  tool: ToolCall;
+  reduceMotion: boolean;
+}) {
+  return (
+    <motion.div
+      className="overflow-hidden border border-border/40 bg-muted/12"
+      initial={reduceMotion ? false : { opacity: 0, y: 5 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: reduceMotion ? 0 : 0.24,
+        delay: reduceMotion ? 0 : tool.callDelay,
+        ease: landingEase,
+      }}
+    >
+      {/* Header — tool name + status */}
+      <div className="flex items-center justify-between border-b border-border/30 px-3 py-2">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-[0.7rem] text-muted-foreground/40" aria-hidden="true">ƒ</span>
+          <span className="font-mono text-xs text-foreground/75">{tool.name}</span>
+        </div>
+        {/* Running indicator — visible until result arrives */}
+        <motion.div
+          className="flex items-center gap-1.5"
+          initial={reduceMotion ? false : { opacity: 1 }}
+          animate={reduceMotion ? {} : { opacity: 0 }}
+          transition={{
+            duration: reduceMotion ? 0 : 0.15,
+            delay: reduceMotion ? 0 : tool.resultDelay - 0.05,
+          }}
+          aria-hidden="true"
+        >
+          {[0, 1, 2].map((i) => (
+            <motion.span
+              key={i}
+              className="size-1 rounded-full bg-muted-foreground/35"
+              animate={reduceMotion ? {} : { opacity: [0.2, 0.9, 0.2] }}
+              transition={{ duration: 0.65, delay: i * 0.12, repeat: Infinity }}
+            />
+          ))}
+        </motion.div>
+        {/* Done badge — fades in when result arrives */}
+        <motion.div
+          className="absolute flex items-center gap-1.5 font-mono text-[0.58rem] uppercase tracking-[0.1em] text-emerald-500/65"
+          style={{ position: "relative" }}
+          initial={reduceMotion ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{
+            duration: reduceMotion ? 0 : 0.22,
+            delay: reduceMotion ? 0 : tool.resultDelay,
+          }}
+        >
+          <span className="size-1.5 rounded-full bg-emerald-500/55" />
+          done
+        </motion.div>
+      </div>
+
+      {/* Params */}
+      <div className="space-y-1 px-3 py-2.5">
+        {tool.params.map((param) => (
+          <div key={param.key} className="flex items-baseline gap-3">
+            <span className="min-w-[4.5rem] font-mono text-[0.62rem] text-muted-foreground/38">
+              {param.key}
+            </span>
+            <span className="font-mono text-[0.62rem] text-foreground/60">{param.value}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Result — slides in when the tool resolves */}
       <motion.div
-        className="flex h-fit flex-col gap-3 border border-border/70 bg-background/65 p-4"
-        initial={reduceMotion ? false : { opacity: 0, x: 12 }}
-        animate={{ opacity: 1, x: 0 }}
+        className="space-y-0.5 border-t border-border/28 bg-background/25 px-3 py-2.5"
+        initial={reduceMotion ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{
-          duration: reduceMotion ? 0 : 0.34,
-          delay: reduceMotion ? 0 : 0.32,
+          duration: reduceMotion ? 0 : 0.3,
+          delay: reduceMotion ? 0 : tool.resultDelay,
           ease: landingEase,
         }}
       >
-        <p className="text-[0.68rem] uppercase tracking-[0.24em] text-muted-foreground/70">
-          Setup notes
-        </p>
-        <div className="space-y-3 text-sm leading-6">
-          <div className="border border-primary/35 bg-primary/8 p-3">
-            <p className="text-[0.62rem] uppercase tracking-[0.2em] text-primary">
-              Adapter
-            </p>
-            <p className="mt-2 text-foreground">Prisma + Postgres</p>
-          </div>
-          <div className="border border-border/70 p-3">
-            <p className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground/70">
-              Config
-            </p>
-            <p className="mt-2 font-mono text-foreground">blyp.config.ts</p>
-          </div>
-          <div className="border border-border/70 p-3">
-            <p className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground/70">
-              Studio
-            </p>
-            <p className="mt-2 font-mono text-foreground">localhost:3003</p>
-          </div>
-        </div>
+        {tool.result.map((line) => (
+          <p key={line} className="font-mono text-[0.62rem] leading-5 text-muted-foreground/55">
+            {line}
+          </p>
+        ))}
       </motion.div>
-    </div>
+    </motion.div>
   );
 }
 
 function AiPanel({ reduceMotion }: { reduceMotion: boolean }) {
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
+      {/* User message — right-aligned bubble */}
       <motion.div
-        className="ml-auto max-w-[22rem] border border-border/70 bg-background/70 px-4 py-4"
-        initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+        className="flex justify-end"
+        initial={reduceMotion ? false : { opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: reduceMotion ? 0 : 0.28, ease: landingEase }}
       >
-        <p className="text-[0.68rem] uppercase tracking-[0.24em] text-muted-foreground/70">
-          User
-        </p>
-        <p className="mt-2 text-sm leading-7 text-foreground">
-          Show me the structured log for the failed payment.
-        </p>
+        <div className="max-w-xs">
+          <div className="border border-primary/22 bg-primary/8 px-4 py-3">
+            <p className="text-sm leading-6 text-foreground">
+              Show me the structured log for the failed payment.
+            </p>
+          </div>
+          <p className="mr-1 mt-1 text-right font-mono text-[0.58rem] text-muted-foreground/30">you</p>
+        </div>
       </motion.div>
 
-      {!reduceMotion ? (
-        <motion.div
-          className="flex w-fit items-center gap-2 border border-border/70 bg-background/55 px-4 py-3 text-muted-foreground"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 1, 1, 0] }}
-          transition={{ duration: 1.1, delay: 0.22, ease: "easeInOut" }}
-        >
-          <span className="size-2 rounded-full bg-primary/70" />
-          <span className="size-2 rounded-full bg-primary/55" />
-          <span className="size-2 rounded-full bg-primary/40" />
-        </motion.div>
-      ) : null}
+      {/* Tool calls */}
+      <div className="flex flex-col gap-2">
+        {aiToolCalls.map((tool) => (
+          <ToolCallBlock key={tool.id} tool={tool} reduceMotion={reduceMotion} />
+        ))}
+      </div>
 
+      {/* Agent response */}
       <motion.div
-        className="max-w-[34rem] border border-primary/30 bg-primary/8 px-4 py-4"
-        initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+        className="flex items-start gap-3"
+        initial={reduceMotion ? false : { opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{
           duration: reduceMotion ? 0 : 0.34,
-          delay: reduceMotion ? 0 : 0.48,
+          delay: reduceMotion ? 0 : 1.72,
           ease: landingEase,
         }}
       >
-        <p className="text-[0.68rem] uppercase tracking-[0.24em] text-primary">
-          Agent
-        </p>
-        <TypewriterText
-          as="p"
-          text={aiResponse}
-          delayMs={reduceMotion ? 0 : 760}
-          speedMs={12}
-          className="mt-2 text-sm leading-7 text-foreground"
-        />
+        {/* Blyp avatar */}
+        <div className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center border border-primary/32 bg-primary/10">
+          <span className="font-mono text-[0.58rem] font-semibold text-primary">B</span>
+        </div>
+        <div className="flex-1 border border-border/55 bg-background/50 px-4 py-3">
+          <TypewriterText
+            as="p"
+            text={aiResponse}
+            delayMs={reduceMotion ? 0 : 1920}
+            speedMs={8}
+            className="text-sm leading-7 text-foreground"
+          />
+        </div>
       </motion.div>
 
-      <div className="grid gap-3 md:grid-cols-3">
+      {/* Evidence — left-border annotations */}
+      <div className="grid gap-3 pl-8 sm:grid-cols-3">
         {aiEvidenceCards.map((card) => (
           <motion.div
             key={card.label}
-            className="border border-border/70 bg-background/65 p-4"
-            initial={reduceMotion ? false : { opacity: 0, y: 12, scale: 0.985 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
+            className="border-l-2 border-primary/28 py-0.5 pl-3"
+            initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{
-              duration: reduceMotion ? 0 : 0.28,
+              duration: reduceMotion ? 0 : 0.26,
               delay: reduceMotion ? 0 : card.delay,
               ease: landingEase,
             }}
           >
-            <p className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground/70">
+            <p className="font-mono text-[0.58rem] uppercase tracking-[0.12em] text-muted-foreground/45">
               {card.label}
             </p>
-            <p className="mt-2 text-sm leading-6 text-foreground">{card.value}</p>
+            <p className="mt-0.5 text-xs leading-5 text-foreground/85">{card.value}</p>
           </motion.div>
         ))}
       </div>
@@ -536,7 +616,7 @@ export function HeroShowcase() {
 
   return (
     <motion.aside
-      className="relative isolate overflow-hidden border border-border bg-card/95 shadow-[0_20px_60px_-36px_rgba(0,0,0,0.9)] backdrop-blur-sm"
+      className="relative isolate overflow-hidden border border-border/60 bg-card/95 shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-primary)_7%,transparent),0_24px_56px_-18px_rgba(0,0,0,0.28)] backdrop-blur-sm"
       initial={reduceMotion ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: reduceMotion ? 0 : 0.8, delay: reduceMotion ? 0 : 0.2, ease: landingEase }}
@@ -550,115 +630,117 @@ export function HeroShowcase() {
       }}
       aria-label="Animated Blyp hero showcase"
     >
-      <div className="blyp-terminal-grid pointer-events-none absolute inset-0 opacity-45" aria-hidden="true" />
-      <div className="blyp-noise pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
-      {!reduceMotion ? (
-        <motion.span
-          aria-hidden="true"
-          className="blyp-scanline pointer-events-none absolute left-0 right-0 top-0 z-10 h-24"
-          initial={{ y: "-32%" }}
-          animate={{ y: ["-32%", "510%"] }}
-          transition={{ duration: 3.9, ease: "linear", repeat: Infinity, repeatDelay: 0.8 }}
-        />
-      ) : null}
+      {/* Background texture — reduced opacity for less visual noise */}
+      <div className="blyp-terminal-grid pointer-events-none absolute inset-0 opacity-22" aria-hidden="true" />
+      <div className="blyp-noise pointer-events-none absolute inset-0 opacity-45" aria-hidden="true" />
 
       <div className="relative z-10">
-        <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6">
-          <div className="flex items-center gap-2">
-            <span aria-hidden="true" className="size-2.5 rounded-full bg-destructive" />
-            <span aria-hidden="true" className="size-2.5 rounded-full bg-chart-3" />
-            <span aria-hidden="true" className="size-2.5 rounded-full bg-chart-2" />
+        {/* Top bar — path breadcrumb + live indicator */}
+        <div className="flex items-center justify-between border-b border-border/45 px-5 py-3 sm:px-6">
+          <div className="flex items-center gap-1.5 font-mono text-[0.68rem] text-muted-foreground/45">
+            <span>workspace</span>
+            <span className="text-border/60">›</span>
+            <span>checkout</span>
+            <span className="text-border/60">›</span>
+            <span className="text-foreground/65">trace_84f2</span>
           </div>
-          <div className="text-[0.68rem] uppercase tracking-[0.24em] text-muted-foreground/70">
-            {activeConfig.label}
+          <div className="flex items-center gap-1.5 font-mono text-[0.6rem] uppercase tracking-[0.16em] text-muted-foreground/35">
+            <span className="blyp-live-dot size-1.5 rounded-full bg-emerald-500/55" aria-hidden="true" />
+            live
           </div>
         </div>
 
-        <div className="space-y-5 px-5 py-5 sm:px-6 sm:py-6">
-          <div className="space-y-3">
-            <p className="text-[0.68rem] uppercase tracking-[0.24em] text-primary">
-              {activeConfig.eyebrow}
-            </p>
-            <h2 className="max-w-[34rem] text-balance text-2xl font-semibold tracking-[-0.05em] text-foreground sm:text-[2rem]">
-              {activeConfig.title}
-            </h2>
-            <p className="max-w-[34rem] text-sm leading-7 text-muted-foreground sm:text-base">
-              {activeConfig.blurb}
-            </p>
-          </div>
-
-          <div
-            className="flex flex-wrap gap-2"
-            role="tablist"
-            aria-label="Blyp hero showcase views"
-          >
-            {showcasePanels.map((panel) => {
-              const isActive = panel.id === activePanel;
-
-              return (
-                <button
-                  key={panel.id}
-                  id={`${panel.id}-tab`}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  aria-controls={`${panel.id}-panel`}
-                  tabIndex={isActive ? 0 : -1}
-                  onClick={() => {
-                    setActivePanel(panel.id);
-                    setAutoplayNonce((current) => current + 1);
-                  }}
-                  className={`inline-flex items-center gap-2 border px-3 py-2 text-[0.72rem] uppercase tracking-[0.2em] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card ${
-                    isActive
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border bg-background/60 text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <span
-                    aria-hidden="true"
-                    className={`size-1.5 ${isActive ? "bg-primary" : "bg-current"}`}
-                  />
-                  {panel.label}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="min-h-[28rem] border border-border/70 bg-background/35 p-4 sm:p-5 lg:min-h-[34rem]">
-            <AnimatePresence mode="wait">
-              <motion.section
-                key={activePanel}
-                id={`${activePanel}-panel`}
-                role="tabpanel"
-                aria-labelledby={`${activePanel}-tab`}
-                initial={reduceMotion ? false : { opacity: 0, y: 8, scale: 0.985, filter: "blur(6px)" }}
-                animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-                exit={reduceMotion ? undefined : { opacity: 0, y: 8, scale: 0.985, filter: "blur(6px)" }}
-                transition={{ duration: reduceMotion ? 0 : 0.4, ease: landingEase }}
-                className="h-full"
+        {/* Tab strip — sliding underline indicator */}
+        <div
+          className="flex items-end border-b border-border/45"
+          role="tablist"
+          aria-label="Blyp hero showcase views"
+        >
+          {showcasePanels.map((panel) => {
+            const isActive = panel.id === activePanel;
+            return (
+              <button
+                key={panel.id}
+                id={`${panel.id}-tab`}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                aria-controls={`${panel.id}-panel`}
+                tabIndex={isActive ? 0 : -1}
+                onClick={() => {
+                  setActivePanel(panel.id);
+                  setAutoplayNonce((current) => current + 1);
+                }}
+                className={`relative px-5 py-3 text-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card ${
+                  isActive
+                    ? "text-foreground"
+                    : "text-muted-foreground/50 hover:text-muted-foreground/80"
+                }`}
               >
-                {activePanel === "logs" ? <LogsPanel reduceMotion={reduceMotion} /> : null}
-                {activePanel === "cli" ? <CliPanel reduceMotion={reduceMotion} /> : null}
-                {activePanel === "ai" ? <AiPanel reduceMotion={reduceMotion} /> : null}
-              </motion.section>
+                {panel.label}
+                {isActive ? (
+                  <motion.div
+                    layoutId="showcase-tab-underline"
+                    className="absolute bottom-0 left-0 right-0 h-px bg-primary"
+                    transition={{ duration: 0.22, ease: landingEase }}
+                  />
+                ) : null}
+              </button>
+            );
+          })}
+
+          {/* Eyebrow hint — fades with active tab */}
+          <div className="ml-auto flex items-end pb-3 pr-5 sm:pr-6">
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={activePanel}
+                className="font-mono text-[0.62rem] text-muted-foreground/38"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.18 }}
+              >
+                {activeConfig.eyebrow}
+              </motion.span>
             </AnimatePresence>
           </div>
         </div>
 
-        <div className="border-t border-border px-5 py-4 sm:px-6">
-          <p className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground/70">
-            Docs sources
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {docsSourceMap[activePanel].map((source) => (
-              <span
-                key={source}
-                className="inline-flex items-center gap-2 border border-border bg-background/60 px-3 py-2 text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground"
-              >
-                <span aria-hidden="true" className="size-1.5 bg-primary" />
-                {source}
-              </span>
-            ))}
+        {/* Panel content */}
+        <div className="min-h-[24rem] px-5 py-6 sm:px-6 lg:min-h-[30rem]">
+          <AnimatePresence mode="wait">
+            <motion.section
+              key={activePanel}
+              id={`${activePanel}-panel`}
+              role="tabpanel"
+              aria-labelledby={`${activePanel}-tab`}
+              initial={reduceMotion ? false : { opacity: 0, y: 6, filter: "blur(5px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={reduceMotion ? undefined : { opacity: 0, y: 6, filter: "blur(5px)" }}
+              transition={{ duration: reduceMotion ? 0 : 0.32, ease: landingEase }}
+              className="h-full"
+            >
+              {activePanel === "logs" ? <LogsPanel reduceMotion={reduceMotion} /> : null}
+              {activePanel === "cli" ? <CliPanel reduceMotion={reduceMotion} /> : null}
+              {activePanel === "ai" ? <AiPanel reduceMotion={reduceMotion} /> : null}
+            </motion.section>
+          </AnimatePresence>
+        </div>
+
+        {/* Status bar — trace metadata */}
+        <div className="flex items-center justify-between border-t border-border/45 px-5 py-3 sm:px-6">
+          <div className="flex items-center gap-2.5 font-mono text-[0.6rem] text-muted-foreground/30">
+            <span>trace_84f2</span>
+            <span className="text-border/50">·</span>
+            <span>243ms</span>
+            <span className="text-border/50">·</span>
+            <span>5 events</span>
+            <span className="text-border/50">·</span>
+            <span className="text-destructive/45">1 error</span>
+          </div>
+          <div className="flex items-center gap-1 font-mono text-[0.6rem] text-muted-foreground/28 transition-colors hover:text-muted-foreground/50">
+            <span>View in Studio</span>
+            <span aria-hidden="true">→</span>
           </div>
         </div>
       </div>

@@ -209,3 +209,18 @@
       transparent 100%
     );
 }
+
+/* Always-dark terminal surface for CLI panel — real terminals are dark regardless of theme */
+.blyp-terminal-surface {
+  background-color: oklch(0.11 0.004 40);
+}
+
+/* Live status dot — subtle continuous pulse */
+@keyframes blyp-live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.28; }
+}
+
+.blyp-live-dot {
+  animation: blyp-live-pulse 2.4s ease-in-out infinite;
+}
