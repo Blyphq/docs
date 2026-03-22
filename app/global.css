@@ -183,3 +183,29 @@
   font-family: var(--font-space-mono), var(--font-geist-mono), monospace;
   font-variant-numeric: tabular-nums;
 }
+
+.blyp-terminal-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--color-border) 26%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-border) 18%, transparent) 1px, transparent 1px);
+  background-position: center;
+  background-size: 24px 24px;
+}
+
+.blyp-noise {
+  background-image:
+    radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--color-primary) 10%, transparent) 0, transparent 34%),
+    radial-gradient(circle at 80% 0%, color-mix(in srgb, var(--color-foreground) 6%, transparent) 0, transparent 28%),
+    radial-gradient(circle at 50% 100%, color-mix(in srgb, var(--color-primary) 8%, transparent) 0, transparent 42%);
+}
+
+.blyp-scanline {
+  background:
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      color-mix(in srgb, var(--color-primary) 14%, transparent) 45%,
+      color-mix(in srgb, var(--color-primary) 8%, transparent) 60%,
+      transparent 100%
+    );
+}

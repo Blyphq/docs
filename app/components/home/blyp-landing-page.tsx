@@ -4,37 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Copy } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-import { InstallCommandCard } from "@/app/components/home/install-command-card";
+import { HeroShowcase } from "@/app/components/home/hero-showcase";
 import { ThemeToggle } from "@/app/components/home/theme-toggle";
 import PixelBlast from "../react-bits/pixel-blast";
-
-const commandItems = [
-  {
-    label: "Install Blyp Core",
-    command: "bun add @blyp/core",
-    helper: "The published npm package is @blyp/core.",
-  },
-  {
-    label: "Launch Blyp Studio",
-    command: "bunx @blyp/cli studio",
-    helper: "Studio runs locally and connects to your project path.",
-  },
-];
-
-const facts = [
-  {
-    label: "Runtime",
-    value: "Bun-first and Node-compatible",
-  },
-  {
-    label: "Studio",
-    value: "Runs locally at localhost:3003",
-  },
-  {
-    label: "Skills",
-    value: "Project-local installs into .agents/skills",
-  },
-];
 
 const features = [
   {
@@ -95,40 +67,10 @@ const integrations = [
   { name: "TanStack Start", src: "/logos/tanstack-start.png" },
 ];
 
-const terminalNotes = [
-  {
-    label: "Studio",
-    body: "Connect the local UI to the repo that is actually open on disk.",
-  },
-  {
-    label: "Skill Path",
-    body: "Install supported presets into .agents/skills for project-aware coding agents.",
-  },
-  {
-    label: "Final Emit",
-    body: "Keep one rich structured event instead of a pile of disconnected lines.",
-  },
-];
-
-const terminalLines = [
-  "$ bun add @blyp/core",
-  "$ bunx @blyp/cli studio",
-  "$ blyp skills install",
-  "",
-  "INFO  studio ready at http://localhost:3003",
-  "INFO  targetPath=/workspace/app runtime=bun",
-  "",
-  "checkout",
-  "  user.id=1842 user.plan=pro",
-  "  cart.items=3 cart.total=9999",
-  '  why="Card declined by issuer"',
-  '  fix="Try a different payment method"',
-];
-
 const landingEase = [0.22, 1, 0.36, 1] as const;
 
 export function BlypLandingPage() {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReducedMotion() ?? false;
 
   const fadeUpInitial = reduceMotion ? false : { opacity: 0, y: 16 };
   const fadeUpAnimate = { opacity: 1, y: 0 };
@@ -137,18 +79,6 @@ export function BlypLandingPage() {
     delay: reduceMotion ? 0 : delay,
     ease: landingEase,
   });
-
-  const asideInitial = reduceMotion ? false : { opacity: 0 };
-  const asideAnimate = { opacity: 1 };
-  const asideTransition = {
-    duration: reduceMotion ? 0 : 0.8,
-    delay: reduceMotion ? 0 : 0.2,
-    ease: landingEase,
-  };
-  const terminalPaneTransition = {
-    duration: reduceMotion ? 0 : 0.55,
-    ease: landingEase,
-  };
 
   return (
     <div className="blyp-home bg-background text-foreground">
@@ -230,18 +160,15 @@ export function BlypLandingPage() {
             transparent
           />
         </div>
-        <section className="relative z-10 mx-auto flex w-full max-w-[90rem] flex-col gap-20 px-5 sm:px-8 lg:px-10">
-          <div className="w-full flex flex-col gap-6">
+        <section className="relative z-10 mx-auto grid w-full max-w-[90rem] gap-14 px-5 pb-20 pt-10 sm:px-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(24rem,0.85fr)] lg:items-start lg:gap-12 lg:px-10 lg:pb-24 lg:pt-14">
+          <div className="flex max-w-[42rem] flex-col gap-8">
             <motion.div
               className="inline-flex items-center gap-3 border-t border-border pt-3 text-xs font-medium uppercase tracking-[0.24em] text-primary"
               initial={fadeUpInitial}
               animate={fadeUpAnimate}
               transition={fadeUpTransition(0.05)}
             >
-              <span
-                aria-hidden="true"
-                className="size-2 bg-primary"
-              />
+              <span aria-hidden="true" className="size-2 bg-primary" />
               Runtime-adaptive logging
             </motion.div>
 
@@ -264,136 +191,30 @@ export function BlypLandingPage() {
               logger for local apps, framework handlers, browser ingestion,
               structured errors, and project-aware agent workflows.
             </motion.p>
-            <motion.div className="flex items-center gap-4 bg-primary/10 p-4 rounded-lg w-fit border border-primary/40 backdrop-blur-sm">
-              <p>bun add @blyp/core</p> <Copy className="w-4 h-4" />
+
+            <motion.div
+              className="flex flex-col gap-4"
+              initial={fadeUpInitial}
+              animate={fadeUpAnimate}
+              transition={fadeUpTransition(0.36)}
+            >
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                <div className="inline-flex w-fit items-center gap-3 border border-primary/35 bg-primary/10 px-4 py-3 text-sm text-foreground backdrop-blur-sm">
+                  <code className="font-mono">bun add @blyp/core</code>
+                  <Copy size={16} aria-hidden="true" className="cursor-pointer active:scale-75 transition-all duration-200 w-4 h-4" />
+                </div>
+                <Link
+                  href="/docs/cli"
+                  className="inline-flex items-center justify-center gap-2 border border-primary bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors duration-200 hover:bg-transparent hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  Explore CLI
+                  <ArrowRight size={16} aria-hidden="true" />
+                </Link>
+              </div>
             </motion.div>
           </div>
 
-          <motion.aside
-            className="relative overflow-hidden border border-border bg-card/95 shadow-[0_20px_60px_-36px_rgba(0,0,0,0.9)] backdrop-blur-sm"
-            initial={asideInitial}
-            animate={asideAnimate}
-            transition={asideTransition}
-          >
-            {!reduceMotion && (
-              <motion.span
-                aria-hidden="true"
-                className="pointer-events-none absolute left-0 right-0 top-0 z-20 h-20 bg-gradient-to-b from-primary/10 to-transparent"
-                initial={{ y: "-30%" }}
-                animate={{ y: ["-35%", "520%"] }}
-                transition={{
-                  duration: 3.8,
-                  ease: "linear",
-                  repeat: Infinity,
-                  repeatDelay: 0.6,
-                }}
-              />
-            )}
-            <div className="flex items-center justify-between border-b border-border px-6 py-4">
-              <div className="flex items-center gap-2">
-                <motion.span
-                  aria-hidden="true"
-                  className="size-2.5 rounded-full bg-destructive"
-                  animate={reduceMotion ? undefined : { opacity: [0.7, 1, 0.7] }}
-                  transition={{
-                    duration: 1.8,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                />
-                <motion.span
-                  aria-hidden="true"
-                  className="size-2.5 rounded-full bg-chart-3"
-                  animate={reduceMotion ? undefined : { opacity: [0.6, 1, 0.6] }}
-                  transition={{
-                    duration: 1.8,
-                    delay: 0.25,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                />
-                <motion.span
-                  aria-hidden="true"
-                  className="size-2.5 rounded-full bg-chart-2"
-                  animate={reduceMotion ? undefined : { opacity: [0.65, 1, 0.65] }}
-                  transition={{
-                    duration: 1.8,
-                    delay: 0.45,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                />
-              </div>
-              <div className="text-[0.68rem] uppercase tracking-[0.24em] text-muted-foreground/70">
-                Local Workflow
-              </div>
-            </div>
-
-            <div className="grid lg:grid-cols-[15rem_minmax(0,1fr)]">
-              <div className="border-b border-border lg:border-b-0 lg:border-r lg:border-border">
-                {terminalNotes.map((note, index) => (
-                  <motion.div
-                    key={note.label}
-                    className={`px-6 py-6 ${index < terminalNotes.length - 1 ? "border-b border-border" : ""}`}
-                    initial={reduceMotion ? false : { opacity: 0, x: -14 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{
-                      ...terminalPaneTransition,
-                      delay: reduceMotion ? 0 : 0.16 + index * 0.08,
-                    }}
-                  >
-                    <p className="text-[0.68rem] font-medium uppercase tracking-[0.22em] text-muted-foreground/70">
-                      {note.label}
-                    </p>
-                    <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                      {note.body}
-                    </p>
-                  </motion.div>
-                ))}
-              </div>
-
-              <motion.pre
-                className="relative overflow-x-auto px-6 py-6 text-sm leading-8 text-muted-foreground"
-                initial={reduceMotion ? false : { opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ ...terminalPaneTransition, delay: reduceMotion ? 0 : 0.28 }}
-              >
-                <code className="font-mono">
-                  {terminalLines.map((line, index) => (
-                    <motion.span
-                      key={`${line}-${index}`}
-                      className={
-                        line.startsWith("INFO")
-                          ? "block text-primary"
-                          : line.includes("why=") || line.includes("fix=")
-                            ? "block text-foreground"
-                            : "block"
-                      }
-                      initial={reduceMotion ? false : { opacity: 0, x: -10, filter: "blur(2px)" }}
-                      animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                      transition={{
-                        duration: reduceMotion ? 0 : 0.32,
-                        ease: landingEase,
-                        delay: reduceMotion ? 0 : 0.36 + index * 0.075,
-                      }}
-                    >
-                      {line || " "}
-                    </motion.span>
-                  ))}
-                  <motion.span
-                    aria-hidden="true"
-                    className="inline-block h-[1.05em] w-2.5 translate-y-1 bg-primary/80"
-                    animate={reduceMotion ? undefined : { opacity: [0, 1, 0] }}
-                    transition={{
-                      duration: 1,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                  />
-                </code>
-              </motion.pre>
-            </div>
-          </motion.aside>
+          <HeroShowcase />
         </section>
 
         <section className="border-t border-border">
