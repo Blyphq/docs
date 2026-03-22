@@ -11,25 +11,53 @@ import PixelBlast from "../react-bits/pixel-blast";
 const features = [
   {
     id: "01",
+    eyebrow: "Local inspector",
     title: "Studio",
     description:
-      "Open a local UI for the current project and inspect Blyp workflows without leaving the machine.",
-    detail: "The CLI launches Studio at http://localhost:3003.",
+      "A local UI that opens instantly for your current project. Inspect live log streams, structured events, and request traces without leaving your machine.",
+    detail: "bunx @blyp/cli studio · localhost:3003",
+    href: "/docs/studio",
   },
   {
     id: "02",
-    title: "Agent Skills",
+    eyebrow: "Log your way",
+    title: "Plain Logs",
     description:
-      "Install portable project-local skills so coding agents follow Blyp’s supported setup paths.",
-    detail: "Bundled skills are copied into .agents/skills/<skill-name>.",
+      "Drop-in console-style logging with no ceremony. Blyp captures plain messages, HTTP traffic, and errors in the same stream as structured events — write logs however you want.",
+    detail: "blyp.info() · blyp.error() · blyp.http()",
+    href: "/docs/basic-usage",
   },
   {
     id: "03",
+    eyebrow: "Rich context, one emit",
     title: "Structured Logs",
     description:
-      "Accumulate context silently and emit one rich event instead of scattering unrelated lines.",
-    detail:
-      "createStructuredLog() holds fields until emit() finalizes the payload.",
+      "Accumulate fields silently throughout a request lifecycle and emit one rich grouped event at the end. No scattered lines, no lost context between calls.",
+    detail: "createStructuredLog() → .set() → .emit()",
+    href: "/docs/structured-logs",
+  },
+];
+
+const connectors = [
+  {
+    name: "Better Stack",
+    description: "Structured JSON log delivery with error tracking and exception capture.",
+    href: "/docs/connectors/betterstack",
+  },
+  {
+    name: "PostHog",
+    description: "Automatic log forwarding and server-side event capture.",
+    href: "/docs/connectors/posthog",
+  },
+  {
+    name: "Sentry",
+    description: "Error forwarding across server, browser, and Expo runtimes.",
+    href: "/docs/connectors/sentry",
+  },
+  {
+    name: "OTLP",
+    description: "Any OTLP-compatible target — Datadog, Grafana Cloud, Honeycomb.",
+    href: "/docs/connectors/otlp",
   },
 ];
 
@@ -219,36 +247,117 @@ export function BlypLandingPage() {
 
         <section className="border-t border-border">
           <div className="mx-auto w-full max-w-[90rem] px-5 py-24 sm:px-8 lg:px-10">
-            <div className="max-w-[42rem]">
+            <motion.div
+              className="max-w-[42rem]"
+              initial={fadeUpInitial}
+              whileInView={fadeUpAnimate}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={fadeUpTransition(0)}
+            >
               <p className="text-[0.72rem] font-medium uppercase tracking-[0.24em] text-primary">
                 What Blyp Gives You
               </p>
               <h2 className="mt-4 text-balance text-4xl font-semibold tracking-[-0.06em] text-foreground sm:text-5xl">
-                Fewer containers, more signal.
+                Log freely. Structure when it matters. Ship anywhere.
               </h2>
-            </div>
+            </motion.div>
 
-            <div className="mt-14 grid gap-12 lg:grid-cols-3 lg:gap-10">
-              {features.map((feature) => (
-                <article
+            {/* 3-col feature cards */}
+            <div className="mt-14 grid border-l border-t border-border lg:grid-cols-3">
+              {features.map((feature, index) => (
+                <motion.article
                   key={feature.id}
-                  className="border-t border-border pt-6 transition-colors duration-200 hover:border-primary"
+                  className="group border-b border-r border-border p-7 lg:p-8"
+                  initial={fadeUpInitial}
+                  whileInView={fadeUpAnimate}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={fadeUpTransition(index * 0.08)}
+                  whileHover={reduceMotion ? {} : { y: -2 }}
                 >
-                  <p className="text-sm font-medium text-primary">
-                    {feature.id}
-                  </p>
-                  <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] text-foreground">
+                  <div className="flex items-center justify-between">
+                    <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-muted-foreground/45">
+                      {feature.eyebrow}
+                    </p>
+                    <span className="font-mono text-[0.58rem] text-muted-foreground/28">
+                      {feature.id}
+                    </span>
+                  </div>
+                  <h3 className="mt-5 text-xl font-semibold tracking-[-0.03em] text-foreground transition-colors duration-200 group-hover:text-primary">
                     {feature.title}
                   </h3>
-                  <p className="mt-4 text-base leading-8 text-muted-foreground">
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">
                     {feature.description}
                   </p>
-                  <p className="mt-5 text-sm leading-7 text-muted-foreground/80">
+                  <p className="mt-6 font-mono text-[0.65rem] text-muted-foreground/40">
                     {feature.detail}
                   </p>
-                </article>
+                </motion.article>
               ))}
             </div>
+
+            {/* Connectors — full-width card */}
+            <motion.div
+              className="border-b border-l border-r border-border"
+              initial={fadeUpInitial}
+              whileInView={fadeUpAnimate}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={fadeUpTransition(0.2)}
+            >
+              <div className="p-7 lg:p-8">
+                <div className="flex flex-col gap-1 lg:flex-row lg:items-start lg:justify-between lg:gap-12">
+                  <div className="max-w-[38rem]">
+                    <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-muted-foreground/45">
+                      Ship to your stack
+                    </p>
+                    <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-foreground">
+                      Connectors
+                    </h3>
+                    <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                      Forward logs and structured events to the observability tools you already use. Configure once — each connector supports auto mode, manual APIs, and per-runtime targeting across server, browser, and Expo.
+                    </p>
+                  </div>
+                  <Link
+                    href="/docs/connectors/betterstack"
+                    className="mt-1 hidden shrink-0 items-center gap-1.5 text-sm text-muted-foreground/45 transition-colors duration-200 hover:text-foreground lg:flex"
+                  >
+                    View all connectors
+                    <ArrowRight size={14} aria-hidden="true" />
+                  </Link>
+                </div>
+
+                <div className="mt-7 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+                  {connectors.map((connector, index) => (
+                    <motion.div
+                      key={connector.name}
+                      initial={fadeUpInitial}
+                      whileInView={fadeUpAnimate}
+                      viewport={{ once: true, margin: "-30px" }}
+                      transition={fadeUpTransition(0.26 + index * 0.06)}
+                    >
+                      <Link
+                        href={connector.href}
+                        className="group/c block border border-border/55 bg-muted/10 px-4 py-4 transition-all duration-200 hover:border-primary/30 hover:bg-primary/5"
+                      >
+                        <p className="text-sm font-medium text-foreground transition-colors duration-200 group-hover/c:text-primary">
+                          {connector.name}
+                        </p>
+                        <p className="mt-1.5 text-xs leading-5 text-muted-foreground/55">
+                          {connector.description}
+                        </p>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+
+                <Link
+                  href="/docs/connectors/betterstack"
+                  className="mt-5 inline-flex items-center gap-1.5 text-sm text-muted-foreground/45 transition-colors duration-200 hover:text-foreground lg:hidden"
+                >
+                  View all connectors
+                  <ArrowRight size={14} aria-hidden="true" />
+                </Link>
+              </div>
+            </motion.div>
           </div>
         </section>
 
