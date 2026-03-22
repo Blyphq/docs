@@ -36,7 +36,7 @@ export default defineDocs({
       },
       layout: {
         contentWidth: 820,
-        sidebarWidth: 286,
+        sidebarWidth: 300,
         tocWidth: 248,
         toc: {
           enabled: true,
