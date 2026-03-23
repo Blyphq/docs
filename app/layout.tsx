@@ -8,7 +8,6 @@ import {
 import { RootProvider } from "@farming-labs/theme";
 import docsConfig from "@/docs.config";
 import "./global.css";
-import { Databuddy } from "@databuddy/sdk/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -70,19 +69,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id={process.env.NEXT_PUBLIC_UMAMI_ID}
+        ></script>
+      </head>
       <body
         className={`${geistSans.variable} ${geistSansDocs.variable} ${geistMono.variable} ${geistMonoDocs.variable} ${plusJakarta.variable} ${spaceMono.variable}`}
       >
-        <RootProvider>
-          <Databuddy
-            clientId={process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID}
-            trackHashChanges={true}
-            trackAttributes={true}
-            trackOutgoingLinks={true}
-            trackInteractions={true}
-          />
-          {children}
-        </RootProvider>
+        <RootProvider>{children}</RootProvider>
       </body>
     </html>
   );
