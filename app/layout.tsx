@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Plus_Jakarta_Sans, Space_Mono } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Plus_Jakarta_Sans,
+  Space_Mono,
+} from "next/font/google";
 import { RootProvider } from "@farming-labs/theme";
 import docsConfig from "@/docs.config";
 import "./global.css";
@@ -37,7 +42,9 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  ),
   title: {
     default: "Blyp Docs",
     template: docsConfig.metadata?.titleTemplate ?? "%s",
@@ -55,9 +62,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id={process.env.NEXT_PUBLIC_UMAMI_ID}
+        ></script>
+      </head>
       <body
         className={`${geistSans.variable} ${geistSansDocs.variable} ${geistMono.variable} ${geistMonoDocs.variable} ${plusJakarta.variable} ${spaceMono.variable}`}
       >
