@@ -71,12 +71,15 @@ This first release covers **supported presets only**. It does not claim full cov
 
 - `blyp-core`: package install, runtime export selection, `blyp.config.*`, `/inngest`, and production-safe Blyp defaults
 - `blyp-nextjs`: `@blyp/core/nextjs`, `withLogger(...)`, and `clientLogHandler`
+- `blyp-react-router`: `@blyp/core/react-router`, `middleware`, `getLogger(context)`, and `clientLogHandler(request)`
+- `blyp-nuxt`: `@blyp/core/nuxt`, `serverPlugin`, `getLogger(event)`, and `clientLogHandler`
 - `blyp-express`: `@blyp/core/express`, `req.blypLog`, and `createExpressErrorLogger()`
 - `blyp-hono`: `@blyp/core/hono`, middleware on `"*"`, and `context.get("blypLog")`
 - `blyp-elysia`: `@blyp/core/elysia` and `ctx.log`
 - `blyp-workers`: Workers-only logging with `initWorkersLogger()`, `createWorkersLogger()`, and manual `emit()`
 - `blyp-client-expo`: browser and Expo logging, delivery queues, and connector forwarding requests through Blyp
 - `blyp-betterstack`: `connectors.betterstack`, auto or manual log forwarding, and Better Stack error tracking
+- `blyp-databuddy`: `connectors.databuddy`, auto or manual forwarding, and Databuddy helper APIs
 - `blyp-posthog`: `connectors.posthog`, auto or manual mode, and error tracking
 - `blyp-sentry`: `connectors.sentry`, auto or manual mode, and existing client reuse
 - `blyp-otlp`: named OTLP targets and explicit connector names for manual or client forwarding

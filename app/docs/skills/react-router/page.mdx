@@ -1,0 +1,36 @@
+---
+title: "React Router"
+description: "Blyp skill preset for React Router middleware, request-scoped context logging, and clientLogHandler(request)."
+icon: "react"
+order: 4
+---
+
+import { SkillInstall } from "@/app/components/skill-install";
+import { SkillSource } from "@/app/components/skill-source";
+
+# Blyp React Router
+
+Install `blyp-react-router` after `blyp-core` when the project uses React Router. This preset keeps agents on the official middleware-based adapter path, stores request-scoped logging in the router `context`, and mounts `clientLogHandler(request)` on the configured ingestion route.
+
+## When to install it
+
+- the repo uses React Router middleware
+- loaders or actions need request-scoped logging through `getLogger(context)`
+- browser ingestion is exposed through a React Router route action
+
+## What it covers
+
+- `createLogger()` from `@blyp/core/react-router`
+- `middleware`
+- `getLogger(context)`
+- `clientLogHandler(request)`
+- `500` mismatch behavior when the mounted path and configured path diverge
+
+<SkillInstall slug="react-router" />
+
+## Related docs
+
+- [React Router](/docs/integrations/react-router)
+- [Client](/docs/integrations/client)
+
+<SkillSource slug="react-router" />

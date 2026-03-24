@@ -1,0 +1,79 @@
+---
+title: "Astro"
+description: "Attach Blyp through onRequest, use locals.blypLog, and mount clientLogHandler in an Astro endpoint."
+icon: "astro"
+order: 10
+---
+
+# Astro
+
+Import from `@blyp/core/astro`. The `createLogger()` export is an alias of `createAstroLogger()`.
+
+```ts
+import { createLogger } from "@blyp/core/astro";
+
+const astroLogger = createLogger({
+  level: "info",
+});
+
+export const onRequest = astroLogger.onRequest;
+```
+
+Blyp attaches the request-scoped logger to `context.locals.blypLog` during the Astro request lifecycle.
+
+## Accessing the logger
+
+```ts
+export async function GET(context: { locals: { blypLog?: { info: (message: string) => void } } }) {
+  context.locals.blypLog?.info("astro-route");
+  return new Response("ok");
+}
+```
+
+`onRequest` handles both normal request logging and thrown error logging.
+
+## Client ingestion route
+
+Mount the client ingestion handler in an Astro endpoint:
+
+```ts
+// src/pages/inngest.ts
+import { createLogger } from "@blyp/core/astro";
+
+const astroLogger = createLogger();
+
+export const POST = astroLogger.clientLogHandler;
+```
+
+Astro passes endpoint context into `clientLogHandler`, not a bare `Request`. The mounted path must match the configured ingestion path or Blyp returns a `500` mismatch response.
+
+## What auto-logged requests look like
+
+With automatic request logging enabled, Blyp emits terminal output like:
+
+```text
+[INFO]  GET  /health        200  2ms
+[INFO]  POST /checkout      200  143ms
+[INFO]  GET  /users/42      404  8ms
+[ERROR] POST /payments      500  1203ms
+```
+
+Fields included automatically: method, path, status code, and duration.
+
+**In production (NDJSON):**
+
+```json
+{"level":"info","time":1710000000000,"msg":"GET /health","type":"http_request","method":"GET","url":"/health","statusCode":200,"responseTime":2}
+{"level":"info","time":1710000000001,"msg":"POST /checkout","type":"http_request","method":"POST","url":"/checkout","statusCode":200,"responseTime":143}
+```
+
+## Relevant types
+
+```ts
+import type {
+  AstroEndpointContext,
+  AstroLocals,
+  AstroLoggerConfig,
+  AstroLoggerFactory,
+} from "@blyp/core/astro";
+```

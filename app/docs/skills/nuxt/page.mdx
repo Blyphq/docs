@@ -1,0 +1,36 @@
+---
+title: "Nuxt"
+description: "Blyp skill preset for Nuxt serverPlugin, getLogger(event), and clientLogHandler in server API routes."
+icon: "nuxt"
+order: 7
+---
+
+import { SkillInstall } from "@/app/components/skill-install";
+import { SkillSource } from "@/app/components/skill-source";
+
+# Blyp Nuxt
+
+Install `blyp-nuxt` after `blyp-core` when the application runs on Nuxt. This preset keeps agents on the official Nuxt adapter path, exports `serverPlugin` from a Nuxt server plugin, and uses `getLogger(event)` for request-scoped logging in server handlers.
+
+## When to install it
+
+- the repo runs on Nuxt
+- server handlers need request-scoped logging through `getLogger(event)`
+- browser ingestion is mounted in a Nuxt `server/api` route
+
+## What it covers
+
+- `createLogger()` from `@blyp/core/nuxt`
+- `serverPlugin`
+- `getLogger(event)`
+- `clientLogHandler`
+- alignment between configured and mounted ingestion paths
+
+<SkillInstall slug="nuxt" />
+
+## Related docs
+
+- [Nuxt](/docs/integrations/nuxt)
+- [Client](/docs/integrations/client)
+
+<SkillSource slug="nuxt" />
