@@ -14,7 +14,7 @@ Use this add-on when Blyp should emit logs from browsers or Expo apps into a Bly
 - Adding `createClientLogger()` in a browser app
 - Adding `createExpoLogger()` in an Expo app
 - Enabling remote sync to Blyp ingestion
-- Requesting PostHog, Sentry, or OTLP forwarding from the client side
+- Requesting PostHog, Sentry, Databuddy, or OTLP forwarding from the client side
 
 ## Blyp-specific rules and constraints
 
@@ -53,4 +53,4 @@ Use this add-on when Blyp should emit logs from browsers or Expo apps into a Bly
 - Browser import path: `@blyp/core/client`
 - Expo import path: `@blyp/core/expo`
 - Main APIs: `createClientLogger()`, `createExpoLogger()`
-- Connector request shapes: `"posthog"`, `"sentry"`, `{ type: "otlp", name: "<target>" }`
+- Connector request shapes: `"posthog"`, `"sentry"`, `"databuddy"`, `{ type: "otlp", name: "<target>" }`

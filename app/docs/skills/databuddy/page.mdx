@@ -1,0 +1,38 @@
+---
+title: "Databuddy"
+description: "Blyp skill preset for connectors.databuddy, auto and manual forwarding, and Databuddy helper APIs."
+icon: "databuddy"
+order: 11
+---
+
+import { SkillInstall } from "@/app/components/skill-install";
+import { SkillSource } from "@/app/components/skill-source";
+
+# Blyp Databuddy
+
+Install `blyp-databuddy` after `blyp-core` when Blyp logs or handled errors must flow into Databuddy. This preset keeps agents on the official `connectors.databuddy` model, including explicit `auto` or `manual` mode selection and Blyp-mediated forwarding from browser or Expo clients.
+
+## When to install it
+
+- the repo configures `connectors.databuddy`
+- logs should flow into Databuddy
+- Blyp-managed handled errors should flow into Databuddy
+- browser or Expo code requests `connector: "databuddy"`
+
+## What it covers
+
+- `connectors.databuddy`
+- required `apiKey` and `websiteId`
+- auto vs manual mode
+- Databuddy manual helper APIs
+- client and Expo forwarding through Blyp first
+
+<SkillInstall slug="databuddy" />
+
+## Related docs
+
+- [Databuddy](/docs/connectors/databuddy)
+- [Client](/docs/integrations/client)
+- [Expo](/docs/integrations/expo)
+
+<SkillSource slug="databuddy" />

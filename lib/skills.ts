@@ -5,12 +5,15 @@ export type SkillPreset = {
   slug:
     | "core"
     | "nextjs"
+    | "react-router"
+    | "nuxt"
     | "express"
     | "hono"
     | "elysia"
     | "workers"
     | "client-expo"
     | "betterstack"
+    | "databuddy"
     | "posthog"
     | "sentry"
     | "otlp";
@@ -57,6 +60,32 @@ export const skillPresets: SkillPreset[] = [
     relatedLabel: "Next.js App Router",
     docsPath: "/docs/skills/nextjs",
     rawPath: "/skills/blyp-nextjs/SKILL.md",
+  },
+  {
+    slug: "react-router",
+    skillId: "blyp-react-router",
+    title: "React Router",
+    category: "integration",
+    coverage: "React Router middleware, context-scoped logging, and clientLogHandler(request)",
+    whenToInstall:
+      "Install when the codebase uses React Router middleware and imports from @blyp/core/react-router.",
+    relatedHref: "/docs/integrations/react-router",
+    relatedLabel: "React Router",
+    docsPath: "/docs/skills/react-router",
+    rawPath: "/skills/blyp-react-router/SKILL.md",
+  },
+  {
+    slug: "nuxt",
+    skillId: "blyp-nuxt",
+    title: "Nuxt",
+    category: "integration",
+    coverage: "Nuxt serverPlugin, getLogger(event), and clientLogHandler event routes",
+    whenToInstall:
+      "Install when the codebase runs on Nuxt and imports from @blyp/core/nuxt.",
+    relatedHref: "/docs/integrations/nuxt",
+    relatedLabel: "Nuxt",
+    docsPath: "/docs/skills/nuxt",
+    rawPath: "/skills/blyp-nuxt/SKILL.md",
   },
   {
     slug: "express",
@@ -136,6 +165,19 @@ export const skillPresets: SkillPreset[] = [
     relatedLabel: "Better Stack",
     docsPath: "/docs/skills/betterstack",
     rawPath: "/skills/blyp-betterstack/SKILL.md",
+  },
+  {
+    slug: "databuddy",
+    skillId: "blyp-databuddy",
+    title: "Databuddy",
+    category: "connector",
+    coverage: "connectors.databuddy, auto/manual forwarding, and Databuddy manual helper APIs",
+    whenToInstall:
+      "Install when the codebase forwards Blyp logs or handled errors into Databuddy.",
+    relatedHref: "/docs/connectors/databuddy",
+    relatedLabel: "Databuddy",
+    docsPath: "/docs/skills/databuddy",
+    rawPath: "/skills/blyp-databuddy/SKILL.md",
   },
   {
     slug: "posthog",

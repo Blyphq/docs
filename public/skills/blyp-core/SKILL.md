@@ -23,7 +23,7 @@ Use this skill whenever an agent needs to add, review, or change Blyp logging in
 - Always choose the subpath that matches the runtime instead of forcing the root package everywhere.
 - Prefer shared project config in `blyp.config.ts`, `blyp.config.mts`, `blyp.config.cts`, `blyp.config.js`, `blyp.config.mjs`, `blyp.config.cjs`, or `blyp.config.json`.
 - Default client ingestion path is `/inngest`.
-- Browser and Expo connector delivery still posts to Blyp ingestion first. They do not send directly to PostHog, Sentry, or OTLP vendors.
+- Browser and Expo connector delivery still posts to Blyp ingestion first. They do not send directly to PostHog, Sentry, Databuddy, or OTLP vendors.
 - Prefer production-safe defaults over the shortest demo snippet.
 - When client logging is enabled, verify that the mounted handler path matches the configured ingestion path exactly.
 - Treat unsupported presets as out of scope unless another Blyp skill explicitly covers them.
@@ -35,7 +35,7 @@ Use this skill whenever an agent needs to add, review, or change Blyp logging in
    - `@blyp/core` for root logger, standalone logger, config helpers, structured logs, and errors
    - `@blyp/core/client` for browser logging
    - `@blyp/core/expo` for Expo apps
-   - `@blyp/core/<framework>` for framework adapters such as `nextjs`, `express`, `hono`, `elysia`, or `workers`
+   - `@blyp/core/<framework>` for framework adapters such as `nextjs`, `react-router`, `nuxt`, `express`, `hono`, `elysia`, or `workers`
 3. Add or update `blyp.config.*` if the project needs shared log level, file logging, client ingestion, or connector configuration.
 4. If browser logging is enabled, keep the ingestion path aligned across config and server route mounting. Default to `/inngest` unless the repo already standardizes a different path.
 5. If connectors are involved, configure them on the server side first. Client and Expo requests depend on server connector configuration.
@@ -61,4 +61,4 @@ Use this skill whenever an agent needs to add, review, or change Blyp logging in
 - Package: `@blyp/core`
 - Config files: `blyp.config.ts`, `blyp.config.mts`, `blyp.config.cts`, `blyp.config.js`, `blyp.config.mjs`, `blyp.config.cjs`, `blyp.config.json`
 - Core imports: `logger`, `createStandaloneLogger`, `createStructuredLog`, `createError`, `parseError`
-- Related add-ons: `blyp-nextjs`, `blyp-express`, `blyp-hono`, `blyp-elysia`, `blyp-workers`, `blyp-client-expo`, `blyp-posthog`, `blyp-sentry`, `blyp-otlp`
+- Related add-ons: `blyp-nextjs`, `blyp-react-router`, `blyp-nuxt`, `blyp-express`, `blyp-hono`, `blyp-elysia`, `blyp-workers`, `blyp-client-expo`, `blyp-betterstack`, `blyp-databuddy`, `blyp-posthog`, `blyp-sentry`, `blyp-otlp`
