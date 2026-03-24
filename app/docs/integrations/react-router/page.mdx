@@ -1,0 +1,75 @@
+---
+title: "React Router"
+description: "Use Blyp middleware for request logging, read the scoped logger from context, and mount clientLogHandler() in a route action."
+icon: "react"
+order: 7
+---
+
+# React Router
+
+Import from `@blyp/core/react-router`. The `createLogger()` export is an alias of `createReactRouterLogger()`.
+
+```ts
+import { createLogger } from "@blyp/core/react-router";
+
+const reactRouterLogger = createLogger({
+  level: "info",
+});
+
+export const middleware = [reactRouterLogger.middleware];
+
+export async function loader({ context }: { context: Record<string, unknown> }) {
+  reactRouterLogger.getLogger(context).info("loaded route");
+  return Response.json({ ok: true });
+}
+```
+
+Blyp stores the request-scoped logger inside the React Router `context`. If no scoped logger has been stored yet, `getLogger(context)` falls back to the shared logger instance.
+
+## Client ingestion route
+
+Mount client ingestion in a route action and pass the incoming `Request` through directly:
+
+```ts
+// app/routes/inngest.ts
+import { createLogger } from "@blyp/core/react-router";
+
+const reactRouterLogger = createLogger();
+
+export async function action({ request }: { request: Request }) {
+  return reactRouterLogger.clientLogHandler(request);
+}
+```
+
+The mounted route path must match the configured client ingestion path. If `clientLogging.path` is different from the route you mount, Blyp returns a `500` mismatch response.
+
+## What auto-logged requests look like
+
+With automatic request logging enabled, Blyp emits terminal output like:
+
+```text
+[INFO]  GET  /health        200  2ms
+[INFO]  POST /checkout      200  143ms
+[INFO]  GET  /users/42      404  8ms
+[ERROR] POST /payments      500  1203ms
+```
+
+Fields included automatically: method, path, status code, and duration.
+
+**In production (NDJSON):**
+
+```json
+{"level":"info","time":1710000000000,"msg":"GET /health","type":"http_request","method":"GET","url":"/health","statusCode":200,"responseTime":2}
+{"level":"info","time":1710000000001,"msg":"POST /checkout","type":"http_request","method":"POST","url":"/checkout","statusCode":200,"responseTime":143}
+```
+
+## Relevant types
+
+```ts
+import type {
+  ReactRouterContextStore,
+  ReactRouterLoggerConfig,
+  ReactRouterLoggerFactory,
+  ReactRouterMiddlewareArgs,
+} from "@blyp/core/react-router";
+```

@@ -1,0 +1,95 @@
+---
+title: "Databuddy"
+description: "Use Blyp's Databuddy connector for automatic forwarding, manual helper APIs, and browser or Expo forwarding through Blyp ingestion."
+icon: "databuddy"
+order: 3
+---
+
+# Databuddy
+
+Use `connectors.databuddy` when you want Blyp logs and handled server errors forwarded into Databuddy events.
+
+## Config
+
+```ts
+export default {
+  connectors: {
+    databuddy: {
+      enabled: true,
+      mode: "auto",
+      apiKey: process.env.DATABUDDY_API_KEY,
+      websiteId: process.env.DATABUDDY_WEBSITE_ID,
+      enableBatching: true,
+    },
+  },
+};
+```
+
+## Config fields
+
+- `enabled`: enables Databuddy delivery
+- `mode`: `auto` or `manual`
+- `apiKey`: Databuddy API key
+- `websiteId`: Databuddy website identifier
+- `enableBatching`: controls batched delivery and defaults to `true`
+
+Both `apiKey` and `websiteId` are required. Until both values are present, Blyp keeps the connector status at `missing`.
+
+## Automatic server forwarding
+
+When `mode: "auto"` is enabled and the connector is ready, Blyp forwards normal server logs into Databuddy automatically.
+
+Handled server errors are also captured as Databuddy `error` events when the connector is available.
+
+## Manual APIs
+
+Use `@blyp/core/databuddy` when you want explicit control:
+
+```ts
+import {
+  captureDatabuddyException,
+  createDatabuddyErrorTracker,
+  createDatabuddyLogger,
+  createStructuredDatabuddyLogger,
+} from "@blyp/core/databuddy";
+
+createDatabuddyLogger().info("manual databuddy log");
+
+createDatabuddyErrorTracker().capture(
+  new Error("manual databuddy exception")
+);
+
+captureDatabuddyException(new Error("wrapped databuddy exception"));
+
+const structured = createStructuredDatabuddyLogger("checkout", {
+  orderId: "ord_123",
+});
+
+structured.info("manual start");
+structured.emit({ status: 200 });
+```
+
+## Browser and Expo forwarding
+
+Browser and Expo do not use `@databuddy/sdk` directly. They post to Blyp ingestion first, and Blyp forwards to Databuddy when the server connector is configured.
+
+```ts
+const browserLogger = createClientLogger({
+  endpoint: "/inngest",
+  connector: "databuddy",
+});
+```
+
+```ts
+const expoLogger = createExpoLogger({
+  endpoint: "https://api.example.com/inngest",
+  connector: "databuddy",
+});
+```
+
+## Notes
+
+- Blyp warns when browser or Expo apps request Databuddy forwarding but the server connector is missing
+- client forwarding depends on the server-side Databuddy connector being ready
+- Workers remain out of scope for this connector
+- manual Databuddy helper APIs are server-side helpers, not browser APIs

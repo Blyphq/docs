@@ -26,8 +26,11 @@ Blyp integrations cover browser logging, mobile transport, and server-side adapt
 | Fastify | `@blyp/core/fastify` | `createLogger()` | `request.blypLog` |
 | NestJS | `@blyp/core/nestjs` | `createLogger()` + `BlypModule.forRoot()` | `req.blypLog` and root `logger` |
 | Next.js App Router | `@blyp/core/nextjs` | `createLogger()` | `withLogger(..., { log })` |
+| React Router | `@blyp/core/react-router` | `createLogger()` | request-scoped logger stored in `context`, read through `getLogger(context)` |
 | TanStack Start | `@blyp/core/tanstack-start` | `createLogger()` | `context.blypLog` |
 | SvelteKit | `@blyp/core/sveltekit` | `createLogger()` | `event.locals.blypLog` |
+| Astro | `@blyp/core/astro` | `createLogger()` | `context.locals.blypLog` |
+| Nuxt | `@blyp/core/nuxt` | `createLogger()` | `nuxtLogger.getLogger(event)` |
 | Cloudflare Workers | `@blyp/core/workers` | `initWorkersLogger()` + `createWorkersLogger()` | request-scoped logger returned per request |
 
 ## Shared server-adapter config shape
@@ -71,6 +74,9 @@ Pick an integration page below for the exact wiring:
 - [Fastify](/docs/integrations/fastify)
 - [NestJS](/docs/integrations/nestjs)
 - [Next.js App Router](/docs/integrations/nextjs)
+- [React Router](/docs/integrations/react-router)
 - [TanStack Start](/docs/integrations/tanstack-start)
 - [SvelteKit](/docs/integrations/sveltekit)
+- [Astro](/docs/integrations/astro)
+- [Nuxt](/docs/integrations/nuxt)
 - [Cloudflare Workers](/docs/integrations/workers)

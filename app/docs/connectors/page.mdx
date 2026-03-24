@@ -13,6 +13,7 @@ Blyp ships first-party connector support for:
 
 - [Better Stack](/docs/connectors/betterstack)
 - [PostHog](/docs/connectors/posthog)
+- [Databuddy](/docs/connectors/databuddy)
 - [Sentry](/docs/connectors/sentry)
 - [OTLP](/docs/connectors/otlp)
 
@@ -38,6 +39,7 @@ The dedicated helper entry points are:
 
 - `@blyp/core/betterstack`
 - `@blyp/core/posthog`
+- `@blyp/core/databuddy`
 - `@blyp/core/sentry`
 - `@blyp/core/otlp`
 
@@ -56,6 +58,11 @@ const posthogClient = createClientLogger({
 const betterStackClient = createClientLogger({
   endpoint: "/inngest",
   connector: "betterstack",
+});
+
+const databuddyClient = createClientLogger({
+  endpoint: "/inngest",
+  connector: "databuddy",
 });
 
 const sentryClient = createClientLogger({
@@ -87,6 +94,7 @@ Blyp now loads configuration from any of these files in your project root:
 
 - [Better Stack](/docs/connectors/betterstack)
 - [PostHog](/docs/connectors/posthog)
+- [Databuddy](/docs/connectors/databuddy)
 - [Sentry](/docs/connectors/sentry)
 - [OTLP](/docs/connectors/otlp)
 - [Configuration](/docs/configuration)

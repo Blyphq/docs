@@ -27,7 +27,7 @@ Blyp includes a local developer UI called **Studio**, launched via the CLI. Stud
 To launch it:
 
 ```bash
-blyp studio
+bunx @blyp/cli studio
 ```
 
 See the [CLI docs](/docs/cli) for full Studio usage.
@@ -41,7 +41,7 @@ Blyp also now has a separate CLI project for local developer workflows, document
 | Core logger + errors | `@blyp/core` | `logger`, `createStandaloneLogger`, `createStructuredLog`, `createError`, `HTTP_CODES`, `parseError`, `readLogFile`, config/runtime helpers |
 | Browser logger | `@blyp/core/client` | `createClientLogger`, browser-safe `parseError`, `ClientLogger` types |
 | Database adapters | `@blyp/core/database` | `createPrismaDatabaseAdapter`, `createDrizzleDatabaseAdapter`, and database config types |
-| Connector helpers | `@blyp/core/betterstack`, `@blyp/core/posthog`, `@blyp/core/sentry`, `@blyp/core/otlp` | manual connector loggers, structured connector helpers, and provider-specific exception capture |
+| Connector helpers | `@blyp/core/betterstack`, `@blyp/core/posthog`, `@blyp/core/databuddy`, `@blyp/core/sentry`, `@blyp/core/otlp` | manual connector loggers, structured connector helpers, and provider-specific exception capture |
 | Framework adapters | `@blyp/core/<framework>` | `createLogger()` or equivalent framework factory plus framework-specific types |
 | Workers | `@blyp/core/workers` | `initWorkersLogger`, `createWorkersLogger`, Workers-specific request logger types |
 
@@ -74,8 +74,11 @@ throw createError({
 - `@blyp/core/fastify`
 - `@blyp/core/nestjs`
 - `@blyp/core/nextjs`
+- `@blyp/core/react-router`
 - `@blyp/core/tanstack-start`
 - `@blyp/core/sveltekit`
+- `@blyp/core/astro`
+- `@blyp/core/nuxt`
 - `@blyp/core/workers`
 
 ## Recommended reading order
@@ -88,7 +91,7 @@ throw createError({
 - [Errors](/docs/errors) for `createError()`, `parseError()`, and `BlypError` behavior.
 - [Skills](/docs/skills) for copy-pasteable AI agent presets that help tools install and wire Blyp correctly.
 - [Integrations](/docs/integrations) for browser, framework, and runtime-specific guides.
-- [Connectors](/docs/connectors) for Better Stack, PostHog, Sentry, OTLP, and client/expo forwarding.
+- [Connectors](/docs/connectors) for Better Stack, PostHog, Databuddy, Sentry, OTLP, and client/expo forwarding.
 - [Client](/docs/integrations/client) for browser logging and `/inngest` ingestion.
 - [Expo](/docs/integrations/expo) if you are shipping a mobile app and need remote client log sync from Expo.
 - [Configuration](/docs/configuration) for `blyp.config.*`, connector setup, `ignorePaths`, and client ingestion config.
