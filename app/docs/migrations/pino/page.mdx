@@ -1,0 +1,126 @@
+---
+title: "Pino"
+description: "Why Blyp is a better fit than Pino for broader runtime coverage, plus AI-assisted and manual migration steps."
+icon: "code"
+order: 2
+---
+
+# Pino -> Blyp
+
+If your current app starts with `pino()` and layers on `child()`, `pino-http`, or transport configuration later, Blyp gives you a broader system: shared root logging, framework adapters, built-in structured batching, file logging, connector delivery, and support beyond the classic Node.js server boundary.
+
+## Why Blyp can be better than Pino
+
+- Pino is excellent for fast JSON logging, but Blyp is designed as a fuller runtime logging system rather than only a core logger plus surrounding packages.
+- Blyp has first-party framework adapters for request logging, so HTTP lifecycle logging is part of the main integration story.
+- Blyp includes structured batch logging with `createStructuredLog()`, which makes request or workflow-level events easier to emit as one final payload.
+- Blyp handles pretty terminal output, NDJSON file output, rotation, and connector delivery without making you piece the model together yourself.
+- Blyp also covers browser, Expo, and database delivery scenarios in the same ecosystem.
+
+If you want one logging model across more than a single Node.js server process, Blyp is usually the stronger long-term fit.
+
+## Install
+
+Install `@blyp/core` with your package manager:
+
+```bash
+# Bun (recommended)
+bun add @blyp/core
+
+# npm
+npm install @blyp/core
+
+# pnpm
+pnpm add @blyp/core
+
+# yarn
+yarn add @blyp/core
+```
+
+## Let AI do the migration first
+
+Before doing this by hand, give your AI workflow the Blyp migration references:
+
+- [Pino migration reference](https://github.com/Blyphq/skills/blob/main/migration/references/migrate-pino.md)
+- [Transport mapping reference](https://github.com/Blyphq/skills/blob/main/migration/references/transport-mapping.md)
+- [Migration references directory](https://github.com/Blyphq/skills/tree/main/migration/references)
+
+That gives the model the Pino-to-Blyp mapping up front, which is useful when the codebase has a lot of `pino()`, `child()`, `pino-http`, or transport usage to rewrite. After that, use the manual guide below to review the important runtime differences.
+
+## Most common replacement
+
+**Pino**
+
+```ts
+import pino from "pino";
+
+const logger = pino();
+```
+
+**Blyp**
+
+```ts
+import { logger } from "@blyp/core";
+```
+
+If you need per-instance configuration, create a standalone logger explicitly:
+
+```ts
+import { createStandaloneLogger } from "@blyp/core";
+
+const logger = createStandaloneLogger({
+  level: "info",
+});
+```
+
+## API equivalents
+
+| Pino | Blyp equivalent |
+| --- | --- |
+| `pino()` | `logger` or `createStandaloneLogger()` |
+| `pino.child({ ... })` | `logger.child({ ... })` for standalone bindings, or a framework adapter request logger for request-scoped bindings |
+| `pino-http` | `createLogger()` from the relevant `@blyp/core/<framework>` adapter |
+| `pino.transport(...)` | Blyp connector config or file destination config |
+| NDJSON output | production and file output are NDJSON automatically when file logging is enabled |
+
+This is the common migration shape for root logs plus a request-scoped child:
+
+```ts
+import { createStructuredLog, logger } from "@blyp/core";
+
+const requestLogger = logger.child({
+  requestId: "req_456",
+});
+
+requestLogger.info("payment request received");
+
+const structuredLog = createStructuredLog("payment", {
+  requestId: "req_456",
+});
+
+structuredLog.info("payment authorized");
+structuredLog.emit({
+  level: "success",
+  message: "payment completed",
+  status: 200,
+});
+```
+
+For HTTP middleware replacements, map `pino-http` to the adapter that matches your framework. For example, use `createLogger()` from `@blyp/core/express` in Express or from `@blyp/core/fastify` in Fastify.
+
+## Behavioral differences
+
+- Blyp's root `logger` is a shared named export, not a factory call like `pino()`.
+- Request logging is handled through framework adapters, not a single generic `pino-http` package.
+- Connectors are config-driven instead of transport pipeline objects.
+- Structured request batching uses `createStructuredLog()` and requires `.emit()`.
+- Pretty terminal output and NDJSON file output are separate concerns Blyp handles automatically.
+
+## Related docs
+
+- [Basic Usage](/docs/basic-usage)
+- [Structured Logs](/docs/structured-logs)
+- [File Logging](/docs/file-logging)
+- [Integrations](/docs/integrations)
+- [Configuration](/docs/configuration)
+- [Connectors](/docs/connectors)

@@ -1,0 +1,135 @@
+---
+title: "Winston"
+description: "Why Blyp is a better fit than Winston for modern TypeScript apps, plus AI-assisted and manual migration steps."
+icon: "code"
+order: 1
+---
+
+# Winston -> Blyp
+
+If your current setup centers on `winston.createLogger(...)`, custom transports, and formatter pipelines, Blyp gives you a simpler model: structured logs by default, first-party request logging for frameworks, built-in file logging and rotation, and connector delivery without transport object sprawl.
+
+## Why Blyp can be better than Winston
+
+- Winston is flexible, but that flexibility usually turns into formatter chains, transport setup, and app-specific conventions that teams have to maintain themselves.
+- Blyp starts from structured logging instead of string formatting, so logs stay useful in local development and in production ingestion systems.
+- Blyp includes framework-aware request logging, so HTTP logging is part of the main model instead of something you assemble around child loggers and middleware.
+- Blyp keeps file logging, NDJSON output, rotation, and connector delivery under one config model.
+- Blyp also extends beyond the classic server logger role with browser, Expo, database, and framework integration support.
+
+If you already feel friction from custom Winston formats, multiple transports, or inconsistent request logging, that is usually the signal that the migration is worth it.
+
+## Install
+
+Install `@blyp/core` with your package manager:
+
+```bash
+# Bun (recommended)
+bun add @blyp/core
+
+# npm
+npm install @blyp/core
+
+# pnpm
+pnpm add @blyp/core
+
+# yarn
+yarn add @blyp/core
+```
+
+## Let AI do the migration first
+
+Before doing this by hand, give your AI workflow the Blyp migration references:
+
+- [Winston migration reference](https://github.com/Blyphq/skills/blob/main/migration/references/migrate-winston.md)
+- [Transport mapping reference](https://github.com/Blyphq/skills/blob/main/migration/references/transport-mapping.md)
+- [Migration references directory](https://github.com/Blyphq/skills/tree/main/migration/references)
+
+That gives the model the Winston-to-Blyp mapping up front, which is useful for bulk replacements across a large codebase. After that, use the manual guide below to review the resulting structure and the behavior changes.
+
+## Most common replacement
+
+**Winston**
+
+```ts
+import winston from "winston";
+
+const logger = winston.createLogger({
+  level: "info",
+  transports: [
+    new winston.transports.File({ filename: "logs/app.log" }),
+  ],
+});
+```
+
+**Blyp**
+
+```ts
+import { createStandaloneLogger } from "@blyp/core";
+
+const logger = createStandaloneLogger({
+  level: "info",
+  destination: "file",
+});
+```
+
+If you just want the shared root logger, use the named export:
+
+```ts
+import { logger } from "@blyp/core";
+```
+
+## API equivalents
+
+| Winston | Blyp equivalent |
+| --- | --- |
+| `winston.createLogger({ level: "info" })` | `logger` or `createStandaloneLogger({ level: "info" })` |
+| `winston.transports.File` | `destination: "file"` with optional `file.rotation` config |
+| `winston.transports.Http` | connector config under `connectors`, such as Better Stack, Sentry, PostHog, or OTLP |
+| `logger.child({ requestId })` | `logger.child({ requestId })` for stable bindings, or a framework adapter request logger for request-scoped logging |
+| `format.combine(...)`, `format.json()`, custom formatters | structured fields on each log call, or batched payloads with `createStructuredLog()` |
+
+For example, a Winston formatter pipeline often becomes structured fields instead of string rewriting:
+
+```ts
+import { createStructuredLog, logger } from "@blyp/core";
+
+logger.info("user login", {
+  userId: "usr_123",
+  tenantId: "tenant_456",
+});
+
+const structuredLog = createStructuredLog("checkout", {
+  requestId: "req_123",
+});
+
+structuredLog.set({
+  user: { id: "usr_123" },
+  payment: { provider: "stripe", status: "authorized" },
+});
+
+structuredLog.emit({
+  level: "info",
+  message: "checkout completed",
+  status: 200,
+});
+```
+
+## Behavioral differences
+
+- Blyp is structured-first; there is no formatter pipeline equivalent to Winston `format.combine(...)`.
+- Transports are configured through logger or config state, not instantiated transport objects.
+- File logging is the default destination model in Blyp.
+- `createStructuredLog()` accumulates fields and emits only on `.emit()`.
+- Blyp exposes named loggers and structured metadata rather than string-rewriting format hooks.
+
+For request logging, Winston child loggers are not the main migration target. Use the appropriate framework adapter, such as `createLogger()` from `@blyp/core/express` or `@blyp/core/fastify`, when the old app created request-local loggers in middleware.
+
+## Related docs
+
+- [Basic Usage](/docs/basic-usage)
+- [Structured Logs](/docs/structured-logs)
+- [Configuration](/docs/configuration)
+- [File Logging](/docs/file-logging)
+- [Connectors](/docs/connectors)
+- [Integrations](/docs/integrations)

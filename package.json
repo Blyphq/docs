@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
-    "start": "next start"
+    "start": "next start",
+    "check:examples": "tsc -p tsconfig.examples.json --noEmit"
   },
   "dependencies": {
     "@farming-labs/docs": "0.0.61",
@@ -22,6 +23,7 @@
     "three": "^0.183.2"
   },
   "devDependencies": {
+    "@blyp/core": "0.1.21",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/mdx": "^2.0.13",
     "@types/node": "^22.10.0",

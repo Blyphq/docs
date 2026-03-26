@@ -1,0 +1,51 @@
+---
+title: "Migrations"
+description: "Why Blyp is worth switching to, and how to migrate from Winston or Pino with AI or manually."
+icon: "code"
+order: 13
+---
+
+# Migrations
+
+Blyp is not just another logger with slightly different method names. It is a runtime-aware logging system for modern TypeScript apps that gives you a cleaner developer experience and a better production model than older logger setups.
+
+## Why teams move to Blyp
+
+- One package covers standalone apps, framework request logging, browser logging, Expo, database delivery, and connectors.
+- Structured logs are a first-class feature instead of something you bolt on through formatters and custom transport plumbing.
+- Framework adapters give you request-scoped logging out of the box instead of making you wire that behavior yourself.
+- File logging, NDJSON output, rotation, and connector delivery are built into the main model.
+- The same logger API works across Bun, Node.js, and modern TypeScript frameworks.
+
+If your current setup feels fragmented, overly transport-driven, or hard to keep consistent across server and client code, Blyp is usually a real upgrade rather than a cosmetic rewrite.
+
+## Quick comparison
+
+| Capability | Blyp | Pino | Winston |
+| --- | --- | --- | --- |
+| Root logger for TypeScript apps | built in | built in | built in |
+| First-party framework request logging | yes | usually separate packages such as `pino-http` | usually custom middleware or app wiring |
+| Structured batch logging for one final emitted event | yes, with `createStructuredLog()` | not a first-class built-in workflow | not a first-class built-in workflow |
+| Built-in file logging and rotation model | yes | usually combined with transports or ecosystem packages | yes, through transports |
+| Connector model for Better Stack, PostHog, Sentry, OTLP | built in | usually external integrations | usually transport-driven integrations |
+| Browser and Expo logging in the same ecosystem | yes | not the primary model | not the primary model |
+| Shared model across standalone, framework, and client logging | yes | partial | partial |
+| Best fit | teams that want one modern logging system across runtimes | teams focused on fast Node.js JSON logging | teams that want flexible transport and formatter composition |
+
+## Migrate with AI first
+
+You do not have to translate every old logger call by hand. The Blyp skills repo includes migration references that AI tools can use to help rewrite the codebase for you.
+
+- [Migration references directory](https://github.com/Blyphq/skills/tree/main/migration/references)
+- [Winston migration reference](https://github.com/Blyphq/skills/blob/main/migration/references/migrate-winston.md)
+- [Pino migration reference](https://github.com/Blyphq/skills/blob/main/migration/references/migrate-pino.md)
+- [Transport mapping reference](https://github.com/Blyphq/skills/blob/main/migration/references/transport-mapping.md)
+
+The typical flow is simple: add the relevant Blyp migration skill or reference to your AI workflow, let it handle the repetitive replacement work, then use the manual guides below to review the important behavioral changes.
+
+## Manual migration guides
+
+- [Winston -> Blyp](/docs/migrations/winston)
+- [Pino -> Blyp](/docs/migrations/pino)
+
+These guides start with the Blyp value proposition, then the AI-assisted path, then the manual replacement steps for standalone and request-scoped logging.
