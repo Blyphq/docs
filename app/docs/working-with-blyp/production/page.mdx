@@ -1,0 +1,410 @@
+---
+title: "Production"
+description: "Deploy Blyp safely in production across file, database, connector, and serverless runtimes."
+icon: "settings"
+order: 2
+---
+
+# Production
+
+This guide covers Blyp behavior in production deployments: where logs are persisted, what `logger.flush()` actually guarantees, how connectors behave under sustained load, and what changes in serverless and Workers runtimes.
+
+> **Current version reviewed:** This page is reviewed against `@blyp/core@0.1.21`. Future connector queue and retry behavior is not shipped yet and is called out separately under `Planned after BLY-5`.
+
+Use this page together with [Configuration](/docs/configuration), [File Logging](/docs/file-logging), [Database Logging](/docs/database), [Connectors](/docs/connectors), [Next.js App Router](/docs/integrations/nextjs), and [Cloudflare Workers](/docs/integrations/workers).
+
+## File Logging In Production
+
+### What file mode is today
+
+File mode is Blyp's default destination. Blyp writes NDJSON synchronously to local disk, using:
+
+- `logs/log.ndjson` for the active combined stream
+- `logs/log.error.ndjson` for the active error and critical stream
+
+`error` and `critical` records are written to both streams. Rotation is size-based, not time-based.
+
+### Rotation thresholds and archive strategy
+
+Current defaults:
+
+- rotation threshold: `10 MB`
+- retained archives: `5` per stream
+- compression: gzip enabled
+
+Archived files are written under `logs/archive/` with UTC timestamps such as `log.20260309T121530Z.ndjson.gz`. If a timestamp collision happens, Blyp appends `-1`, `-2`, and so on to keep the archive name unique.
+
+Rotation happens before appending a new line when the next write would exceed `maxSizeBytes`. On startup, Blyp also rotates an existing active file if it is already larger than the configured threshold. Archive pruning is based on archive file modification time.
+
+```ts
+export default {
+  file: {
+    rotation: {
+      maxSizeBytes: 10 * 1024 * 1024,
+      maxArchives: 5,
+      compress: true,
+    },
+  },
+};
+```
+
+### Durability and flush guarantees in file mode
+
+File writes use synchronous filesystem appends. In current `@blyp/core`, the file primary sink `flush()` is a no-op, so `await logger.flush()` does not add an extra durability guarantee in file mode.
+
+The practical persistence boundary is the local synchronous append itself, subject to normal OS and filesystem behavior. `await logger.shutdown()` also does not add anything beyond normal write completion for file persistence. This is local synchronous append behavior, not an fsync-level or crash-proof durability guarantee.
+
+### Disk space considerations
+
+For capacity planning:
+
+- active footprint is roughly `2 * maxSizeBytes` because the combined and error streams can both be active
+- archive footprint depends on traffic mix, error rate, and gzip compression ratio
+- error-heavy services consume more space because error and critical records are duplicated into the error stream
+- Blyp does not enforce a total disk budget across active and archived files
+
+Operators should provision disk with room for both active files and retained archives, or pair Blyp with external retention and shipping controls at the platform level.
+
+Practical recommendations:
+
+- increase `maxArchives` only when local retention is intentionally part of your ops model
+- prefer [Database Logging](/docs/database) or external shipping when container-local disk is ephemeral or tightly capped
+
+### Reading rotated archives
+
+`readLogFile()` reads both active `.ndjson` files and rotated `.ndjson.gz` archives. Rotated archives stay newline-delimited JSON after decompression and live under `logs/archive/`.
+
+```ts
+import { readLogFile } from "@blyp/core";
+
+const active = await readLogFile("logs/log.ndjson", {
+  format: "json",
+  limit: 100,
+});
+```
+
+```ts
+import { readLogFile } from "@blyp/core";
+
+const archived = await readLogFile("logs/archive/log.20260309T121530Z.ndjson.gz", {
+  format: "json",
+  limit: 100,
+});
+```
+
+## Database Mode In Production
+
+### When to use database mode vs file mode
+
+| Deployment shape | Recommended primary sink | Why |
+| --- | --- | --- |
+| Long-lived Node/Bun server with reliable writable disk | `file` | Local persistence is simple and fast when disk is stable |
+| Serverless function with ephemeral or read-only filesystem | `database` | Local file persistence is not reliable enough |
+| Container with tightly capped local storage | `database` | Avoid relying on local archive retention |
+| Service that still uses external connectors | either | Connectors stay independent from the primary destination |
+
+`destination: "database"` is usually the better fit when local persistence is unreliable, ephemeral, or read-only.
+
+### What database mode changes
+
+Database mode replaces only the primary file sink. Connectors such as Better Stack, PostHog, Sentry, and OTLP continue to run independently.
+
+Blyp keeps an in-memory queue for database writes. Current default delivery settings are:
+
+- `strategy: "immediate"`
+- `batchSize: 1`
+- `flushIntervalMs: 250`
+- `maxQueueSize: 1000`
+- `overflowStrategy: "drop-oldest"`
+- `flushTimeoutMs: 5000`
+- `retry.maxRetries: 1`
+- `retry.backoffMs: 100`
+
+### Queue, overflow, retry, and flush behavior
+
+Current database delivery semantics:
+
+- immediate mode still queues internally and drains one record at a time
+- batch mode drains up to `batchSize` records per insert
+- if the queue exceeds `maxQueueSize`, Blyp drops records according to `overflowStrategy`
+- the default overflow strategy is `drop-oldest`
+- retry is only for database insertion failures, not connector delivery
+- `logger.flush()` waits for the database queue to drain or until `flushTimeoutMs` is reached
+- on flush timeout, Blyp warns and rejects the flush promise
+- after a terminal database insert failure, future flushes reject with that terminal error
+- `shutdown()` stops accepting new writes, then flushes what is already queued
+
+```ts
+export default {
+  destination: "database",
+  database: {
+    dialect: "postgres",
+    adapter,
+    delivery: {
+      strategy: "batch",
+      batchSize: 50,
+      flushIntervalMs: 1000,
+      maxQueueSize: 1000,
+      overflowStrategy: "drop-oldest",
+      flushTimeoutMs: 5000,
+      retry: {
+        maxRetries: 1,
+        backoffMs: 100,
+      },
+    },
+  },
+};
+```
+
+### Prisma and Drizzle connection pooling behavior
+
+Blyp does not create or manage its own connection pool. It uses the Prisma client or Drizzle database instance that you pass into the adapter, so pooling behavior comes from your Prisma or Drizzle setup and the driver or proxy behind it.
+
+Current adapter behavior:
+
+- Prisma uses `createMany` when available for multi-row inserts
+- if `createMany` is unavailable or unsupported, Prisma falls back to `$transaction([...create])` or serial `create()` calls
+- Drizzle uses `db.insert(table).values(rows)`
+
+Recommended production setup:
+
+- use a shared singleton Prisma or Drizzle client per process or runtime instance
+- in serverless SQL deployments, pair Blyp with the same pooling or proxy strategy you already use for application queries
+
+See [Database Logging](/docs/database) and [Configuration](/docs/configuration) for adapter setup.
+
+### Flush guarantees by runtime style
+
+Promise-based adapters auto-flush in database mode before request completion. Current auto-flushing integrations are:
+
+- Hono
+- Elysia
+- Next.js
+- React Router
+- Astro
+- Nitro
+- Nuxt
+- SvelteKit
+- TanStack Start
+
+Callback-style servers do not auto-flush to the same hard persistence boundary. For Express, Fastify, NestJS, standalone handlers, and custom serverless wrappers, call `await logger.flush()` where you need the database persistence boundary.
+
+## Connector Delivery At Scale
+
+### Current connector model
+
+Today, Blyp does not expose a shared cross-connector queue, retry policy, or back-pressure controller. Connector delivery is fire-and-forward on each log write, with `flush()` support delegated to each connector implementation or vendor SDK.
+
+Per-connector rate limits are vendor-defined. Blyp does not implement its own rate-limiting layer for [Better Stack](/docs/connectors/betterstack), [PostHog](/docs/connectors/posthog), [Sentry](/docs/connectors/sentry), or [OTLP](/docs/connectors/otlp).
+
+### Connector-by-connector behavior
+
+| Connector | Current Blyp behavior |
+| --- | --- |
+| Better Stack | Uses `@logtail/node`, sends each record asynchronously with `client.log(...)`, and `flush()` awaits `client.flush()` |
+| PostHog | Uses OTLP HTTP with OpenTelemetry `BatchLogRecordProcessor` for logs, `posthog-node` for exceptions, and `flush()` waits for the OTLP provider flush |
+| Sentry | Uses the Sentry SDK directly, emits logs through the SDK logger, may capture exceptions, and `flush()` calls `Sentry.flush(2000)` |
+| OTLP | Creates one OpenTelemetry `BatchLogRecordProcessor` per target and `flush()` forces provider flush for each target |
+
+None of these connectors currently expose Blyp-level queue depth, retry knobs, or rate-limit controls.
+
+### Batch delivery behavior
+
+Blyp itself does not batch Better Stack or Sentry log writes. PostHog log forwarding and OTLP targets rely on OpenTelemetry batch processors internally.
+
+That means batching details are mostly SDK and vendor behavior today rather than a Blyp configuration surface. Do not assume a shared Blyp batch size or queue depth across connectors unless the connector's own SDK documents it.
+
+### What happens when a connector is slow
+
+Current behavior at sustained load:
+
+- Blyp does not expose connector back-pressure limits or queue-depth metrics
+- slow or failing connectors surface warnings when their SDK or transport reports an error
+- connector failures do not stop the primary sink from writing file or database logs
+- file and database persistence stay separate from connector forwarding
+
+`logger.flush()` first flushes the primary sink, then attempts connector flushes. Connector flush failures are swallowed at the logger level through `Promise.allSettled`, so `logger.flush()` is a best-effort connector flush boundary, not a promise that every connector succeeded.
+
+### Rate limits per connector
+
+Better Stack, PostHog, Sentry, and OTLP collectors all have vendor-specific ingestion limits. Blyp does not publish per-connector rate ceilings because those limits are not implemented in `@blyp/core`.
+
+In practice:
+
+- use the vendor docs from each connector page for current ingestion limits
+- treat sustained throttling or `429` responses as vendor or SDK operational concerns
+- size your connector usage and alerting around vendor-side ingestion health, not around Blyp-side queue controls that do not exist yet
+
+## Serverless-Specific Guidance
+
+### Core rules
+
+For serverless deployments:
+
+- file logging is not appropriate on read-only or ephemeral filesystems
+- database mode is the recommended primary sink for serverless Node runtimes
+- call `await logger.flush()` before handler return when you are outside an auto-flushing promise-based Blyp adapter
+- Cloudflare Workers use a separate API and do not use file or database destinations or `blyp.config.*`
+
+### Recommended config matrix
+
+| Runtime | Recommended primary sink | Config surface | Flush guidance |
+| --- | --- | --- | --- |
+| Vercel Serverless Functions / Next.js Node runtime | `database` | `blyp.config.ts` | automatic in the Next.js adapter for database mode, manual in standalone or custom wrappers |
+| Vercel Edge | none of the Node/Bun primary sinks | no current dedicated Edge-only Blyp primary sink guidance | do not assume file or database mode; keep usage conservative and avoid Node/Bun persistence assumptions |
+| Cloudflare Workers | console-based Workers logger | `@blyp/core/workers` | no `logger.flush()` path; emit request logs explicitly with `emit()` |
+| AWS Lambda | `database` | executable config plus shared DB client | call `await logger.flush()` before returning in standalone or custom handling |
+
+If you are deploying to Vercel Edge, Blyp does not currently document a dedicated Edge runtime API the way it documents [Cloudflare Workers](/docs/integrations/workers). Keep the recommendation conservative and avoid treating Edge like a writable Node runtime.
+
+### Vercel / Next.js App Router example
+
+Use database mode with a shared Prisma client outside the route handler. In current `@blyp/core`, the Next.js adapter auto-flushes database writes before the response completes.
+
+```ts
+// lib/prisma.ts
+import { PrismaClient } from "@prisma/client";
+
+const globalForPrisma = globalThis as typeof globalThis & {
+  prisma?: PrismaClient;
+};
+
+export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+}
+```
+
+```ts
+// blyp.config.ts
+import { createPrismaDatabaseAdapter } from "@blyp/core/database";
+import { prisma } from "./lib/prisma";
+
+export default {
+  destination: "database",
+  database: {
+    dialect: "postgres",
+    adapter: createPrismaDatabaseAdapter({
+      client: prisma,
+      model: "blypLog",
+    }),
+  },
+};
+```
+
+```ts
+// app/api/orders/route.ts
+import { createLogger } from "@blyp/core/nextjs";
+
+const nextLogger = createLogger();
+
+export const POST = nextLogger.withLogger(async (_request, _context, { log }) => {
+  log.info("creating order");
+  return Response.json({ ok: true });
+});
+```
+
+### Cloudflare Workers example
+
+Cloudflare Workers use `@blyp/core/workers`. This is a console-based API with explicit request emission. There is no file sink, no database primary sink, no `blyp.config.*`, and no `logger.flush()` path.
+
+```ts
+import { initWorkersLogger, createWorkersLogger } from "@blyp/core/workers";
+
+initWorkersLogger({
+  env: { service: "edge-api" },
+});
+
+export default {
+  async fetch(request: Request): Promise<Response> {
+    const log = createWorkersLogger(request);
+
+    log.info("worker request started");
+
+    const response = Response.json({ ok: true });
+    log.emit({ response });
+
+    return response;
+  },
+};
+```
+
+### AWS Lambda example
+
+In standalone or custom Lambda handling, keep the database client outside the handler and flush before returning.
+
+```ts
+import { PrismaClient } from "@prisma/client";
+import { createStandaloneLogger } from "@blyp/core";
+import { createPrismaDatabaseAdapter } from "@blyp/core/database";
+
+const prisma = new PrismaClient();
+
+const logger = createStandaloneLogger({
+  destination: "database",
+  database: {
+    dialect: "postgres",
+    adapter: createPrismaDatabaseAdapter({
+      client: prisma,
+      model: "blypLog",
+    }),
+  },
+});
+
+export async function handler() {
+  logger.info("lambda invocation started");
+
+  await logger.flush();
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify({ ok: true }),
+  };
+}
+```
+
+### Cold start impact
+
+Blyp itself adds relatively little startup work compared with database client and connector SDK initialization. In practice, cold start cost is dominated by your DB client, vendor SDKs, and the runtime environment.
+
+Recommended guidance:
+
+- keep Prisma or Drizzle client initialization outside the handler when the platform can reuse it
+- initialize connector SDKs through normal application startup paths, not per-request if you can avoid it
+- expect Workers to avoid file and database sink setup because they use the separate console-based API
+
+## Outages, Monitoring, And Future BLY-5 Work
+
+### Current behavior during connector outages
+
+During connector outages or sustained connector failures:
+
+- the primary sink continues independently
+- connector sends may warn and drop or skip work depending on SDK behavior
+- Blyp does not currently expose connector queue depth
+- Blyp does not currently expose built-in retry or backoff controls for Better Stack, PostHog, Sentry, or OTLP
+- database mode has queue size and overflow handling, but connector mode does not
+
+### Queue depth monitoring
+
+Current monitoring guidance:
+
+- Blyp exposes no public connector queue-depth metric today
+- for database mode, monitor application warnings about overflow and track downstream insert latency and errors externally
+- for connectors, monitor vendor ingestion health plus SDK and application warnings
+
+> **Planned after BLY-5, not available in current `@blyp/core`:** Future work is expected to cover connector queue and retry behavior, queue-depth monitoring guidance, and clearer outage expectations once connector queueing ships. Do not treat that future design as current Blyp behavior.
+
+## Read Next
+
+- [Configuration](/docs/configuration)
+- [File Logging](/docs/file-logging)
+- [Database Logging](/docs/database)
+- [Connectors](/docs/connectors)
+- [Better Stack](/docs/connectors/betterstack)
+- [PostHog](/docs/connectors/posthog)
+- [Sentry](/docs/connectors/sentry)
+- [OTLP](/docs/connectors/otlp)
+- [Next.js App Router](/docs/integrations/nextjs)
+- [Cloudflare Workers](/docs/integrations/workers)
