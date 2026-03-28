@@ -20,6 +20,19 @@ Blyp is a high-performance logger built for Bun-first and Node-compatible TypeSc
 - NDJSON file logging with rotation and archives
 - database-backed primary logging with Prisma and Drizzle adapters
 
+## Stability
+
+| Area | Tier | Guarantee |
+| --- | --- | --- |
+| Core logger API (`logger.*`, `createStructuredLog`, `createError`) | Stable | No breaking changes without a major version bump |
+| Framework adapters (`@blyp/core/hono`, `/nextjs`, etc.) | Stable | Same guarantee |
+| Connector APIs | Stable | Same guarantee |
+| Studio UI | Beta | May change between minor versions |
+| CLI commands | Beta | Commands may be added or changed in a minor version |
+| Internal APIs / unexported symbols | Unstable | No guarantees |
+
+For the full compatibility policy, deprecation window, and Bun vs Node support contract, see [`Blyphq/blyp/STABILITY.md`](https://github.com/Blyphq/blyp/blob/main/STABILITY.md).
+
 ## Studio
 
 Blyp includes a local developer UI called **Studio**, launched via the CLI. Studio runs at `http://localhost:3003` and lets you inspect your project, work with logs, and manage AI assistant workflows tied to your codebase.
@@ -95,4 +108,5 @@ throw createError({
 - [Client](/docs/integrations/client) for browser logging and `/inngest` ingestion.
 - [Expo](/docs/integrations/expo) if you are shipping a mobile app and need remote client log sync from Expo.
 - [Configuration](/docs/configuration) for `blyp.config.*`, connector setup, `ignorePaths`, and client ingestion config.
+- [Troubleshooting](/docs/troubleshooting) for Studio connection problems, missing logs, connector auth issues, file logging failures, and TypeScript import errors.
 - [Type Surfaces](/docs/types) for standalone, server-side, and browser-facing types.

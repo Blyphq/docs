@@ -1,0 +1,471 @@
+---
+title: "Troubleshooting"
+description: "Diagnose common Blyp failures across Studio, log delivery, connector auth, file logging, and TypeScript imports."
+icon: "settings"
+order: 11
+---
+
+# Troubleshooting
+
+Use this page when Blyp is installed but something does not behave the way you expect. Start with the symptom that matches what you see, and use `blyp health` as the first diagnostic step for local Studio, path resolution, and workspace issues.
+
+## Quick checks first
+
+- run `blyp health`
+- confirm the intended project root contains a supported `blyp.config.*` file if config is expected
+- confirm you are importing the logger from the correct `@blyp/core` entry for your runtime
+- confirm the framework adapter or client ingestion handler is mounted on the expected path
+- confirm required connector env vars are set in the process that is actually running Blyp
+
+## Studio Can't Connect
+
+### Studio opens but does not connect to the project
+
+#### Symptoms
+
+- Studio opens at `http://localhost:3003` but shows no project data
+- Studio reuses an existing browser tab but points at the wrong repo or package
+- the app starts, but Studio does not reflect the project you expected
+
+#### Likely cause
+
+- Studio reused an existing local instance that is already attached to a different target
+- `targetPath` resolved from a different current working directory than you expected
+- the detected workspace root does not match the app you intended to open
+
+#### Fix
+
+- run `blyp studio <explicit-path>` from a known directory instead of relying on the current shell location
+- in a monorepo, prefer an explicit app path such as `blyp studio ./apps/web`
+- run `blyp health` and verify the current directory and detected workspace root match the project you want Studio to inspect
+- if Studio keeps reusing the wrong target, close the stale Studio process and relaunch it with the correct path
+
+### Port 3003 already in use
+
+#### Symptoms
+
+- Studio does not open correctly on `http://localhost:3003`
+- another local app appears on port `3003`
+- the CLI appears to reuse an instance that does not belong to your current project
+
+#### Likely cause
+
+- another process is already bound to port `3003`
+- an older Studio instance is still running and being reused
+
+#### Fix
+
+- stop the process already using port `3003`
+- close the stale Studio instance if one is still running
+- relaunch Studio after the port is free
+- if you expect reuse, verify that the reused instance is attached to the same project you want to inspect
+
+### Project path not resolved correctly
+
+#### Symptoms
+
+- Studio opens a parent workspace instead of the intended app
+- logs or config appear to be missing even though they exist in the repo
+- Studio behaves differently depending on which shell directory you launched it from
+
+#### Likely cause
+
+- the CLI resolved `targetPath` relative to a different current directory
+- the workspace root was detected correctly, but the app path inside the workspace was not the one you intended
+
+#### Fix
+
+- launch Studio with an explicit path instead of relying on the default current directory
+- use a path that points at the package or app that owns `blyp.config.*` and the runtime you are debugging
+- run `blyp health` and compare the reported current directory with the project you meant to open
+- if a monorepo is involved, check that the resolved workspace root and target app are both the expected ones
+
+### Running inside a Docker container or remote dev environment
+
+#### Symptoms
+
+- Studio starts in the container or remote workspace, but `http://localhost:3003` on your host does not respond
+- Studio opens, but it cannot see the project files you expect
+- the browser on your machine and the process running `blyp studio` are not looking at the same filesystem
+
+#### Likely cause
+
+- port `3003` is not forwarded from the remote environment to your local browser
+- the path you passed to `blyp studio` exists in one environment but not the other
+- Studio is running against a container or remote filesystem while you are checking a local copy of the repo
+
+#### Fix
+
+- forward port `3003` from the container or remote dev environment to your local machine
+- run `blyp studio <explicit-path>` using a path that exists inside the environment where the CLI is running
+- verify that the mounted or remote filesystem actually contains the project, config, and logs you expect
+- use `blyp health` inside the same environment to confirm the current directory, workspace root, and Studio web app path
+
+### blyp health output and what to look for
+
+#### Symptoms
+
+- Studio starts but behaves inconsistently
+- the wrong project opens
+- local diagnostics are unclear and you need to confirm what the CLI detected
+
+#### Likely cause
+
+- the environment, runtime, or path detection is not what you assumed
+- the CLI is running from a different directory, workspace root, or runtime than the project requires
+
+#### Fix
+
+- run `blyp health`
+- verify these fields in the output:
+  - current directory
+  - detected workspace root
+  - Studio web app path
+  - runtime versions
+- look for mismatches between the reported current directory and the app you meant to inspect
+- look for a workspace root that points at the wrong package or parent folder
+- look for a missing or unusual Studio web app path that could explain startup issues
+- look for runtime mismatches that could explain why Studio launched differently than expected
+
+## Logs Not Appearing in Studio
+
+### @blyp/core not imported before first log call
+
+#### Symptoms
+
+- the app runs, but Studio stays empty
+- later logs appear, but early startup logs are missing
+- the first log lines happen before Blyp seems fully initialized
+
+#### Likely cause
+
+- the first log calls happen before the Blyp logger or adapter import has been initialized
+- the app is logging through another path before `@blyp/core` is active
+
+#### Fix
+
+- import and initialize the relevant `@blyp/core` entry before the first emitted log call
+- for root logging, use `@blyp/core`; for framework logging, use the matching `@blyp/core/<framework>` adapter
+- move any startup logging that should be captured so it runs after Blyp is initialized
+- if only early logs are missing, retest after moving the import or bootstrap step earlier in the process
+
+### Framework adapter not mounted correctly
+
+#### Symptoms
+
+- manual logger calls appear, but request logs do not
+- client logs reach the backend, but Studio does not show the expected ingestion traffic
+- some routes log correctly while others stay silent
+
+#### Likely cause
+
+- the framework adapter was not mounted
+- the adapter or client ingestion handler was mounted on the wrong path
+- the integration expects manual handler mounting, but the route was never wired
+
+#### Fix
+
+- check the integration guide for your runtime under [Integrations](/docs/integrations)
+- verify that the matching `@blyp/core/<framework>` adapter is the one mounted in your app
+- confirm the client ingestion path matches the configured path and the mounted route
+- remember that some adapters auto-register ingestion and others expose a handler you must mount yourself
+
+### Config file not found or not loaded
+
+#### Symptoms
+
+- Studio shows fewer logs or different behavior than your config should produce
+- connectors, file logging, or client ingestion behave like defaults instead of custom settings
+- the app works, but Blyp does not appear to use your expected config
+
+#### Likely cause
+
+- `blyp.config.*` is not in the project root that Blyp is actually using
+- the file name is unsupported
+- Studio is attached to a different package than the one containing the config
+
+#### Fix
+
+- confirm the config file is in the project root for the app you launched
+- use one of the supported file names:
+  - `blyp.config.ts`
+  - `blyp.config.mts`
+  - `blyp.config.cts`
+  - `blyp.config.js`
+  - `blyp.config.mjs`
+  - `blyp.config.cjs`
+  - `blyp.config.json`
+- run `blyp health` and confirm the current directory and workspace root line up with the config location
+- if you are in a monorepo, make sure Studio `targetPath` points at the package that owns the config
+
+### Checking that the correct targetPath is set
+
+#### Symptoms
+
+- Studio opens successfully, but it shows the wrong app
+- logs exist on disk, but Studio does not reflect them
+- one package in a monorepo logs correctly while another appears empty
+
+#### Likely cause
+
+- Studio is attached to the wrong `targetPath`
+- the path points at a workspace root or sibling package instead of the package producing logs
+
+#### Fix
+
+- relaunch Studio with the exact package or app path you want to inspect
+- check that the selected `targetPath` is the same place where `blyp.config.*` and log files live
+- if the repo has multiple apps, avoid launching from an ambiguous parent directory
+- use `blyp health` to confirm the resolved location before debugging log delivery further
+
+See also:
+
+- [Integrations](/docs/integrations)
+- [Configuration](/docs/configuration)
+- [CLI](/docs/cli)
+
+## Connector Auth Failures
+
+### Missing or incorrect env vars for each connector
+
+#### Symptoms
+
+- the connector is enabled, but no logs arrive in the vendor backend
+- browser or Expo forwarding is requested, but server-side delivery never happens
+- Blyp warns once about a missing connector or silently behaves as though the connector is not ready
+
+#### Likely cause
+
+- required env vars are missing from the runtime process
+- the env vars exist in a `.env` file but are not actually wired through `blyp.config.*`
+- the connector is set to `mode: "manual"` while you expect automatic forwarding
+
+#### Fix
+
+- verify the connector values are passed through `blyp.config.*`, not only declared in an environment file
+- confirm `enabled: true`
+- confirm `mode: "auto"` if you expect normal Blyp logs to forward automatically
+- for browser and Expo forwarding, confirm the matching server-side connector is configured because client requests still go through Blyp ingestion first
+- re-check the provider-specific config fields on the relevant connector page:
+  - [Better Stack](/docs/connectors/betterstack)
+  - [PostHog](/docs/connectors/posthog)
+  - [Databuddy](/docs/connectors/databuddy)
+  - [Sentry](/docs/connectors/sentry)
+  - [OTLP](/docs/connectors/otlp)
+
+### INGESTING_HOST must be a full http:// or https:// URL
+
+#### Symptoms
+
+- Better Stack log forwarding never becomes ready
+- the connector is enabled, but delivery fails or does not start
+- `SOURCE_TOKEN` is present, but Better Stack logs still do not arrive
+
+#### Likely cause
+
+- `ingestingHost` is missing
+- `ingestingHost` is not an absolute URL
+- the value does not start with `http://` or `https://`
+
+#### Fix
+
+- confirm `sourceToken` is present in `connectors.betterstack`
+- confirm `ingestingHost` is wired through `blyp.config.*`
+- set `ingestingHost` to a full absolute URL beginning with `http://` or `https://`
+- do not pass a host fragment or shorthand value such as a bare domain name
+
+### PostHog project key vs API key confusion
+
+#### Symptoms
+
+- PostHog is enabled, but logs do not appear in PostHog Logs
+- PostHog Error Tracking does not receive expected events
+- the config looks valid, but the credential still fails
+
+#### Likely cause
+
+- `projectKey` is populated with the wrong type of PostHog credential
+- a management or personal API key was supplied where the connector expects the project API key
+
+#### Fix
+
+- confirm `connectors.posthog.projectKey` is set to the PostHog project API key documented on the connector page
+- do not substitute a personal API key or management API token
+- confirm `enabled: true`
+- confirm `mode: "auto"` when expecting automatic log forwarding
+- if you expect PostHog exception capture, also confirm the `errorTracking` block is enabled as intended
+
+### Testing connector delivery manually
+
+#### Symptoms
+
+- you are not sure whether the problem is connector credentials or framework auto-wiring
+- automatic forwarding does not appear to work, but the config looks correct
+- you need a smaller test that bypasses normal request lifecycle setup
+
+#### Likely cause
+
+- the failure is somewhere in the auto-wiring path rather than the connector credentials
+- the connector is configured for `manual` mode and requires explicit helper usage
+
+#### Fix
+
+- test delivery with the manual connector helpers for the target backend
+- for Better Stack, use `@blyp/core/betterstack`
+- for PostHog, use `@blyp/core/posthog`
+- emit one manual test log or exception through the helper API and check whether it arrives in the vendor backend
+- if manual helper delivery works but normal logs do not, focus on framework mounting, runtime initialization, or `mode` configuration instead of connector credentials
+
+## File Logging Issues
+
+### Permissions on log directory
+
+#### Symptoms
+
+- no `logs/` directory is created
+- Blyp runs, but no local log files appear
+- active logging works in the terminal but not on disk
+
+#### Likely cause
+
+- the process user cannot create or write files in the configured log directory
+- the configured `logDir` points at a location the runtime cannot access
+
+#### Fix
+
+- confirm the process user can create and write files under the configured log directory
+- if you set a custom `logDir`, verify the path exists or can be created by the running process
+- confirm file logging is enabled and has not been overridden unexpectedly by runtime config
+- if this is happening inside a container or remote environment, verify the mounted volume is writable
+
+### Rotation not triggering
+
+#### Symptoms
+
+- `logs/log.ndjson` and `logs/log.error.ndjson` grow, but `logs/archive/` stays empty
+- archives never appear even though file logging is enabled
+
+#### Likely cause
+
+- the active files have not reached `file.rotation.maxSizeBytes`
+- rotation was changed or disabled in config
+- the current process is writing somewhere other than the directory you are checking
+
+#### Fix
+
+- confirm rotation is enabled under `file.rotation`
+- confirm the configured `maxSizeBytes` is low enough for your test data to exceed it
+- remember that rotation is size-based, not time-based
+- verify you are checking the same directory that Blyp is actually writing to
+- if a custom `logDir` or runtime override is in play, verify that effective path first
+
+### Reading archived .gz files
+
+#### Symptoms
+
+- rotated archives exist, but they are hard to inspect manually
+- opening a `.gz` archive directly as text looks unreadable
+
+#### Likely cause
+
+- Blyp compresses archived files by default
+- you are treating a gzip archive like a plain NDJSON file
+
+#### Fix
+
+- read compressed archives through `readLogFile()` instead of opening them as plain text
+
+```ts
+import { readLogFile } from "@blyp/core";
+
+const records = await readLogFile("logs/archive/log.20260309T101530Z.ndjson.gz", {
+  format: "json",
+  limit: 100,
+});
+```
+
+- if you only need a quick manual check, use a gzip-aware tool outside Blyp
+- review [File Logging](/docs/file-logging) for the default archive layout and rotation behavior
+
+See also:
+
+- [File Logging](/docs/file-logging)
+- [Configuration](/docs/configuration)
+
+## TypeScript Errors
+
+### Subpath import not resolving
+
+#### Symptoms
+
+- TypeScript cannot resolve `@blyp/core/<framework>`
+- an editor flags a Blyp import even though the package is installed
+- type-only imports fail for a published Blyp subpath
+
+#### Likely cause
+
+- the import path does not match a documented Blyp export
+- the package is not installed in the workspace package being compiled
+- the TypeScript or bundler resolution setup does not handle package exports correctly
+
+#### Fix
+
+- use one of the documented import families:
+  - `@blyp/core`
+  - `@blyp/core/client`
+  - `@blyp/core/expo`
+  - `@blyp/core/standalone`
+  - `@blyp/core/<framework>`
+- confirm the package is installed in the app or package that TypeScript is compiling
+- confirm the framework subpath you are using is one Blyp actually publishes
+- if the editor still shows stale errors after install, restart the TypeScript server
+
+### Framework type not found
+
+#### Symptoms
+
+- framework-specific logger or handler types are missing
+- the root import resolves, but the framework adapter types do not
+- a type import works in one package but not another in the same monorepo
+
+#### Likely cause
+
+- the wrong import path is being used for the runtime
+- the app is trying to import types from the root package when they live on a framework-specific subpath
+- the relevant framework package or workspace dependency is not available where TypeScript is resolving modules
+
+#### Fix
+
+- import framework-specific APIs and types from the matching `@blyp/core/<framework>` path
+- use `@blyp/core/standalone` when you explicitly want standalone type surfaces
+- keep normal app logger imports on `@blyp/core` unless a documented subpath is required
+- in a monorepo, verify the package being compiled has access to `@blyp/core` and the framework dependency it expects
+
+### Checklist of common TS config issues
+
+#### Symptoms
+
+- Blyp imports fail inconsistently between the editor, test runner, and build
+- some subpath imports resolve while others do not
+- TypeScript errors appear after installation even though the code matches the docs
+
+#### Likely cause
+
+- the project TypeScript setup is older or stricter than Blyp expects
+- package export resolution is configured incompatibly
+- the workspace or editor is looking at stale dependency state
+
+#### Fix
+
+- confirm the project is using TypeScript `5+`
+- confirm `moduleResolution` supports package exports in your toolchain
+- confirm you are not importing a framework subpath Blyp does not publish
+- confirm the package being compiled has access to `@blyp/core`
+- restart the editor or TypeScript server after installation if resolution errors persist
+- prefer the root import for app code unless a documented subpath is specifically required
+
+See also:
+
+- [Installation](/docs/installation)
+- [Integrations](/docs/integrations)
+- [Type Surfaces](/docs/types)

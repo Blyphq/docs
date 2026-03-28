@@ -55,6 +55,8 @@ blyp studio ./apps/my-app
 
 If Studio is already running, the CLI reuses the existing instance and opens the correct project in the browser.
 
+If Studio opens but does not connect to the right project, or if port `3003` is already in use, use the [Troubleshooting](/docs/troubleshooting) guide before digging into framework-specific setup.
+
 ## Commands
 
 ### `blyp studio [targetPath]`
@@ -129,6 +131,10 @@ bunx @blyp/cli db:init
 bunx @blyp/cli db:migrate
 bunx @blyp/cli db:generate
 ```
+
+## Troubleshooting
+
+Use [Troubleshooting](/docs/troubleshooting) when Studio does not connect, the wrong `targetPath` is selected, or logs are not appearing in the local UI.
 
 ## Notes
 
