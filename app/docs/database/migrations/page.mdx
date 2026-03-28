@@ -1,0 +1,109 @@
+---
+title: "Migrations"
+description: "How Blyp creates, applies, and verifies Prisma and Drizzle migrations for database logging."
+icon: "code"
+order: 4
+---
+
+# Database Migrations
+
+Running database mode safely means the database has to match the Blyp schema contract, not just the app config.
+
+> **Do not skip migrations:** Setting `destination: "database"` without actually applying the required schema is not a partial setup. It is a broken setup.
+
+## Recommended command flow
+
+```bash
+blyp db:init
+blyp db:migrate
+blyp db:generate
+```
+
+`db:generate` is Prisma-only.
+
+## What `blyp db:init` actually does
+
+`blyp db:init` is the guided setup step.
+
+It:
+
+- detects whether the project is using Prisma or Drizzle
+- validates the chosen adapter and dialect
+- writes or appends the required Blyp schema contract
+- prepares the adapter-specific migration workflow
+- writes the starter `blyp.config.ts` wiring
+
+It does not remove user-defined schema state for you. If it finds an existing Blyp schema that does not match the current contract, it fails and asks you to reconcile it manually.
+
+## What `blyp db:migrate` does
+
+`blyp db:migrate` runs the adapter-specific migration workflow after the project has been initialized.
+
+### Prisma
+
+The CLI resolves either:
+
+- a matching package script such as `prisma:migrate`, `db:migrate`, or similar
+- or a direct command equivalent to:
+
+```bash
+prisma migrate dev --name blyp_logs_init --schema prisma/schema.prisma
+```
+
+### Drizzle
+
+The CLI resolves either:
+
+- matching project scripts for generate and migrate
+- or direct commands equivalent to:
+
+```bash
+drizzle-kit generate --config drizzle.config.ts
+drizzle-kit migrate --config drizzle.config.ts
+```
+
+## What `blyp db:generate` does
+
+`blyp db:generate` is Prisma-only.
+
+It runs Prisma client generation after the schema and migration steps are in place.
+
+If the project is using Drizzle, this command does not apply.
+
+## Migration naming
+
+The generated migration name base is:
+
+```text
+blyp_logs_init
+```
+
+That name is the baseline the CLI uses when it falls back to direct Prisma migration commands.
+
+## Manual verification checklist
+
+After running migrations, verify all of the following:
+
+1. The database contains `blyp_logs`.
+2. The required indexes exist.
+3. Your app config points at the correct adapter object:
+   `model: "blypLog"` for Prisma or `table: blypLogs` for Drizzle.
+4. A test log can be inserted successfully.
+
+## Quick test
+
+After setup, emit a single log and flush it:
+
+```ts
+logger.info("database-check");
+await logger.flush();
+```
+
+Then confirm that a row with the expected message exists in `blyp_logs`.
+
+## Related docs
+
+- [Schema Contract](/docs/database/schema)
+- [Prisma](/docs/database/prisma)
+- [Drizzle](/docs/database/drizzle)
+- [Troubleshooting](/docs/database/troubleshooting)

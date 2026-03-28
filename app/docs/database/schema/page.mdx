@@ -1,0 +1,88 @@
+---
+title: "Schema Contract"
+description: "The required Blyp table, columns, indexes, and naming contract for database mode."
+icon: "database"
+order: 1
+---
+
+# Schema Contract
+
+Database mode depends on a fixed storage contract. The schema is not optional.
+
+If your database shape drifts away from the Blyp contract, inserts can fail, config resolution can disable database logging, and tooling such as Studio can lose the query shape it expects.
+
+> **Do not improvise the schema:** In database mode, Blyp expects the generated schema contract. Missing columns, renamed fields, missing JSON columns, or missing indexes can make the feature effectively unusable.
+
+## Canonical names
+
+- SQL table: `blyp_logs`
+- Prisma model: `BlypLog`
+- Prisma delegate name used in adapter config: `blypLog`
+- Drizzle export: `blypLogs`
+
+## Required columns
+
+| App field | DB column or model field | Type shape | Required | Why Blyp stores it |
+| --- | --- | --- | --- | --- |
+| `id` | `id` | UUID or 36-char string | yes | Stable row identity for each log record |
+| `timestamp` | `timestamp` | datetime with microsecond precision | yes | Original log event time |
+| `level` | `level` | short string | yes | Severity filtering and query grouping |
+| `message` | `message` | text | yes | Human-readable event message |
+| `caller` | `caller` | text | no | Source location when available |
+| `type` | `type` | short string | no | Event category such as request or error types |
+| `groupId` | `group_id` | short string | no | Structured/grouped log correlation |
+| `method` | `method` | short string | no | HTTP method when the log is request-related |
+| `path` | `path` | text | no | HTTP path when the log is request-related |
+| `status` | `status` | integer | no | HTTP status or similar numeric outcome |
+| `duration` | `duration` | floating-point number | no | Timing information for the event |
+| `hasError` | `has_error` | boolean | yes | Fast error presence check without opening JSON payloads |
+| `data` | `data` | JSON | no | Structured event payload fields |
+| `bindings` | `bindings` | JSON object | no | Child logger bindings and contextual fields |
+| `error` | `error` | JSON object | no | Normalized error payload |
+| `events` | `events` | JSON array | no | Structured log event trail |
+| `record` | `record` | JSON | yes | Full normalized Blyp record |
+| `createdAt` | `created_at` | datetime with default now | yes | Insert time in the database |
+
+## Why `record` is required
+
+`record` is the full normalized Blyp log payload. It is not a convenience field. It is part of the required contract and should be treated as mandatory even when some individual fields are also projected into first-class columns.
+
+## JSON columns
+
+The JSON-backed fields are:
+
+- `data`
+- `bindings`
+- `error`
+- `events`
+- `record`
+
+The first four can be `null` for some rows. That does not make them optional in the schema contract. They still need to exist with the expected JSON-capable type.
+
+`record` is required and must not be removed.
+
+## Required indexes
+
+- `blyp_logs_timestamp_idx`
+- `blyp_logs_level_timestamp_idx`
+- `blyp_logs_type_timestamp_idx`
+- `blyp_logs_group_id_timestamp_idx`
+
+## Why the indexes exist
+
+- `blyp_logs_timestamp_idx`: supports time-based browsing and recent-log queries
+- `blyp_logs_level_timestamp_idx`: supports severity filters sorted by time
+- `blyp_logs_type_timestamp_idx`: supports event-type filtering such as request vs error style queries
+- `blyp_logs_group_id_timestamp_idx`: supports grouped and structured log inspection over time
+
+## Known limitation: `traceId`
+
+> **Known limitation:** `@blyp/core` currently includes `traceId` in `DatabaseLogRow`, but the current CLI-generated Prisma and Drizzle schemas do not create a `trace_id` column. The generated schema is still the supported baseline today. Request trace IDs may exist in file logs and runtime records, but they are not currently persisted as a first-class database column by the generated schema.
+
+## Adapter-specific implementations
+
+Use these pages for the exact generated schema by adapter and dialect:
+
+- [Prisma](/docs/database/prisma)
+- [Drizzle](/docs/database/drizzle)
+- [Migrations](/docs/database/migrations)

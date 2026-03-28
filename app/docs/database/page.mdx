@@ -1,23 +1,29 @@
 ---
-title: "Database Logging"
-description: "Use Prisma or Drizzle as Blyp's primary sink when local file writes are not reliable."
+title: "Database"
+description: "Required Blyp database schemas, adapter setup, migrations, and failure modes for Prisma and Drizzle."
 icon: "database"
 order: 10
 ---
 
-# Database Logging
+# Database
 
-Use database logging when your deployment cannot rely on local file persistence, especially in serverless environments.
+Use database mode when Blyp cannot safely rely on local file persistence, especially in serverless or short-lived runtimes.
 
-Database mode changes Blyp's primary sink from files to your database. Connectors such as Better Stack, PostHog, Sentry, and OTLP continue to work independently.
+In this mode, Blyp replaces file logging as the primary persistence layer and writes normalized log rows into your application database. Connectors such as Better Stack, PostHog, Sentry, Databuddy, and OTLP still work independently.
 
-## Requirements
+## Why the schema matters
 
-- set `destination: "database"`
-- use an executable config file such as `blyp.config.ts`
-- provide a Prisma or Drizzle adapter at runtime
+Database mode is not just a config flag. It depends on a specific schema contract.
 
-`blyp.config.json` alone is not enough for this mode because adapters are runtime objects.
+If the table, model, columns, indexes, or adapter wiring do not match what Blyp expects, database logging can become partially broken or fully unusable. Typical failure modes include:
+
+- database logging being disabled during config resolution
+- adapter startup failures because the expected model or table is missing
+- failed inserts because required fields or JSON columns are missing
+- degraded Studio queries and slower inspection when expected indexes are missing
+- incorrect assumptions about what Blyp persists
+
+> **Schema is required:** Treat the generated Blyp schema as a compatibility contract. If you rename fields, remove indexes, or point the adapter at the wrong model or table, Blyp database logging may stop working correctly.
 
 ## Supported setups
 
@@ -26,7 +32,39 @@ Database mode changes Blyp's primary sink from files to your database. Connector
 - Drizzle + Postgres
 - Drizzle + MySQL
 
-> **CLI setup available:** You can scaffold the schema, run migrations, and generate `blyp.config.ts` automatically using `blyp db:init`. See the [CLI docs](/docs/cli) for the guided setup flow.
+## Required setup sequence
+
+1. Choose your adapter: Prisma or Drizzle.
+2. Choose your dialect: Postgres or MySQL.
+3. Create the required Blyp schema contract.
+4. Run migrations so the database actually matches that contract.
+5. Wire `blyp.config.ts` to the correct adapter runtime object.
+6. Run `blyp db:generate` if you are using Prisma.
+7. Emit a test log and confirm the row is inserted.
+
+## Required storage contract
+
+The current CLI-generated contract is:
+
+- SQL table: `blyp_logs`
+- Prisma model: `BlypLog`
+- Prisma adapter delegate name: `blypLog`
+- Drizzle exported table symbol: `blypLogs`
+
+For the full column and index contract, see [Schema Contract](/docs/database/schema).
+
+## Adapter guides
+
+- [Prisma](/docs/database/prisma)
+- [Drizzle](/docs/database/drizzle)
+- [Migrations](/docs/database/migrations)
+- [Troubleshooting](/docs/database/troubleshooting)
+
+## `blyp.config.ts` requirement
+
+Database mode requires an executable config file such as `blyp.config.ts`, `blyp.config.mts`, `blyp.config.js`, or `blyp.config.cjs`.
+
+`blyp.config.json` is not enough because Prisma and Drizzle adapters are runtime objects, not plain JSON values.
 
 ## Prisma example
 
@@ -69,7 +107,7 @@ export default {
 
 ## Delivery behavior
 
-The database delivery queue supports immediate writes and batched writes.
+Database delivery supports immediate writes and batched writes.
 
 Default values:
 
@@ -106,13 +144,13 @@ await logger.flush();
 await logger.shutdown();
 ```
 
-Promise-based integrations such as Elysia, Hono, Next.js, SvelteKit, and TanStack Start flush automatically in database mode before the request completes.
+Promise-based and hook-driven integrations such as Elysia, Hono, Next.js, React Router, Astro, Nitro, Nuxt, SvelteKit, and TanStack Start flush database writes before the request finishes.
 
 For callback-style servers such as Express, Fastify, and NestJS, call `await logger.flush()` at your own boundary when you need a hard durability point.
 
-## CLI-assisted setup
+## CLI workflow
 
-As of CLI `v0.1.3`, the recommended setup flow is:
+The recommended guided flow is:
 
 ```bash
 blyp db:init
@@ -120,7 +158,7 @@ blyp db:migrate
 blyp db:generate
 ```
 
-`db:generate` is only needed for Prisma projects.
+`db:generate` is Prisma-only.
 
 Without a global install:
 
@@ -130,16 +168,18 @@ bunx @blyp/cli db:migrate
 bunx @blyp/cli db:generate
 ```
 
-## Import paths
+The detailed command behavior is documented in [Migrations](/docs/database/migrations).
 
-Use:
+## Known limitation: `traceId`
 
-- `@blyp/core/database` for adapter factories and database-specific types
-- `@blyp/core` for config helpers such as `resolveConfig()` and `ResolvedBlypConfig`
+> **Known limitation:** `@blyp/core` currently includes `traceId` in its normalized `DatabaseLogRow`, but the current CLI-generated Prisma and Drizzle schemas do not create a `trace_id` column. The generated schema is still the supported compatibility baseline today. Do not add your own undocumented column and assume Blyp will use it automatically. Request trace IDs may still exist in file logs and runtime records, but they are not currently persisted as a first-class database column by the generated schema.
 
 ## Related docs
 
+- [Schema Contract](/docs/database/schema)
+- [Prisma](/docs/database/prisma)
+- [Drizzle](/docs/database/drizzle)
+- [Migrations](/docs/database/migrations)
+- [Troubleshooting](/docs/database/troubleshooting)
 - [CLI](/docs/cli)
 - [Configuration](/docs/configuration)
-- [File Logging](/docs/file-logging)
-- [Utilities & Runtime](/docs/reference)

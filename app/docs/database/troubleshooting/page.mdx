@@ -1,0 +1,113 @@
+---
+title: "Troubleshooting"
+description: "Common database logging failures in Blyp and how to fix them."
+icon: "file"
+order: 5
+---
+
+# Troubleshooting
+
+Use this page when database mode is configured but logs are missing, inserts fail, or Blyp falls back to a disabled database state.
+
+> **High-risk area:** Schema mismatches can make database logging effectively unusable. Treat the generated Blyp schema as a strict compatibility contract.
+
+## `destination: "database"` is set, but database logging is silently disabled
+
+Likely cause:
+You are using `blyp.config.json` instead of an executable config file, so the adapter runtime object cannot be loaded.
+
+Fix:
+Move the config to `blyp.config.ts`, `blyp.config.mts`, `blyp.config.js`, or another executable `blyp.config.*` file and wire the adapter there.
+
+## Database logging is disabled because the dialect is unsupported
+
+Likely cause:
+`database.dialect` is not `postgres` or `mysql`.
+
+Fix:
+Use one of the supported dialects and make sure it matches your ORM configuration.
+
+## Database logging is enabled without an adapter
+
+Likely cause:
+`destination: "database"` is set but `database.adapter` is missing.
+
+Fix:
+Provide either `createPrismaDatabaseAdapter({ client, model })` or `createDrizzleDatabaseAdapter({ db, table })`.
+
+## Prisma delegate `blypLog` is missing
+
+Likely cause:
+The Prisma client does not expose the expected delegate, usually because the model is missing, renamed, or the generated client is stale.
+
+Fix:
+Make sure the Prisma model is `BlypLog`, mapped to `blyp_logs`, run migrations, then run `blyp db:generate`.
+
+## Drizzle adapter fails because `db.insert` or the table reference is missing
+
+Likely cause:
+The adapter received the wrong DB object, the wrong table symbol, or an incomplete runtime stub.
+
+Fix:
+Pass the real Drizzle DB instance and the correct table symbol:
+
+```ts
+createDrizzleDatabaseAdapter({
+  db,
+  table: blypLogs,
+});
+```
+
+## Migrations ran, but inserts still fail
+
+Likely cause:
+The database contains a table or model that looks similar to Blyp but does not match the actual contract.
+
+Fix:
+Compare the live schema against [Schema Contract](/docs/database/schema). Verify:
+
+- the table is `blyp_logs`
+- required columns exist
+- JSON-capable columns exist
+- required indexes exist
+- the adapter points to the expected model or table symbol
+
+## The adapter points to the wrong model or table symbol
+
+Likely cause:
+Prisma config uses a different delegate name, or Drizzle config points to a table other than `blypLogs`.
+
+Fix:
+
+- Prisma: use `model: "blypLog"` unless you have intentionally changed the Prisma delegate name in a compatible way
+- Drizzle: pass `table: blypLogs`
+
+## Logs are missing at request boundaries in callback-style servers
+
+Likely cause:
+The process or request path completes before the async database queue is flushed.
+
+Fix:
+Call:
+
+```ts
+await logger.flush();
+```
+
+at the boundary where you need a hard durability point. This matters most in callback-style servers such as Express, Fastify, and NestJS.
+
+## `traceId` is visible in other Blyp outputs but not in the database schema
+
+Likely cause:
+This is a current upstream limitation, not a local configuration mistake.
+
+Fix:
+Treat the current CLI-generated schema as the supported contract. Do not add undocumented columns and assume Blyp will populate them automatically.
+
+## Related docs
+
+- [Database](/docs/database)
+- [Schema Contract](/docs/database/schema)
+- [Prisma](/docs/database/prisma)
+- [Drizzle](/docs/database/drizzle)
+- [Migrations](/docs/database/migrations)

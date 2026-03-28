@@ -110,6 +110,8 @@ Use `destination: "database"` when local file persistence is not a good fit, esp
 Database mode requires an executable config file such as `blyp.config.ts`, `blyp.config.mts`, `blyp.config.js`, or `blyp.config.cjs` because Prisma and Drizzle adapters are runtime objects.
 `blyp.config.json` cannot hold adapter instances by itself.
 
+The config flag is only one part of the setup. The database must also match the required Blyp schema contract documented in [Schema Contract](/docs/database/schema).
+
 ```ts
 import { PrismaClient } from "@prisma/client";
 import { createPrismaDatabaseAdapter } from "@blyp/core/database";
@@ -143,6 +145,8 @@ The database delivery config supports:
 - `flushTimeoutMs`
 - `retry.maxRetries`
 - `retry.backoffMs`
+
+Use [Database](/docs/database) for the full setup flow, [Schema Contract](/docs/database/schema) for the required table and indexes, and [Database Migrations](/docs/database/migrations) for the CLI migration workflow.
 
 ## Common server adapter options
 

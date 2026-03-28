@@ -1,0 +1,155 @@
+---
+title: "Prisma"
+description: "Required Prisma schema, adapter wiring, and migration flow for Blyp database mode."
+icon: "database"
+order: 2
+---
+
+# Prisma
+
+Use this path when your project stores Blyp logs through Prisma and your datasource provider is either Postgres or MySQL.
+
+## Prerequisites
+
+- `prisma` installed
+- `@prisma/client` installed
+- `prisma/schema.prisma` exists
+- the Prisma datasource provider matches the dialect you selected for Blyp
+
+The current supported Prisma providers are:
+
+- `postgresql` -> Blyp `database.dialect: "postgres"`
+- `mysql` -> Blyp `database.dialect: "mysql"`
+
+## Naming contract
+
+- Prisma model name: `BlypLog`
+- mapped SQL table: `blyp_logs`
+- default adapter delegate name: `blypLog`
+
+The adapter factory defaults to `model: "blypLog"`, so your Prisma client must expose that delegate.
+
+## Generated `BlypLog` model for Postgres
+
+```prisma
+model BlypLog {
+  id        String   @id @db.Uuid
+  timestamp DateTime @db.Timestamptz(6)
+  level     String   @db.VarChar(32)
+  message   String   @db.Text
+  caller    String?  @db.Text
+  type      String?  @db.VarChar(64)
+  groupId   String?  @map("group_id") @db.VarChar(191)
+  method    String?  @db.VarChar(16)
+  path      String?  @db.Text
+  status    Int?
+  duration  Float?   @db.DoublePrecision
+  hasError  Boolean  @map("has_error")
+  data      Json?    @db.JsonB
+  bindings  Json?    @db.JsonB
+  error     Json?    @db.JsonB
+  events    Json?    @db.JsonB
+  record    Json     @db.JsonB
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([timestamp], map: "blyp_logs_timestamp_idx")
+  @@index([level, timestamp], map: "blyp_logs_level_timestamp_idx")
+  @@index([type, timestamp], map: "blyp_logs_type_timestamp_idx")
+  @@index([groupId, timestamp], map: "blyp_logs_group_id_timestamp_idx")
+  @@map("blyp_logs")
+}
+```
+
+## Generated `BlypLog` model for MySQL
+
+```prisma
+model BlypLog {
+  id        String   @id @db.Char(36)
+  timestamp DateTime @db.DateTime(6)
+  level     String   @db.VarChar(32)
+  message   String   @db.Text
+  caller    String?  @db.Text
+  type      String?  @db.VarChar(64)
+  groupId   String?  @map("group_id") @db.VarChar(191)
+  method    String?  @db.VarChar(16)
+  path      String?  @db.Text
+  status    Int?
+  duration  Float?   @db.Double
+  hasError  Boolean  @map("has_error")
+  data      Json?
+  bindings  Json?
+  error     Json?
+  events    Json?
+  record    Json
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(6)
+
+  @@index([timestamp], map: "blyp_logs_timestamp_idx")
+  @@index([level, timestamp], map: "blyp_logs_level_timestamp_idx")
+  @@index([type, timestamp], map: "blyp_logs_type_timestamp_idx")
+  @@index([groupId, timestamp], map: "blyp_logs_group_id_timestamp_idx")
+  @@map("blyp_logs")
+}
+```
+
+For the field-by-field purpose of each column, see [Schema Contract](/docs/database/schema).
+
+## `blyp.config.ts` example
+
+```ts
+import { PrismaClient } from "@prisma/client";
+import { createPrismaDatabaseAdapter } from "@blyp/core/database";
+
+const prisma = new PrismaClient();
+
+export default {
+  destination: "database",
+  database: {
+    dialect: "postgres",
+    adapter: createPrismaDatabaseAdapter({
+      client: prisma,
+      model: "blypLog",
+    }),
+  },
+};
+```
+
+## Migration flow
+
+```bash
+blyp db:init
+blyp db:migrate
+blyp db:generate
+```
+
+`db:generate` is required for Prisma projects because Prisma client generation is separate from migration application.
+
+## What `blyp db:init` validates
+
+Before it writes or appends the Blyp model, the CLI checks:
+
+- `prisma/schema.prisma` exists
+- `prisma` is installed
+- `@prisma/client` is installed
+- the datasource provider can be read from the schema
+- the provider is supported by Blyp
+- the provider matches the chosen dialect
+
+If a `BlypLog` model already exists, the CLI validates that it still matches the Blyp schema contract before continuing.
+
+## Failure cases
+
+Likely Prisma-specific failures include:
+
+- `prisma/schema.prisma` is missing
+- the datasource provider is not `postgresql` or `mysql`
+- the requested Blyp dialect does not match the Prisma datasource provider
+- `prisma` is missing from `package.json`
+- `@prisma/client` is missing from `package.json`
+- an existing `BlypLog` model exists but does not match the Blyp contract
+- your adapter config points to the wrong delegate name instead of `blypLog`
+
+## Related docs
+
+- [Schema Contract](/docs/database/schema)
+- [Migrations](/docs/database/migrations)
+- [Troubleshooting](/docs/database/troubleshooting)
