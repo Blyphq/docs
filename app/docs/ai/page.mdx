@@ -1,0 +1,64 @@
+---
+title: "AI"
+description: "Trace AI workloads across Vercel AI SDK, OpenAI, Anthropic, OpenRouter-compatible clients, and low-level fetch transport calls."
+icon: "skills"
+order: 14
+---
+
+# AI
+
+Blyp can emit structured `ai_trace` records for AI workloads without forcing you into one SDK.
+
+Supported entrypoints:
+
+- `@blyp/core/ai/vercel` for Vercel AI SDK middleware and model wrappers
+- `@blyp/core/ai/openai` for direct OpenAI SDK instrumentation
+- `@blyp/core/ai/anthropic` for direct Anthropic SDK instrumentation
+- `@blyp/core/ai/fetch` for low-level transport tracing around `fetch`
+
+## What gets emitted
+
+Each traced AI call produces one normalized `ai_trace` record with:
+
+- `provider`
+- `model`
+- `operation`
+- token usage when the provider returns it
+- `finishReason`
+- timing data
+- `msToFirstChunk` for streamed responses
+- best-effort tool-call records and trace events
+
+The goal is to make AI calls queryable with the same Blyp primitives used for request logs, structured logs, connectors, and database records.
+
+## Request-scoped correlation
+
+When an active request-scoped logger exists, AI traces inherit it automatically. That means the same request can carry:
+
+- the server request log
+- AI trace records
+- structured logs
+- connector-forwarded logs
+- database-persisted rows
+
+See [Request Tracing](/docs/working-with-blyp/request-tracing) for the `x-blyp-trace-id` lifecycle and how browser logs join the same trace.
+
+## Covered SDK paths
+
+| Entry | Covered calls |
+| --- | --- |
+| `@blyp/core/ai/vercel` | Vercel AI SDK `generateText()` and `streamText()` |
+| `@blyp/core/ai/openai` | OpenAI `responses.create()` and `chat.completions.create()` |
+| `@blyp/core/ai/anthropic` | Anthropic `messages.create()` |
+| `@blyp/core/ai/fetch` | generic transport tracing for status, latency, request IDs, and optional JSON body inspection |
+
+OpenRouter is supported through the OpenAI-compatible path by pointing the OpenAI client at the OpenRouter base URL.
+
+## Read next
+
+- [AI Tracing](/docs/ai/tracing)
+- [Vercel AI SDK](/docs/ai/vercel-ai-sdk)
+- [OpenAI SDK](/docs/ai/openai-sdk)
+- [Anthropic SDK](/docs/ai/anthropic-sdk)
+- [AI Privacy & Capture](/docs/ai/privacy-and-capture)
+- [Request Tracing](/docs/working-with-blyp/request-tracing)

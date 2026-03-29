@@ -1,0 +1,70 @@
+---
+title: "Vercel AI SDK"
+description: "Set up Blyp tracing for Vercel AI SDK calls with blypModel() or blypMiddleware()."
+icon: "vercel"
+order: 2
+---
+
+# Vercel AI SDK
+
+Use `@blyp/core/ai/vercel` when your app already uses the Vercel AI SDK and you want Blyp to trace `generateText()` or `streamText()` calls.
+
+## Install
+
+Install the Vercel AI SDK in the app that uses the traced model:
+
+```bash
+bun add ai
+```
+
+## `blypModel()`
+
+Use `blypModel()` when you want the shortest path for tracing a model instance:
+
+```ts
+import { anthropic } from "@ai-sdk/anthropic";
+import { streamText } from "ai";
+import { blypModel } from "@blyp/core/ai/vercel";
+
+const model = blypModel(anthropic("claude-sonnet-4-5"), {
+  operation: "support_chat",
+});
+
+const result = streamText({
+  model,
+  prompt: "Write a refund reply for this customer",
+});
+```
+
+## `blypMiddleware()`
+
+Use `blypMiddleware()` when the model is already being composed with Vercel AI SDK middleware:
+
+```ts
+import { anthropic } from "@ai-sdk/anthropic";
+import { wrapLanguageModel } from "ai";
+import { blypMiddleware } from "@blyp/core/ai/vercel";
+
+const model = wrapLanguageModel({
+  model: anthropic("claude-sonnet-4-5"),
+  middleware: blypMiddleware({
+    operation: "support_chat",
+    metadata: {
+      team: "support",
+    },
+  }),
+});
+```
+
+## What gets traced
+
+`@blyp/core/ai/vercel` covers:
+
+- `generateText()`
+- `streamText()`
+
+It emits one normalized `ai_trace` record per traced call with provider, model, operation, usage, finish reason, timing, first-chunk latency for streams, and best-effort tool-call events.
+
+## Shared controls
+
+Use the shared privacy controls from [AI Privacy & Capture](/docs/ai/privacy-and-capture) when you want to opt into prompt or output capture.

@@ -23,7 +23,7 @@
     "three": "^0.183.2"
   },
   "devDependencies": {
-    "@blyp/core": "0.1.21",
+    "@blyp/core": "github:Blyphq/blyp#v0.1.22",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/mdx": "^2.0.13",
     "@types/node": "^22.10.0",

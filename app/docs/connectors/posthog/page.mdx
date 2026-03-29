@@ -12,6 +12,14 @@ Blyp's PostHog connector covers two related flows on server runtimes:
 - log forwarding into PostHog Logs
 - exception capture into PostHog Error Tracking
 
+## Install required peer packages
+
+Install the optional peer dependencies when this connector is enabled:
+
+```bash
+bun add posthog-node @opentelemetry/api-logs @opentelemetry/exporter-logs-otlp-http @opentelemetry/resources @opentelemetry/sdk-logs
+```
+
 ## Config
 
 Configure PostHog under `connectors.posthog`:
@@ -108,6 +116,7 @@ Client `error` and `critical` logs requested through the PostHog connector are p
 ## Notes
 
 - PostHog direct delivery is for Node/Bun server runtimes
+- `connectors.delivery` can make retryable PostHog forwarding failures durable without Redis or another external queue
 - browser and Expo still post to Blyp first
 - Blyp warns once when the client or Expo app requests PostHog forwarding but the server connector is missing
 - Workers remain out of scope for PostHog error tracking

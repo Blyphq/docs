@@ -17,6 +17,8 @@ Blyp ships first-party connector support for:
 - [Sentry](/docs/connectors/sentry)
 - [OTLP](/docs/connectors/otlp)
 
+As of `@blyp/core@0.1.22`, connector SDKs are installed as optional peers instead of being pulled in transitively by the base package. Install only the peer packages needed by the connectors you actually enable.
+
 ## Runtime model
 
 The connector model differs by runtime:
@@ -34,6 +36,8 @@ Each server-side connector supports two modes:
 
 - `mode: "auto"` forwards regular Blyp server logs automatically
 - `mode: "manual"` disables automatic forwarding so you can use dedicated connector APIs directly
+
+Server-side connectors can also opt into Blyp-managed durable delivery through `connectors.delivery`. This adds an in-memory hot buffer plus optional SQLite persistence for retryable forwarding failures without Redis or another external queue.
 
 The dedicated helper entry points are:
 

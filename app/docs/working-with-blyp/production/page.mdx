@@ -9,8 +9,6 @@ order: 2
 
 This guide covers Blyp behavior in production deployments: where logs are persisted, what `logger.flush()` actually guarantees, how connectors behave under sustained load, and what changes in serverless and Workers runtimes.
 
-> **Current version reviewed:** This page is reviewed against `@blyp/core@0.1.21`. Future connector queue and retry behavior is not shipped yet and is called out separately under `Planned after BLY-5`.
-
 Use this page together with [Configuration](/docs/configuration), [File Logging](/docs/file-logging), [Database Logging](/docs/database), [Connectors](/docs/connectors), [Next.js App Router](/docs/integrations/nextjs), and [Cloudflare Workers](/docs/integrations/workers).
 
 ## File Logging In Production
@@ -191,49 +189,57 @@ Callback-style servers do not auto-flush to the same hard persistence boundary. 
 
 ## Connector Delivery At Scale
 
-### Current connector model
+### Durable connector delivery model
 
-Today, Blyp does not expose a shared cross-connector queue, retry policy, or back-pressure controller. Connector delivery is fire-and-forward on each log write, with `flush()` support delegated to each connector implementation or vendor SDK.
+As of `@blyp/core@0.1.22`, server-side connector forwarding can opt into a Blyp-managed delivery queue through `connectors.delivery`.
 
-Per-connector rate limits are vendor-defined. Blyp does not implement its own rate-limiting layer for [Better Stack](/docs/connectors/betterstack), [PostHog](/docs/connectors/posthog), [Sentry](/docs/connectors/sentry), or [OTLP](/docs/connectors/otlp).
+Current behavior:
+
+- an in-memory hot buffer accepts connector work first
+- retryable connector failures can spill into a Blyp-managed SQLite queue
+- the default queue path is `.blyp/connectors.sqlite`
+- `.blyp/` should be ignored in git
+- queueing applies to server connector forwarding only, not the primary `file` or `database` destination
+- Blyp uses at-least-once style delivery semantics for queued connector work
+- older runtimes without built-in SQLite support fall back to memory-only retries with a warning
 
 ### Connector-by-connector behavior
 
 | Connector | Current Blyp behavior |
 | --- | --- |
-| Better Stack | Uses `@logtail/node`, sends each record asynchronously with `client.log(...)`, and `flush()` awaits `client.flush()` |
-| PostHog | Uses OTLP HTTP with OpenTelemetry `BatchLogRecordProcessor` for logs, `posthog-node` for exceptions, and `flush()` waits for the OTLP provider flush |
-| Sentry | Uses the Sentry SDK directly, emits logs through the SDK logger, may capture exceptions, and `flush()` calls `Sentry.flush(2000)` |
-| OTLP | Creates one OpenTelemetry `BatchLogRecordProcessor` per target and `flush()` forces provider flush for each target |
-
-None of these connectors currently expose Blyp-level queue depth, retry knobs, or rate-limit controls.
+| Better Stack | Uses `@logtail/node` for log delivery and can enqueue retryable failures through Blyp's connector queue |
+| PostHog | Uses OTLP HTTP for logs plus `posthog-node` for exceptions, with retryable delivery eligible for Blyp queueing |
+| Sentry | Uses the Sentry SDK directly and can queue retryable log delivery work through Blyp |
+| OTLP | Uses OpenTelemetry log exporters per target and can persist retryable delivery work through Blyp's queue |
 
 ### Batch delivery behavior
 
-Blyp itself does not batch Better Stack or Sentry log writes. PostHog log forwarding and OTLP targets rely on OpenTelemetry batch processors internally.
+Blyp batches queued connector work at the delivery-manager level through `memoryBatchSize`, `sqliteWriteBatchSize`, and `sqliteReadBatchSize`. Connector SDKs may still batch internally as well.
 
-That means batching details are mostly SDK and vendor behavior today rather than a Blyp configuration surface. Do not assume a shared Blyp batch size or queue depth across connectors unless the connector's own SDK documents it.
+That means effective behavior is a combination of Blyp queue settings and connector SDK behavior. Do not assume identical batching semantics across Better Stack, PostHog, Sentry, and OTLP.
 
 ### What happens when a connector is slow
 
 Current behavior at sustained load:
 
-- Blyp does not expose connector back-pressure limits or queue-depth metrics
-- slow or failing connectors surface warnings when their SDK or transport reports an error
+- the primary sink continues independently
+- retryable connector failures can spill from memory into SQLite when durable delivery is enabled
+- queued work is retried with configurable backoff, concurrency, polling, and overflow behavior
+- exhausted jobs move to dead letters instead of disappearing silently
 - connector failures do not stop the primary sink from writing file or database logs
-- file and database persistence stay separate from connector forwarding
+- file and database persistence stay separate from connector forwarding work
 
-`logger.flush()` first flushes the primary sink, then attempts connector flushes. Connector flush failures are swallowed at the logger level through `Promise.allSettled`, so `logger.flush()` is a best-effort connector flush boundary, not a promise that every connector succeeded.
+`logger.flush()` first flushes the primary sink, then waits for connector delivery work, including durable staged writes and replayed queue jobs. This is a stronger boundary than the pre-`0.1.22` best-effort connector flush behavior, but it still does not turn vendor-side availability into a guaranteed success outcome.
 
 ### Rate limits per connector
 
-Better Stack, PostHog, Sentry, and OTLP collectors all have vendor-specific ingestion limits. Blyp does not publish per-connector rate ceilings because those limits are not implemented in `@blyp/core`.
+Better Stack, PostHog, Sentry, and OTLP collectors all have vendor-specific ingestion limits. Blyp does not publish per-connector rate ceilings because those limits still depend on vendor APIs and SDKs.
 
 In practice:
 
 - use the vendor docs from each connector page for current ingestion limits
 - treat sustained throttling or `429` responses as vendor or SDK operational concerns
-- size your connector usage and alerting around vendor-side ingestion health, not around Blyp-side queue controls that do not exist yet
+- size your connector usage and alerting around both vendor ingestion health and Blyp queue status when durable delivery is enabled
 
 ## Serverless-Specific Guidance
 
@@ -374,27 +380,27 @@ Recommended guidance:
 - initialize connector SDKs through normal application startup paths, not per-request if you can avoid it
 - expect Workers to avoid file and database sink setup because they use the separate console-based API
 
-## Outages, Monitoring, And Future BLY-5 Work
+## Outages And Monitoring
 
 ### Current behavior during connector outages
 
 During connector outages or sustained connector failures:
 
 - the primary sink continues independently
-- connector sends may warn and drop or skip work depending on SDK behavior
-- Blyp does not currently expose connector queue depth
-- Blyp does not currently expose built-in retry or backoff controls for Better Stack, PostHog, Sentry, or OTLP
-- database mode has queue size and overflow handling, but connector mode does not
+- retryable connector work can remain in memory or spill into the durable SQLite queue
+- Blyp tracks delivery status such as pending counts, last success, last failure, and last error per connector target
+- exhausted jobs are moved to dead letters for inspection and replay
+- database mode and connector delivery still remain separate systems with separate queues and failure boundaries
 
 ### Queue depth monitoring
 
 Current monitoring guidance:
 
-- Blyp exposes no public connector queue-depth metric today
+- use `getConnectorDeliveryStatusSummary()` or Studio tooling to inspect queue state
+- use `listConnectorDeadLetters()` to inspect exhausted jobs
+- use `retryConnectorDeadLetters()` or `clearConnectorDeadLetters()` as part of recovery tooling
 - for database mode, monitor application warnings about overflow and track downstream insert latency and errors externally
-- for connectors, monitor vendor ingestion health plus SDK and application warnings
-
-> **Planned after BLY-5, not available in current `@blyp/core`:** Future work is expected to cover connector queue and retry behavior, queue-depth monitoring guidance, and clearer outage expectations once connector queueing ships. Do not treat that future design as current Blyp behavior.
+- for connectors, monitor both vendor ingestion health and Blyp queue status when durable delivery is enabled
 
 ## Read Next
 

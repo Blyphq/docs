@@ -1,0 +1,64 @@
+---
+title: "Request Tracing"
+description: "Use Blyp trace IDs to correlate request logs, browser logs, AI traces, connectors, and database records."
+icon: "settings"
+order: 1
+---
+
+# Request Tracing
+
+As of `@blyp/core@0.1.22`, Blyp creates a request trace ID for supported server frameworks and exposes it through the response header `x-blyp-trace-id`.
+
+## Trace lifecycle
+
+For a traced server request:
+
+1. Blyp generates a request trace ID.
+2. Request-scoped logs inherit that `traceId`.
+3. The response includes `x-blyp-trace-id`.
+4. Browser logs can pass the same value into `createClientLogger({ traceId })`.
+5. Connector-forwarded logs keep the same trace ID.
+6. Database rows persist the same trace ID when database logging is enabled.
+
+This gives support tooling and frontend code one stable value to surface in bug reports and one stable field to query across sinks.
+
+## Browser example
+
+```ts
+import { createClientLogger } from "@blyp/core/client";
+
+const response = await fetch("/api/session");
+const traceId = response.headers.get("x-blyp-trace-id") ?? undefined;
+
+const logger = createClientLogger({
+  endpoint: "/inngest",
+  traceId,
+});
+
+logger.info("session hydrated");
+```
+
+Passing `traceId` is optional for standalone browser-originated logs. It is required if you want those browser logs to join the same trace as the server request.
+
+## AI traces and structured logs
+
+Request-scoped AI traces and structured logs inherit the active request logger automatically, so they follow the same trace ID without extra manual wiring in the handler itself.
+
+See:
+
+- [AI](/docs/ai)
+- [AI Tracing](/docs/ai/tracing)
+- [Structured Logs](/docs/structured-logs)
+
+## Next.js public helper shape
+
+Next.js handlers can access the active trace ID through `withLogger(...)`:
+
+```ts
+const handler = nextLogger.withLogger(async (_request, _context, { log, traceId }) => {
+  log.info("request scoped");
+  return Response.json({ ok: true, traceId });
+});
+```
+
+The response header and emitted request logs stay aligned with that `traceId`.

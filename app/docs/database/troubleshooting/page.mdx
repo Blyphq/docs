@@ -99,10 +99,10 @@ at the boundary where you need a hard durability point. This matters most in cal
 ## `traceId` is visible in other Blyp outputs but not in the database schema
 
 Likely cause:
-This is a current upstream limitation, not a local configuration mistake.
+The database schema or migration state is older than the current Blyp contract.
 
 Fix:
-Treat the current CLI-generated schema as the supported contract. Do not add undocumented columns and assume Blyp will populate them automatically.
+Regenerate or update the Blyp database schema and migrations so the supported `traceId` column is present.
 
 ## Related docs
 

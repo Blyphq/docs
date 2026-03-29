@@ -118,8 +118,11 @@ Inside framework handlers, the imported `createStructuredLog(...)` automatically
 - framework `customProps` are merged into the final payload
 - a structured emit suppresses the normal auto `http_request` or `http_error` record for that request
 - if you start a request-scoped structured log and then call the root `logger` in the same request, Blyp warns once and ignores the root logger write
+- the active request `traceId` is preserved even if default structured fields contain a conflicting `traceId`
 
 That means you can keep the same root import in standalone code and in framework routes without switching APIs.
+
+See [Request Tracing](/docs/working-with-blyp/request-tracing) for the full correlation model across response headers, client logs, connectors, and database rows.
 
 ## Emit options
 

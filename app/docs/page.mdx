@@ -15,6 +15,7 @@ Blyp is a high-performance logger built for Bun-first and Node-compatible TypeSc
 - standalone logger instances
 - structured request batches
 - framework-aware HTTP logging
+- AI tracing across Vercel AI SDK, OpenAI, Anthropic, and OpenRouter-compatible clients
 - browser-to-server log ingestion
 - structured `BlypError` handling
 - NDJSON file logging with rotation and archives
@@ -31,7 +32,7 @@ Blyp is a high-performance logger built for Bun-first and Node-compatible TypeSc
 | CLI commands | Beta | Commands may be added or changed in a minor version |
 | Internal APIs / unexported symbols | Unstable | No guarantees |
 
-For the full compatibility policy, deprecation window, and Bun vs Node support contract, see [`Blyphq/blyp/STABILITY.md`](https://github.com/Blyphq/blyp/blob/main/STABILITY.md).
+For the full compatibility policy, deprecation window, and Bun vs Node support contract, see [`Blyphq/blyp/STABILITY.md`](https://github.com/Blyphq/blyp/blob/main/STABILITY.md). For vulnerability disclosure and maintainer response expectations, see [`Blyphq/blyp/SECURITY.md`](https://github.com/Blyphq/blyp/blob/main/SECURITY.md).
 
 ## Studio
 
@@ -53,6 +54,7 @@ Blyp also now has a separate CLI project for local developer workflows, document
 | --- | --- | --- |
 | Core logger + errors | `@blyp/core` | `logger`, `createStandaloneLogger`, `createStructuredLog`, `createError`, `HTTP_CODES`, `parseError`, `readLogFile`, config/runtime helpers |
 | Browser logger | `@blyp/core/client` | `createClientLogger`, browser-safe `parseError`, `ClientLogger` types |
+| AI tracing | `@blyp/core/ai/vercel`, `@blyp/core/ai/openai`, `@blyp/core/ai/anthropic`, `@blyp/core/ai/fetch` | middleware, model wrappers, provider wrappers, transport tracing, and AI trace types |
 | Database adapters | `@blyp/core/database` | `createPrismaDatabaseAdapter`, `createDrizzleDatabaseAdapter`, and database config types |
 | Connector helpers | `@blyp/core/betterstack`, `@blyp/core/posthog`, `@blyp/core/databuddy`, `@blyp/core/sentry`, `@blyp/core/otlp` | manual connector loggers, structured connector helpers, and provider-specific exception capture |
 | Framework adapters | `@blyp/core/<framework>` | `createLogger()` or equivalent framework factory plus framework-specific types |
@@ -102,8 +104,11 @@ throw createError({
 - [Configuration](/docs/configuration) for `blyp.config.*`, connector setup, `ignorePaths`, and client ingestion config.
 - [Database](/docs/database) for required schemas, Prisma and Drizzle adapters, delivery, and CLI-assisted setup.
 - [Schema Contract](/docs/database/schema) for the required `blyp_logs` table, indexes, and naming contract.
+- [AI](/docs/ai) for AI tracing concepts, provider coverage, and request-scoped correlation.
+- [AI Tracing](/docs/ai/tracing) for setup with Vercel AI SDK, OpenAI, Anthropic, OpenRouter, and low-level fetch tracing.
 - [Working With Blyp](/docs/working-with-blyp) for grouped development and production guides.
 - [Production](/docs/working-with-blyp/production) for deployment guidance covering durability, flush boundaries, connectors at scale, and serverless runtimes.
+- [Request Tracing](/docs/working-with-blyp/request-tracing) for `x-blyp-trace-id`, browser correlation, and end-to-end trace propagation.
 - [Structured Logs](/docs/structured-logs) for `createStructuredLog()`, typed fields, and request-scoped batch emission.
 - [Errors](/docs/errors) for `createError()`, `parseError()`, and `BlypError` behavior.
 - [Skills](/docs/skills) for copy-pasteable AI agent presets that help tools install and wire Blyp correctly.

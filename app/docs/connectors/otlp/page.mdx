@@ -16,6 +16,14 @@ Common targets include:
 - Honeycomb
 - a self-hosted OpenTelemetry Collector
 
+## Install required peer packages
+
+Install the optional peer dependencies when this connector is enabled:
+
+```bash
+bun add @opentelemetry/api-logs @opentelemetry/exporter-logs-otlp-http @opentelemetry/resources @opentelemetry/sdk-logs
+```
+
 ## Config
 
 OTLP connectors are configured as a named array:
@@ -103,3 +111,8 @@ const expoLogger = createExpoLogger({
 ```
 
 Browser and Expo still post to Blyp first. Blyp forwards to the named OTLP target only when that server connector is configured and ready.
+
+## Notes
+
+- `connectors.delivery` can make retryable OTLP forwarding failures durable without Redis or another external queue
+- manual OTLP APIs always target a named connector

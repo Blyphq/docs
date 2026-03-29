@@ -1,0 +1,111 @@
+---
+title: "AI Privacy & Capture"
+description: "Control AI trace capture, exclusions, and limits so Blyp records only the content you explicitly allow."
+icon: "skills"
+order: 2
+---
+
+# AI Privacy & Capture
+
+Blyp AI tracing is intentionally conservative by default.
+
+Prompt text, outputs, reasoning, tool payloads, raw provider payloads, and detailed stream data are opt-in. The default trace focuses on provider, model, operation, usage, finish reason, timing, and best-effort tool metadata.
+
+## Capture controls
+
+Use `capture` to explicitly enable content recording:
+
+```ts
+import OpenAI from "openai";
+import { wrapOpenAI } from "@blyp/core/ai/openai";
+
+const openai = wrapOpenAI(
+  new OpenAI({ apiKey: process.env.OPENAI_API_KEY }),
+  {
+    operation: "review_patch",
+    capture: {
+      input: true,
+      output: true,
+      toolInputs: false,
+      toolOutputs: false,
+      reasoning: false,
+      streamEvents: false,
+      streamChunks: false,
+      rawProviderPayload: false,
+    },
+  }
+);
+```
+
+Supported `capture` options:
+
+- `capture.input`
+- `capture.output`
+- `capture.toolInputs`
+- `capture.toolOutputs`
+- `capture.reasoning`
+- `capture.streamEvents`
+- `capture.streamChunks`
+- `capture.rawProviderPayload`
+
+## Exclusions
+
+Use `exclude` to remove selected fields even when capture is enabled:
+
+```ts
+const client = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }), {
+  operation: "review_patch",
+  capture: {
+    input: true,
+    output: true,
+  },
+  exclude: {
+    providerOptions: true,
+    requestPaths: ["input.0.content"],
+    responsePaths: ["output_text"],
+    metadataPaths: ["tenant.secret"],
+    toolNames: ["internalAdminTool"],
+  },
+});
+```
+
+Supported `exclude` options:
+
+- `exclude.providerOptions`
+- `exclude.requestPaths`
+- `exclude.responsePaths`
+- `exclude.metadataPaths`
+- `exclude.toolNames`
+
+## Size and event limits
+
+Use `limits` to bound what Blyp records:
+
+```ts
+const client = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }), {
+  operation: "review_patch",
+  limits: {
+    maxContentBytes: 16_384,
+    maxEvents: 100,
+    maxToolCalls: 20,
+  },
+});
+```
+
+Supported `limits` options:
+
+- `limits.maxContentBytes`
+- `limits.maxEvents`
+- `limits.maxToolCalls`
+
+## Redaction still applies
+
+Blyp redaction still runs across emitted log output, including AI traces. That helps with known sensitive keys and pattern scanning, but it is not a reason to over-capture prompts or model outputs.
+
+Recommended default:
+
+- keep AI content capture off unless a debugging workflow truly needs it
+- enable only the specific fields needed for that workflow
+- pair AI capture with `redact.keys`, `redact.paths`, or `redact.patterns` when your metadata contains tenant-specific secrets
+
+See [Configuration](/docs/configuration) for the global `redact` config.

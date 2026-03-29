@@ -1,0 +1,41 @@
+---
+title: "AI Tracing"
+description: "Choose the right Blyp AI tracing entrypoint and jump into the dedicated setup guide for each SDK."
+icon: "skills"
+order: 1
+---
+
+# AI Tracing
+
+Use Blyp AI tracing when you want LLM calls to emit normalized `ai_trace` records with usage, finish reason, timing, and request-scoped correlation.
+
+## Pick the SDK guide you actually use
+
+Blyp splits AI tracing across dedicated entrypoints, so each SDK now has its own setup page:
+
+- [Vercel AI SDK](/docs/ai/vercel-ai-sdk) for `@blyp/core/ai/vercel`
+- [OpenAI SDK](/docs/ai/openai-sdk) for `@blyp/core/ai/openai` and OpenRouter through the OpenAI-compatible client path
+- [Anthropic SDK](/docs/ai/anthropic-sdk) for `@blyp/core/ai/anthropic`
+- [AI Privacy & Capture](/docs/ai/privacy-and-capture) for the shared `capture`, `exclude`, and `limits` controls
+
+## Provider matrix
+
+| Entry | Wrapped methods |
+| --- | --- |
+| `@blyp/core/ai/vercel` | Vercel AI SDK `generateText()` and `streamText()` |
+| `@blyp/core/ai/openai` | OpenAI `responses.create()` and `chat.completions.create()`, plus OpenRouter through the OpenAI-compatible client path |
+| `@blyp/core/ai/anthropic` | Anthropic `messages.create()` |
+| `@blyp/core/ai/fetch` | low-level `fetch` transport tracing for status, latency, request IDs, and optional JSON body inspection |
+
+## Advanced API surface
+
+Additional public APIs:
+
+- `createOpenAITracker`
+- `BlypProviderOptions`
+- `BlypMiddlewareContext`
+- `BlypSDKContext`
+- `BlypLLMTrace`
+- `BlypTraceEvent`
+
+Use [AI Privacy & Capture](/docs/ai/privacy-and-capture) for the capture defaults and the exact `capture`, `exclude`, and `limits` controls.

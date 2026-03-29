@@ -170,9 +170,9 @@ bunx @blyp/cli db:generate
 
 The detailed command behavior is documented in [Migrations](/docs/database/migrations).
 
-## Known limitation: `traceId`
+## `traceId` in database rows
 
-> **Known limitation:** `@blyp/core` currently includes `traceId` in its normalized `DatabaseLogRow`, but the current CLI-generated Prisma and Drizzle schemas do not create a `trace_id` column. The generated schema is still the supported compatibility baseline today. Do not add your own undocumented column and assume Blyp will use it automatically. Request trace IDs may still exist in file logs and runtime records, but they are not currently persisted as a first-class database column by the generated schema.
+As of `@blyp/core@0.1.22`, request trace IDs are persisted in database records. Use this together with [Request Tracing](/docs/working-with-blyp/request-tracing) when you want request logs, browser logs, AI traces, connector-forwarded logs, and database rows to share the same correlation ID.
 
 ## Related docs
 

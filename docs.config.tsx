@@ -16,14 +16,14 @@ import {
 import Image from "next/image";
 import { BlypThemeLogo } from "@/app/components/blyp-theme-logo";
 
-const logoIcon = (src: string, alt: string) => (
+const logoIcon = (src: string, alt: string, className = "object-contain dark:invert dark:grayscale") => (
 
     <Image
       src={src}
       alt={alt}
       width={18}
       height={18}
-      className="object-contain dark:invert dark:grayscale"
+      className={className}
     />
 );
 
@@ -86,6 +86,12 @@ export default defineDocs({
     nuxt: logoIcon("/logos/nuxtjs.svg", "Nuxt"),
     workers: logoIcon("/logos/cloudflare-workers-icon.svg", "Cloudflare Workers"),
     tanstack: logoIcon("/logos/tanstack-start.png", "TanStack"),
+    vercel: logoIcon("/logos/vercel.svg", "Vercel", "object-contain invert dark:invert-0 dark:grayscale-0"),
+    openai: logoIcon("/logos/openai.svg", "OpenAI", "object-contain invert dark:invert-0 dark:grayscale-0"),
+    anthropic: logoIcon("/logos/anthropic.svg", "Anthropic", "object-contain invert dark:invert-0 dark:grayscale-0"),
+    prisma: logoIcon("/logos/prisma.svg", "Prisma", "object-contain invert dark:invert-0 dark:grayscale-0"),
+    drizzle: logoIcon("/logos/drizzle.svg", "Drizzle", "object-contain invert dark:invert-0 dark:grayscale-0"),
+    pino: logoIcon("/logos/pino.svg", "Pino"),
     database: <Database size={16} />,
     code: <Code size={16} />,
     skills: <Bot size={16} />,

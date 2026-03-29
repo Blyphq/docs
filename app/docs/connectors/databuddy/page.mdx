@@ -9,6 +9,14 @@ order: 3
 
 Use `connectors.databuddy` when you want Blyp logs and handled server errors forwarded into Databuddy events.
 
+## Install required peer packages
+
+Install the optional peer dependency when this connector is enabled:
+
+```bash
+bun add @databuddy/sdk
+```
+
 ## Config
 
 ```ts
@@ -91,5 +99,6 @@ const expoLogger = createExpoLogger({
 
 - Blyp warns when browser or Expo apps request Databuddy forwarding but the server connector is missing
 - client forwarding depends on the server-side Databuddy connector being ready
+- `connectors.delivery` can make retryable Databuddy forwarding failures durable without Redis or another external queue
 - Workers remain out of scope for this connector
 - manual Databuddy helper APIs are server-side helpers, not browser APIs

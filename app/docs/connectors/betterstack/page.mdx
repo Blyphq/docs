@@ -12,6 +12,14 @@ Blyp's Better Stack connector covers two related server-side flows:
 - log forwarding into Better Stack Logs through `@logtail/node`
 - exception capture into Better Stack error tracking through the Sentry SDK
 
+## Install required peer packages
+
+Install the optional peer dependencies when this connector is enabled:
+
+```bash
+bun add @logtail/node @sentry/node
+```
+
 ## Config
 
 Configure Better Stack under `connectors.betterstack`:
@@ -114,6 +122,7 @@ Client `error` and `critical` logs requested through the Better Stack connector 
 
 - `ingestingHost` must be a full absolute `http://` or `https://` URL
 - Blyp does not auto-read `SOURCE_TOKEN` or `INGESTING_HOST`; wire them through `blyp.config.*` explicitly
+- `connectors.delivery` can make retryable Better Stack forwarding failures durable without Redis or another external queue
 - if `@sentry/node` is already initialized, Blyp reuses the existing Sentry client for Better Stack error tracking
 - if that existing Sentry client uses different DSN, environment, or release options, Blyp warns and keeps the existing client
 - browser and Expo still post to Blyp first

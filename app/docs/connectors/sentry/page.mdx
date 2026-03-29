@@ -9,6 +9,14 @@ order: 4
 
 Use `connectors.sentry` when you want Blyp logs forwarded into Sentry Logs.
 
+## Install required peer packages
+
+Install the optional peer dependency when this connector is enabled:
+
+```bash
+bun add @sentry/node
+```
+
 ## Config
 
 ```ts
@@ -76,3 +84,8 @@ const expoLogger = createExpoLogger({
 ```
 
 Browser and Expo still send logs to Blyp first. Blyp forwards to Sentry only when the server connector is configured.
+
+## Notes
+
+- `connectors.delivery` can make retryable Sentry forwarding failures durable without Redis or another external queue
+- if Sentry was already initialized by the app, Blyp reuses the existing client instead of replacing it

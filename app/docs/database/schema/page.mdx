@@ -75,9 +75,9 @@ The first four can be `null` for some rows. That does not make them optional in 
 - `blyp_logs_type_timestamp_idx`: supports event-type filtering such as request vs error style queries
 - `blyp_logs_group_id_timestamp_idx`: supports grouped and structured log inspection over time
 
-## Known limitation: `traceId`
+## `traceId`
 
-> **Known limitation:** `@blyp/core` currently includes `traceId` in `DatabaseLogRow`, but the current CLI-generated Prisma and Drizzle schemas do not create a `trace_id` column. The generated schema is still the supported baseline today. Request trace IDs may exist in file logs and runtime records, but they are not currently persisted as a first-class database column by the generated schema.
+`traceId` is part of the persisted database row contract in current Blyp releases. Keep it in the supported schema when you want request correlation to survive beyond runtime memory and connector forwarding.
 
 ## Adapter-specific implementations
 

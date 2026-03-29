@@ -35,6 +35,9 @@ export default {
   "pretty": true,
   "level": "info",
   "destination": "database",
+  "redact": {
+    "paths": ["user.ssn", "payment.**.raw"]
+  },
   "file": {
     "enabled": true,
     "format": "ndjson",
@@ -65,6 +68,17 @@ export default {
     "path": "/inngest"
   },
   "connectors": {
+    "delivery": {
+      "enabled": true,
+      "durableQueuePath": ".blyp/connectors.sqlite",
+      "retry": {
+        "maxAttempts": 8,
+        "initialBackoffMs": 500,
+        "maxBackoffMs": 30000,
+        "multiplier": 2,
+        "jitter": true
+      }
+    },
     "posthog": {
       "enabled": true,
       "mode": "auto",
@@ -99,9 +113,39 @@ export default {
 - file logging is enabled
 - client logging is enabled
 - default client ingestion path is `/inngest`
+- built-in redaction runs across console, files, database writes, connectors, client ingestion, and framework request logs
 - default rotation is `10 MB`, `5` archives, gzip compression enabled
 - database delivery defaults are immediate writes, queue size `1000`, flush timeout `5000ms`, and one retry with `100ms` backoff
+- connector delivery queueing is disabled unless `connectors.delivery.enabled` is set
 - connectors are disabled unless configured
+
+## Redaction config
+
+Use `redact` to remove sensitive values before they reach Blyp sinks:
+
+```ts
+export default {
+  redact: {
+    keys: ["internal_token"],
+    paths: ["user.ssn", "payment.**.raw"],
+    patterns: [/MY_ORG_[A-Z0-9]{32}/],
+    disablePatternScanning: false,
+  },
+};
+```
+
+The redaction config supports:
+
+- `keys`: additional sensitive field names to redact
+- `paths`: exact or wildcard field paths to redact
+- `patterns`: regex patterns for secret scanning
+- `disablePatternScanning`: disables Blyp's built-in token and card pattern detection
+
+Notes:
+
+- `redact.paths` supports exact paths, numeric indexes, `*`, and `**`
+- `patterns` require executable config such as `blyp.config.ts`
+- Blyp preserves keys and replaces values with `[REDACTED]` or a typed marker such as `[REDACTED:jwt]`
 
 ## Database logging config
 
@@ -147,6 +191,68 @@ The database delivery config supports:
 - `retry.backoffMs`
 
 Use [Database](/docs/database) for the full setup flow, [Schema Contract](/docs/database/schema) for the required table and indexes, and [Database Migrations](/docs/database/migrations) for the CLI migration workflow.
+
+## Connector delivery queue config
+
+Use `connectors.delivery` when retryable server-side connector failures should spill into Blyp's internal queue instead of being dropped immediately:
+
+```ts
+export default {
+  connectors: {
+    delivery: {
+      enabled: true,
+      durableQueuePath: ".blyp/connectors.sqlite",
+      memoryBufferSize: 500,
+      durableSpillStrategy: "after-first-failure",
+      memoryBatchSize: 25,
+      sqliteWriteBatchSize: 100,
+      sqliteReadBatchSize: 50,
+      dispatchConcurrency: 4,
+      pollIntervalMs: 1000,
+      overflowStrategy: "drop-oldest",
+      retry: {
+        maxAttempts: 8,
+        initialBackoffMs: 500,
+        maxBackoffMs: 30000,
+        multiplier: 2,
+        jitter: true,
+      },
+    },
+    betterstack: {
+      enabled: true,
+      mode: "auto",
+      sourceToken: process.env.BETTERSTACK_TOKEN,
+      ingestingHost: "https://in.logs.betterstack.com",
+    },
+  },
+};
+```
+
+The connector delivery config supports:
+
+- `enabled`
+- `memoryBufferSize`
+- `durableQueuePath`
+- `durableSpillStrategy`
+- `memoryBatchSize`
+- `sqliteWriteBatchSize`
+- `sqliteReadBatchSize`
+- `dispatchConcurrency`
+- `pollIntervalMs`
+- `overflowStrategy`
+- `retry.maxAttempts`
+- `retry.initialBackoffMs`
+- `retry.maxBackoffMs`
+- `retry.multiplier`
+- `retry.jitter`
+
+Notes:
+
+- the default queue path is `.blyp/connectors.sqlite`
+- `.blyp/` should be ignored in git
+- this queue applies to server connector delivery, not the primary `destination`
+- older runtimes without built-in SQLite support fall back to memory-only retries with a warning
+- use the root exports `getConnectorQueuePath()`, `connectorQueueExists()`, `getConnectorDeliveryStatusSummary()`, `listConnectorDeadLetters()`, `retryConnectorDeadLetters()`, and `clearConnectorDeadLetters()` for queue inspection and recovery tooling
 
 ## Common server adapter options
 

@@ -47,14 +47,23 @@ These helpers power Blyp's pretty console output and are useful in custom CLIs o
 import {
   DEFAULT_CONFIG,
   DEFAULT_CLIENT_LOGGING_CONFIG,
+  DEFAULT_CONNECTOR_DELIVERY_CONFIG,
+  DEFAULT_CONNECTOR_RETRY_CONFIG,
   DEFAULT_DATABASE_DELIVERY_CONFIG,
   DEFAULT_DATABASE_RETRY_CONFIG,
   DEFAULT_FILE_CONFIG,
+  DEFAULT_REDACTION_CONFIG,
   DEFAULT_ROTATION_CONFIG,
+  clearConnectorDeadLetters,
+  connectorQueueExists,
+  getConnectorDeliveryStatusSummary,
+  getConnectorQueuePath,
   getConfig,
+  listConnectorDeadLetters,
   loadConfig,
   mergeBlypConfig,
   resolveConfig,
+  retryConnectorDeadLetters,
   resetConfigCache,
   type ResolvedBlypConfig,
 } from "@blyp/core";
@@ -63,6 +72,8 @@ import {
 Use them when you want to inspect defaults, merge overrides manually, or reset config state in tests.
 
 `loadConfig()`, `resolveConfig()`, and `getConfig()` return `ResolvedBlypConfig`, which means the returned object already has normalized `destination`, `file`, `clientLogging`, and connector/database state.
+
+The connector queue helpers let Studio or custom operational tooling find the queue path, inspect delivery status, list dead letters, retry them, or clear them after recovery.
 
 ## Database helpers
 
@@ -78,6 +89,34 @@ import {
 ```
 
 Use these when `destination: "database"` is the primary sink and you want typed adapter configuration for Prisma or Drizzle.
+
+## AI tracing exports
+
+AI tracing is split across dedicated entrypoints:
+
+```ts
+import { blypMiddleware, blypModel } from "@blyp/core/ai/vercel";
+import { blypFetch } from "@blyp/core/ai/fetch";
+import { createOpenAITracker, wrapOpenAI } from "@blyp/core/ai/openai";
+import { wrapAnthropic } from "@blyp/core/ai/anthropic";
+```
+
+Relevant public types include:
+
+```ts
+import type {
+  BlypCaptureOptions,
+  BlypExcludeOptions,
+  BlypLimitOptions,
+  BlypLLMTrace,
+  BlypMiddlewareContext,
+  BlypProviderOptions,
+  BlypSDKContext,
+  BlypTraceEvent,
+} from "@blyp/core/ai/openai";
+```
+
+Use [AI](/docs/ai), [AI Tracing](/docs/ai/tracing), and [AI Privacy & Capture](/docs/ai/privacy-and-capture) for the supported setup patterns and privacy defaults.
 
 ## Structured log exports
 

@@ -6,6 +6,7 @@
     "plugins": []
   },
   "include": [
-    "examples/migrations/**/*.ts"
+    "examples/migrations/**/*.ts",
+    "types/**/*.d.ts"
   ]
 }

@@ -1,0 +1,103 @@
+---
+title: "OpenAI SDK"
+description: "Set up Blyp tracing for OpenAI SDK calls, including OpenRouter through the OpenAI-compatible client path."
+icon: "openai"
+order: 3
+---
+
+# OpenAI SDK
+
+Use `@blyp/core/ai/openai` when you want direct OpenAI SDK instrumentation without going through the Vercel AI SDK abstraction.
+
+This same page also covers OpenRouter, because OpenRouter works through the OpenAI-compatible client path.
+
+## Install
+
+Install the OpenAI SDK in the app that uses the traced client:
+
+```bash
+bun add openai
+```
+
+## `wrapOpenAI()`
+
+Use `wrapOpenAI()` to instrument an OpenAI client directly:
+
+```ts
+import OpenAI from "openai";
+import { wrapOpenAI } from "@blyp/core/ai/openai";
+
+const openai = wrapOpenAI(
+  new OpenAI({ apiKey: process.env.OPENAI_API_KEY }),
+  {
+    operation: "draft_blog_intro",
+    metadata: {
+      app: "docs-site",
+    },
+  }
+);
+
+await openai.responses.create({
+  model: "gpt-5.4-mini",
+  input: "Write a short intro about release notes",
+});
+```
+
+`wrapOpenAI()` covers:
+
+- `responses.create()`
+- `chat.completions.create()`
+
+## OpenRouter through the OpenAI-compatible path
+
+Use the same OpenAI SDK wrapper for OpenRouter by pointing the client at the OpenRouter base URL:
+
+```ts
+import OpenAI from "openai";
+import { wrapOpenAI } from "@blyp/core/ai/openai";
+
+const client = wrapOpenAI(
+  new OpenAI({
+    apiKey: process.env.OPENROUTER_API_KEY,
+    baseURL: "https://openrouter.ai/api/v1",
+  }),
+  {
+    provider: "openrouter",
+    operation: "route_experiment",
+  }
+);
+```
+
+There is no separate OpenRouter Blyp page or wrapper. Use the OpenAI SDK path for both.
+
+## `blypFetch()` for low-level transport tracing
+
+When you want request-level transport tracing in addition to SDK method tracing, wrap the OpenAI client's `fetch` implementation:
+
+```ts
+import OpenAI from "openai";
+import { blypFetch } from "@blyp/core/ai/fetch";
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  fetch: blypFetch(fetch, {
+    inspectJsonBody: true,
+    metadata: {
+      target: "openai-http",
+    },
+  }),
+});
+```
+
+This emits `fetch_trace` records for status codes, latency, request IDs, and optional inspected JSON responses.
+
+## Advanced API surface
+
+Additional public APIs:
+
+- `createOpenAITracker`
+- `BlypProviderOptions`
+- `BlypSDKContext`
+- `BlypLLMTrace`
+
+Use [AI Privacy & Capture](/docs/ai/privacy-and-capture) for the shared `capture`, `exclude`, and `limits` controls.

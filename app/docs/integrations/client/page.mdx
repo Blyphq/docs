@@ -27,6 +27,7 @@ const logger = createClientLogger({
     app: "dashboard",
     release: "2026.03.10",
   }),
+  traceId: "trace_123",
   delivery: {
     maxRetries: 3,
     retryDelayMs: 5000,
@@ -64,6 +65,7 @@ const logger = createClientLogger({
 | `credentials` | `"same-origin"` |
 | `localConsole` | `true` |
 | `remoteSync` | `true` |
+| `traceId` | not set |
 | `delivery.maxRetries` | `3` |
 | `delivery.retryDelayMs` | `5000` |
 | `delivery.maxQueueSize` | `100` |
@@ -144,6 +146,7 @@ type ClientLogEvent = {
   device?: ClientLogDeviceContext;
   session: { pageId: string; sessionId: string };
   metadata?: Record<string, unknown>;
+  traceId?: string;
 };
 ```
 
@@ -170,6 +173,24 @@ Most server-side adapters automatically register or expose a handler for the con
 - ingested events are tagged as `type: "client_log"` and `source: "client"`
 
 See the individual pages under [Integrations](/docs/integrations) for exact mounting patterns.
+
+## Joining a server trace
+
+If your frontend wants its browser logs to join the same trace as the server request that rendered or handled it, pass the server response header through to the client logger:
+
+```ts
+const response = await fetch("/api/session");
+const traceId = response.headers.get("x-blyp-trace-id") ?? undefined;
+
+const logger = createClientLogger({
+  endpoint: "/inngest",
+  traceId,
+});
+
+logger.info("session hydrated");
+```
+
+This is optional for standalone browser logs. Use it when you want browser-originated logs, connector-forwarded logs, and database records to share the same correlation ID.
 
 ## Connector forwarding requests
 
