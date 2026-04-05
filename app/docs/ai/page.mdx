@@ -1,6 +1,6 @@
 ---
 title: "AI"
-description: "Trace AI workloads across Vercel AI SDK, OpenAI, Anthropic, OpenRouter-compatible clients, and low-level fetch transport calls."
+description: "Trace AI workloads across Better Agent, Vercel AI SDK, OpenAI, Anthropic, OpenRouter-compatible clients, and low-level fetch transport calls."
 icon: "skills"
 order: 14
 ---
@@ -11,6 +11,7 @@ Blyp can emit structured `ai_trace` records for AI workloads without forcing you
 
 Supported entrypoints:
 
+- `@blyp/core/ai/better-agent` for Better Agent app-level plugins and manual run trackers
 - `@blyp/core/ai/vercel` for Vercel AI SDK middleware and model wrappers
 - `@blyp/core/ai/openai` for direct OpenAI SDK instrumentation
 - `@blyp/core/ai/anthropic` for direct Anthropic SDK instrumentation
@@ -47,6 +48,7 @@ See [Request Tracing](/docs/working-with-blyp/request-tracing) for the `x-blyp-t
 
 | Entry | Covered calls |
 | --- | --- |
+| `@blyp/core/ai/better-agent` | Better Agent run-level tracing through app plugins or manual tracker wiring |
 | `@blyp/core/ai/vercel` | Vercel AI SDK `generateText()` and `streamText()` |
 | `@blyp/core/ai/openai` | OpenAI `responses.create()` and `chat.completions.create()` |
 | `@blyp/core/ai/anthropic` | Anthropic `messages.create()` |
@@ -57,6 +59,7 @@ OpenRouter is supported through the OpenAI-compatible path by pointing the OpenA
 ## Read next
 
 - [AI Tracing](/docs/ai/tracing)
+- [Better Agent](/docs/ai/better-agent)
 - [Vercel AI SDK](/docs/ai/vercel-ai-sdk)
 - [OpenAI SDK](/docs/ai/openai-sdk)
 - [Anthropic SDK](/docs/ai/anthropic-sdk)

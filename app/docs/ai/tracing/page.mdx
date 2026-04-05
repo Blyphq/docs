@@ -1,6 +1,6 @@
 ---
 title: "AI Tracing"
-description: "Choose the right Blyp AI tracing entrypoint and jump into the dedicated setup guide for each SDK."
+description: "Choose the right Blyp AI tracing entrypoint and jump into the dedicated setup guide for each SDK or runtime."
 icon: "skills"
 order: 1
 ---
@@ -13,6 +13,7 @@ Use Blyp AI tracing when you want LLM calls to emit normalized `ai_trace` record
 
 Blyp splits AI tracing across dedicated entrypoints, so each SDK now has its own setup page:
 
+- [Better Agent](/docs/ai/better-agent) for `@blyp/core/ai/better-agent`
 - [Vercel AI SDK](/docs/ai/vercel-ai-sdk) for `@blyp/core/ai/vercel`
 - [OpenAI SDK](/docs/ai/openai-sdk) for `@blyp/core/ai/openai` and OpenRouter through the OpenAI-compatible client path
 - [Anthropic SDK](/docs/ai/anthropic-sdk) for `@blyp/core/ai/anthropic`
@@ -22,6 +23,7 @@ Blyp splits AI tracing across dedicated entrypoints, so each SDK now has its own
 
 | Entry | Wrapped methods |
 | --- | --- |
+| `@blyp/core/ai/better-agent` | Better Agent app/plugin runs and manual tracker flows, emitted as one run-level trace per Better Agent run |
 | `@blyp/core/ai/vercel` | Vercel AI SDK `generateText()` and `streamText()` |
 | `@blyp/core/ai/openai` | OpenAI `responses.create()` and `chat.completions.create()`, plus OpenRouter through the OpenAI-compatible client path |
 | `@blyp/core/ai/anthropic` | Anthropic `messages.create()` |
@@ -31,11 +33,18 @@ Blyp splits AI tracing across dedicated entrypoints, so each SDK now has its own
 
 Additional public APIs:
 
+- `blypPlugin`
+- `createBetterAgentTracker`
 - `createOpenAITracker`
 - `BlypProviderOptions`
+- `BlypBetterAgentOptions`
+- `BlypBetterAgentRunResolver`
+- `BlypBetterAgentTracker`
 - `BlypMiddlewareContext`
 - `BlypSDKContext`
 - `BlypLLMTrace`
 - `BlypTraceEvent`
+
+Shared provider-level trace types such as `BlypAIProvider`, `BlypCaptureOptions`, `BlypExcludeOptions`, `BlypLimitOptions`, `BlypLLMTrace`, `BlypProviderOptions`, `BlypSDKContext`, and `BlypTraceEvent` are exported from `@blyp/core/ai/shared`. `BlypMiddlewareContext` remains on `@blyp/core/ai/vercel`.
 
 Use [AI Privacy & Capture](/docs/ai/privacy-and-capture) for the capture defaults and the exact `capture`, `exclude`, and `limits` controls.

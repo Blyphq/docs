@@ -95,6 +95,7 @@ Use these when `destination: "database"` is the primary sink and you want typed 
 AI tracing is split across dedicated entrypoints:
 
 ```ts
+import { blypPlugin, createBetterAgentTracker } from "@blyp/core/ai/better-agent";
 import { blypMiddleware, blypModel } from "@blyp/core/ai/vercel";
 import { blypFetch } from "@blyp/core/ai/fetch";
 import { createOpenAITracker, wrapOpenAI } from "@blyp/core/ai/openai";
@@ -105,15 +106,23 @@ Relevant public types include:
 
 ```ts
 import type {
+  BlypBetterAgentOptions,
+  BlypBetterAgentRunResolver,
+  BlypBetterAgentTracker,
+} from "@blyp/core/ai/better-agent";
+
+import type { BlypMiddlewareContext } from "@blyp/core/ai/vercel";
+
+import type {
   BlypCaptureOptions,
   BlypExcludeOptions,
   BlypLimitOptions,
   BlypLLMTrace,
-  BlypMiddlewareContext,
   BlypProviderOptions,
+  BlypAIProvider,
   BlypSDKContext,
   BlypTraceEvent,
-} from "@blyp/core/ai/openai";
+} from "@blyp/core/ai/shared";
 ```
 
 Use [AI](/docs/ai), [AI Tracing](/docs/ai/tracing), and [AI Privacy & Capture](/docs/ai/privacy-and-capture) for the supported setup patterns and privacy defaults.

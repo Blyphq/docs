@@ -1,0 +1,519 @@
+---
+title: "Better Agent"
+description: "Trace Better Agent runs with Blyp’s plugin or manual tracker entrypoint."
+icon: "code"
+order: 5
+---
+
+# Better Agent
+
+Use `@blyp/core/ai/better-agent` when your app uses Better Agent and you want Blyp to emit one normalized run-level `ai_trace` record per Better Agent run.
+
+This integration has two surfaces:
+
+- `blypPlugin(options?)` for app-level Better Agent plugin registration
+- `createBetterAgentTracker(options?)` for manual wiring when plugin registration is not possible
+
+Better Agent runs can span multiple model calls and tool steps. Blyp aggregates those steps into one final trace for the run. It does not emit one trace per model step.
+
+## Install
+
+Install Blyp and Better Agent in the app that runs the traced Better Agent runtime:
+
+```bash
+bun add @blyp/core @better-agent/core
+```
+
+Better Agent support lives in the `@blyp/core/ai/better-agent` entrypoint.
+
+`@better-agent/core` is an optional peer dependency of `@blyp/core`, but it is required when you use this integration.
+
+## Quick start
+
+Register the Blyp plugin in the Better Agent app `plugins` array:
+
+```ts
+import { betterAgent } from "@better-agent/core";
+import { blypPlugin } from "@blyp/core/ai/better-agent";
+
+declare const supportAgent: unknown;
+
+export const app = betterAgent({
+  agents: [supportAgent],
+  plugins: [
+    blypPlugin({
+      operation: "support_chat",
+      metadata: {
+        service: "api",
+        team: "support",
+      },
+      capture: {
+        input: true,
+        output: true,
+        toolInputs: true,
+        toolOutputs: true,
+      },
+    }),
+  ],
+});
+```
+
+With that plugin installed, Better Agent run events and model responses are aggregated into one Blyp `ai_trace` with provider, model, operation, timing, usage, and optional captured content.
+
+## Public API
+
+`@blyp/core/ai/better-agent` exports:
+
+```ts
+import {
+  blypPlugin,
+  createBetterAgentTracker,
+  type BlypBetterAgentOptions,
+  type BlypBetterAgentRunResolver,
+  type BlypBetterAgentTracker,
+} from "@blyp/core/ai/better-agent";
+```
+
+### `blypPlugin(options?)`
+
+```ts
+import type { Plugin } from "@better-agent/core";
+import type { BlypBetterAgentOptions } from "@blyp/core/ai/better-agent";
+
+declare function blypPlugin(options?: BlypBetterAgentOptions): Plugin;
+```
+
+Use this when you can register a Better Agent plugin at the app level. This is the preferred path because the Better Agent runtime will call both `onEvent` and `onAfterModelCall` for you.
+
+### `createBetterAgentTracker(options?)`
+
+```ts
+import type { BlypBetterAgentOptions, BlypBetterAgentTracker } from "@blyp/core/ai/better-agent";
+
+declare function createBetterAgentTracker(
+  options?: BlypBetterAgentOptions
+): BlypBetterAgentTracker;
+```
+
+Use this when plugin registration is not possible and you need to forward Better Agent events and model responses manually.
+
+### `BlypBetterAgentTracker`
+
+```ts
+import type { Event } from "@better-agent/core/events";
+import type { GenerativeModelResponse } from "@better-agent/core/providers";
+
+type BlypBetterAgentTracker = {
+  onEvent(event: Event): Promise<void>;
+  onAfterModelCall(
+    response: GenerativeModelResponse,
+    info?: { stepIndex?: number }
+  ): Promise<void>;
+};
+```
+
+One tracker instance handles one Better Agent run.
+
+### `BlypBetterAgentOptions`
+
+`BlypBetterAgentOptions` builds on Blyp’s shared AI tracing options. It inherits `capture`, `exclude`, `limits`, and `hooks` from Blyp’s provider-level tracing config, then adds Better Agent-specific run resolution.
+
+Conceptually:
+
+```ts
+type BlypBetterAgentOptions =
+  Omit<BlypProviderOptions, "provider" | "operation" | "metadata"> & {
+    provider?: string;
+    operation?: string;
+    metadata?: Record<string, unknown>;
+    resolveRun?: BlypBetterAgentRunResolver;
+  };
+```
+
+### `BlypBetterAgentRunResolver`
+
+```ts
+type BlypBetterAgentRunResolver = (ctx: {
+  runId: string;
+  agentName: string;
+  conversationId?: string;
+}) =>
+  | {
+      provider?: string;
+      model?: string;
+      operation?: string;
+      method?: string;
+      metadata?: Record<string, unknown>;
+      streamed?: boolean;
+    }
+  | Promise<
+      | {
+          provider?: string;
+          model?: string;
+          operation?: string;
+          method?: string;
+          metadata?: Record<string, unknown>;
+          streamed?: boolean;
+        }
+      | undefined
+    >
+  | undefined;
+```
+
+The resolver runs once at `RUN_STARTED` time and lets you override provider/model/operation metadata for that run.
+
+## Option reference
+
+### Better Agent-specific top-level options
+
+- `logger`: optional Blyp logger override. If omitted, Blyp uses the active request-scoped logger when available, then falls back to the root logger.
+- `provider`: default provider label for the run when `resolveRun()` does not override it.
+- `operation`: default operation name for the run when `resolveRun()` does not override it.
+- `metadata`: base metadata merged into the final trace.
+- `resolveRun`: Better Agent-specific resolver that can derive provider/model/operation metadata from `runId`, `agentName`, and `conversationId`.
+
+`model` and `method` are not top-level `BlypBetterAgentOptions` fields. If you need to override them, do it in `resolveRun()`.
+
+### `resolveRun()` input
+
+`resolveRun()` receives:
+
+- `runId`
+- `agentName`
+- `conversationId?`
+
+It can return overrides for:
+
+- `provider`
+- `model`
+- `operation`
+- `method`
+- `metadata`
+- `streamed`
+
+Resolver metadata is merged on top of top-level `metadata`. Blyp then appends built-in run metadata such as `agentName`, `runId`, `conversationId`, and final `stepCount`.
+
+### Inherited Blyp AI tracing options
+
+The Better Agent integration inherits these Blyp AI tracing options:
+
+- `capture`
+- `exclude`
+- `limits`
+- `hooks`
+
+#### `capture`
+
+Supported capture flags:
+
+- `capture.input`
+- `capture.output`
+- `capture.toolInputs`
+- `capture.toolOutputs`
+- `capture.reasoning`
+- `capture.streamEvents`
+- `capture.streamChunks`
+- `capture.rawProviderPayload`
+
+`streamEvents` and `streamChunks` are normalized together by Blyp’s shared AI tracing config. Enabling either enables the same `ai.chunk` event capture path.
+
+#### `exclude`
+
+Supported exclude flags:
+
+- `exclude.providerOptions`
+- `exclude.requestPaths`
+- `exclude.responsePaths`
+- `exclude.metadataPaths`
+- `exclude.toolNames`
+
+`exclude.providerOptions` is inherited from shared Blyp AI tracing, but it has no practical effect for Better Agent traces because this integration does not serialize `providerOptions`.
+
+#### `limits`
+
+Supported limits:
+
+- `limits.maxContentBytes`
+- `limits.maxEvents`
+- `limits.maxToolCalls`
+
+#### `hooks`
+
+Supported hooks:
+
+- `hooks.onStart`
+- `hooks.onFinish`
+- `hooks.onError`
+- `hooks.onEvent`
+
+These are Blyp tracing hooks, not Better Agent runtime hooks. For example, `hooks.onEvent` receives normalized Blyp trace events such as `ai.start`, `ai.chunk`, and `ai.finish`.
+
+## Behavior and trace model
+
+The Better Agent integration emits one normalized Blyp `ai_trace` per Better Agent run.
+
+Key behavior:
+
+- Blyp initializes trace state on `RUN_STARTED`
+- Blyp finalizes the trace on `RUN_FINISHED`, `RUN_ERROR`, or `RUN_ABORTED`
+- Better Agent multi-step runs are aggregated into one final trace
+- usage is aggregated across every `onAfterModelCall()` invocation during the run
+- tool activity is aggregated from Better Agent runtime events
+- final output comes from the last Better Agent response, with streamed text and reasoning used as fallback if needed
+- `RUN_ABORTED` forces `finishReason` to `abort`
+- `RUN_ERROR` emits the trace at error level
+- plugin failures are fail-open because the Better Agent runtime catches plugin `onEvent` and `onAfterModelCall` errors, and Blyp also guards its own hooks and log emission
+
+Conceptually, the final record looks like:
+
+- `type = "ai_trace"`
+- `ai.sdk = "better-agent-sdk"`
+- `ai.provider`
+- `ai.model`
+- `ai.operation`
+- `ai.method`
+- `ai.metadata`
+- `ai.input`
+- `ai.output`
+- `ai.reasoning`
+- `ai.toolCalls`
+- `ai.usage`
+- `ai.timing`
+
+## Defaults
+
+Default behavior is intentionally conservative:
+
+- `method` defaults to `"agent.run"`
+- `operation` defaults to `agentName`
+- `provider` defaults to `"better-agent"` unless overridden
+- `model` defaults to `agentName` unless overridden
+- `streamed` starts as `false`, then becomes `true` if `resolveRun()` sets it or if Blyp sees live runtime events such as text, reasoning, tool, or data-part streaming events
+- input, output, reasoning, tool payloads, stream events, and raw provider payloads are not captured unless you enable them
+- request-scoped Blyp logger inheritance works the same way as other Blyp AI integrations
+
+## Resolver example
+
+Use `resolveRun()` when you want Better Agent run traces to carry richer provider/model identity than the Better Agent plugin hook context exposes directly:
+
+```ts
+import { blypPlugin } from "@blyp/core/ai/better-agent";
+
+const plugin = blypPlugin({
+  resolveRun({ agentName, runId, conversationId }) {
+    if (agentName === "support-agent") {
+      return {
+        provider: "openai",
+        model: "gpt-5",
+        operation: "support_chat",
+        metadata: {
+          runId,
+          conversationId,
+          route: "support",
+        },
+      };
+    }
+
+    return {
+      provider: "better-agent",
+      model: agentName,
+      operation: `better-agent:${agentName}`,
+    };
+  },
+});
+
+void plugin;
+```
+
+Why this matters:
+
+- Better Agent’s plugin hook surface gives Blyp the run identity and final model responses
+- it does not directly provide a normalized provider/model mapping for the underlying provider used by the agent
+- `resolveRun()` is where you enrich the trace with that provider/model identity
+
+## Manual tracker
+
+`createBetterAgentTracker()` is the fallback path when you cannot register `blypPlugin()` at the Better Agent app level.
+
+Rules for manual use:
+
+- create one tracker instance per run
+- forward Better Agent runtime events with `tracker.onEvent(event)`
+- forward every model response with `tracker.onAfterModelCall(response, { stepIndex })`
+- let terminal Better Agent events finalize the trace
+
+Example:
+
+```ts
+import type { RunFinishedEvent, RunStartedEvent } from "@better-agent/core/events";
+import type { GenerativeModelResponse } from "@better-agent/core/providers";
+import { createBetterAgentTracker } from "@blyp/core/ai/better-agent";
+
+const tracker = createBetterAgentTracker({
+  capture: {
+    output: true,
+    rawProviderPayload: true,
+  },
+});
+
+const runStartedEvent: RunStartedEvent = {
+  type: "RUN_STARTED",
+  timestamp: Date.now(),
+  runId: "run_1",
+  agentName: "support-agent",
+  conversationId: "conv_1",
+  runInput: { input: "Where is my order?" },
+};
+
+const modelResponse: GenerativeModelResponse = {
+  output: [
+    {
+      type: "message",
+      role: "assistant",
+      content: [{ type: "text", text: "I found your order." }],
+    },
+  ],
+  finishReason: "stop",
+  usage: {
+    inputTokens: 10,
+    outputTokens: 6,
+    totalTokens: 16,
+  },
+  request: {
+    body: { step: 0 },
+  },
+  response: {
+    body: { id: "resp_1" },
+  },
+};
+
+const runFinishedEvent: RunFinishedEvent = {
+  type: "RUN_FINISHED",
+  timestamp: Date.now(),
+  runId: "run_1",
+  agentName: "support-agent",
+  conversationId: "conv_1",
+  result: {
+    response: modelResponse,
+  },
+};
+
+await tracker.onEvent(runStartedEvent);
+await tracker.onAfterModelCall(modelResponse, { stepIndex: 0 });
+await tracker.onEvent(runFinishedEvent);
+```
+
+Important limitation:
+
+Without `onAfterModelCall()`, the tracker can still emit a trace from runtime events and the terminal Better Agent response, but aggregated usage and raw provider payload capture will be incomplete. In that case Blyp falls back to final-response-only usage and payload fidelity.
+
+## Event mapping
+
+This is how Better Agent runtime events map into Blyp tracing:
+
+- `RUN_STARTED`: initializes trace state and captures run input
+- `STEP_START`: contributes to step accounting
+- `STEP_FINISH`: contributes to step accounting
+- `RUN_FINISHED`: finalizes a successful trace and captures final output from the final Better Agent response
+- `RUN_ERROR`: finalizes an error trace
+- `RUN_ABORTED`: finalizes the trace with `finishReason = "abort"`
+- `TEXT_MESSAGE_CONTENT`: contributes streamed output and can mark first live chunk timing
+- `REASONING_MESSAGE_CONTENT`: contributes reasoning capture when enabled and can also mark first live chunk timing
+- `TOOL_CALL_START`: starts a tool call record
+- `TOOL_CALL_ARGS`: accumulates tool input
+- `TOOL_CALL_RESULT`: stores tool output or tool error
+- `DATA_PART`: contributes structured stream chunk data when stream event capture is enabled
+
+## Privacy and capture
+
+Better Agent tracing uses the same Blyp privacy model as the other AI integrations.
+
+Important points:
+
+- input, output, tool payloads, reasoning, and raw provider payloads are not captured unless you enable them
+- `exclude.metadataPaths`, `exclude.requestPaths`, `exclude.responsePaths`, and `exclude.toolNames` are applied to the final structured trace
+- truncation follows Blyp AI `limits`
+- stream event capture can materially increase payload volume
+
+For the shared privacy controls, see [AI Privacy & Capture](/docs/ai/privacy-and-capture).
+
+## Limitations
+
+- plugin registration with `blypPlugin()` is the preferred path; the manual tracker is a fallback
+- provider and model default to `better-agent` and `agentName` unless you override them with `resolveRun()`
+- manual tracker usage without `onAfterModelCall()` reduces fidelity for aggregated usage and raw provider payload capture
+- Better Agent traces are run-level summaries, not per-step traces
+- Blyp can only capture Better Agent events and model responses that the runtime actually surfaces
+
+## Comparison to other Blyp AI integrations
+
+The Better Agent integration sits at a different layer than Blyp’s other AI entrypoints:
+
+- `@blyp/core/ai/vercel` instruments Vercel AI SDK middleware and wrapped models
+- `@blyp/core/ai/openai` wraps the OpenAI SDK client directly
+- `@blyp/core/ai/anthropic` wraps the Anthropic SDK client directly
+- `@blyp/core/ai/better-agent` integrates at the Better Agent runtime/plugin layer
+
+That difference matters for trace shape. Better Agent emits one run-level summary trace for the whole agent run, not one provider-call trace per step.
+
+## Additional examples
+
+### Capture-heavy debugging
+
+Use aggressive capture when you need to inspect the full run shape during debugging:
+
+```ts
+import { blypPlugin } from "@blyp/core/ai/better-agent";
+
+const plugin = blypPlugin({
+  operation: "support_debug",
+  capture: {
+    input: true,
+    output: true,
+    reasoning: true,
+    toolInputs: true,
+    toolOutputs: true,
+    streamEvents: true,
+    rawProviderPayload: true,
+  },
+  limits: {
+    maxContentBytes: 32_768,
+    maxEvents: 500,
+    maxToolCalls: 100,
+  },
+});
+
+void plugin;
+```
+
+### Conservative production capture
+
+Use a resolver and minimal capture when you want low-risk production tracing:
+
+```ts
+import { blypPlugin } from "@blyp/core/ai/better-agent";
+
+const plugin = blypPlugin({
+  resolveRun({ agentName }) {
+    return {
+      provider: "openai",
+      model: agentName === "support-agent" ? "gpt-5" : agentName,
+      operation: `agent:${agentName}`,
+    };
+  },
+  capture: {
+    input: false,
+    output: false,
+    toolInputs: false,
+    toolOutputs: false,
+    reasoning: false,
+    rawProviderPayload: false,
+  },
+  exclude: {
+    metadataPaths: ["tenant.secret"],
+    toolNames: ["internalAdminTool"],
+  },
+});
+
+void plugin;
+```
