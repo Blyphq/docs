@@ -144,7 +144,7 @@ await logger.flush();
 await logger.shutdown();
 ```
 
-Promise-based and hook-driven integrations such as Elysia, Hono, Next.js, React Router, Astro, Nitro, Nuxt, SvelteKit, and TanStack Start flush database writes before the request finishes.
+Promise-based and hook-driven integrations such as Elysia, Hono, Next.js, React Router, Astro, Nitro, Nuxt, SolidStart, SvelteKit, and TanStack Start flush database writes before the request finishes.
 
 For callback-style servers such as Express, Fastify, and NestJS, call `await logger.flush()` at your own boundary when you need a hard durability point.
 

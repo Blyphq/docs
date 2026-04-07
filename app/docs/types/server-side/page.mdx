@@ -19,6 +19,7 @@ import type { FastifyLoggerConfig, FastifyLoggerPlugin } from "@blyp/core/fastif
 import type { NestLoggerConfig, NestAdapterType } from "@blyp/core/nestjs";
 import type { NextJsLoggerFactory, NextJsLoggerConfig } from "@blyp/core/nextjs";
 import type { TanStackStartLoggerFactory } from "@blyp/core/tanstack-start";
+import type { SolidStartLoggerFactory } from "@blyp/core/solid-start";
 import type { SvelteKitLoggerFactory } from "@blyp/core/sveltekit";
 import type { WorkersLoggerConfig, WorkersRequestLogger } from "@blyp/core/workers";
 ```
@@ -40,7 +41,7 @@ Most server adapters also export `HttpRequestLog`, which includes:
 - `customProps(ctx)` for request-scoped metadata
 - `autoLogging.ignore(ctx)` when you want context-aware suppression
 - `clientLogging.validate(ctx, payload)` and `clientLogging.enrich(ctx, payload)`
-- wrapped handler helpers such as `NextJsLoggerFactory`, `TanStackStartLoggerFactory`, and `SvelteKitLoggerFactory`
+- wrapped handler helpers such as `NextJsLoggerFactory`, `TanStackStartLoggerFactory`, `SolidStartLoggerFactory`, and `SvelteKitLoggerFactory`
 
 ## Request-scoped structured logs
 

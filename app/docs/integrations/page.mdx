@@ -28,6 +28,7 @@ Blyp integrations cover browser logging, mobile transport, and server-side adapt
 | Next.js App Router | `@blyp/core/nextjs` | `createLogger()` | `withLogger(..., { log })` |
 | React Router | `@blyp/core/react-router` | `createLogger()` | request-scoped logger stored in `context`, read through `getLogger(context)` |
 | TanStack Start | `@blyp/core/tanstack-start` | `createLogger()` | `context.blypLog` |
+| SolidStart | `@blyp/core/solid-start` | `createLogger()` | `event.locals.blypLog` and `getRequestEvent()?.locals.blypLog` |
 | SvelteKit | `@blyp/core/sveltekit` | `createLogger()` | `event.locals.blypLog` |
 | Astro | `@blyp/core/astro` | `createLogger()` | `context.locals.blypLog` |
 | Nuxt | `@blyp/core/nuxt` | `createLogger()` | `nuxtLogger.getLogger(event)` |
@@ -60,7 +61,7 @@ All server adapters accept the same core options:
 - Default ingestion path: `/inngest`
 - When client logging is enabled, Blyp automatically excludes the ingestion path from normal HTTP request logging
 - Some adapters auto-register the endpoint for you; others return a handler you mount manually
-- If you mount a handler on the wrong path, adapters like Next.js, SvelteKit, and TanStack Start return a `500` mismatch response
+- If you mount a handler on the wrong path, adapters like Next.js, SvelteKit, SolidStart, and TanStack Start return a `500` mismatch response
 - The browser [Client](/docs/integrations/client) uses same-origin delivery by default and can fall back to `sendBeacon()` when possible
 - Expo is different: it sends logs directly to an absolute backend URL, queues failures in memory, resumes on connectivity changes via `expo-network`, and does not register a local ingestion handler
 
@@ -76,6 +77,7 @@ Pick an integration page below for the exact wiring:
 - [Next.js App Router](/docs/integrations/nextjs)
 - [React Router](/docs/integrations/react-router)
 - [TanStack Start](/docs/integrations/tanstack-start)
+- [SolidStart](/docs/integrations/solid-start)
 - [SvelteKit](/docs/integrations/sveltekit)
 - [Astro](/docs/integrations/astro)
 - [Nuxt](/docs/integrations/nuxt)
