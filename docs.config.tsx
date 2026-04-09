@@ -18,13 +18,13 @@ import { BlypThemeLogo } from "@/app/components/blyp-theme-logo";
 
 const logoIcon = (src: string, alt: string, className = "object-contain dark:invert dark:grayscale") => (
 
-    <Image
-      src={src}
-      alt={alt}
-      width={18}
-      height={18}
-      className={className}
-    />
+  <Image
+    src={src}
+    alt={alt}
+    width={18}
+    height={18}
+    className={className}
+  />
 );
 
 export default defineDocs({
@@ -59,6 +59,17 @@ export default defineDocs({
       </div>
     ),
     url: "/docs",
+  },
+  mcp: {
+    enabled: true,
+    route: "/api/docs/mcp",
+    name: "Blyp Docs",
+    tools: {
+      listPages: true,
+      readPage: true,
+      searchDocs: true,
+      getNavigation: true,
+    },
   },
   icons: {
     book: <BookOpen size={16} />,
