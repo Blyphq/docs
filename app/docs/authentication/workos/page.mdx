@@ -1,0 +1,156 @@
+---
+title: "WorkOS"
+description: "Attach WorkOS sealed session auth context to every Blyp log record."
+icon: "code"
+order: 4
+---
+
+# WorkOS
+
+Blyp's WorkOS integration reads the sealed session cookie on each request, verifies it using the WorkOS SDK, and attaches the resolved identity — including roles, permissions, and entitlements — to every log record for that request.
+
+## Install required peer package
+
+```bash
+bun add @workos-inc/node
+```
+
+## Setup
+
+Create a `WorkOS` client and pass it to the framework logger's `auth.workos` config:
+
+```ts
+import { WorkOS } from "@workos-inc/node";
+import { createLogger } from "@blyp/core/nextjs"; // or your framework
+
+const workos = new WorkOS(process.env.WORKOS_API_KEY);
+
+export const { logger, GET, POST } = createLogger({
+  auth: {
+    workos: {
+      workos,
+      cookiePassword: process.env.WORKOS_COOKIE_PASSWORD,
+    },
+  },
+});
+```
+
+## Config fields
+
+```ts
+auth: {
+  workos: {
+    // Required: WorkOS client instance from @workos-inc/node
+    workos: workosClient,
+
+    // Required: password used to unseal the session cookie
+    cookiePassword: process.env.WORKOS_COOKIE_PASSWORD,
+
+    // Optional: override the cookie name (defaults to WorkOS SDK default)
+    cookieName: "wos-session",
+
+    // Attach non-standard user fields to auth.claims (default: false)
+    includeClaims: false,
+
+    // Attach the raw authenticate response to auth.raw (default: false)
+    includeRawSession: false,
+
+    // Add custom fields to the auth context
+    enrich: async ({ authResponse }) => ({
+      plan: authResponse?.user?.metadata?.plan ?? null,
+    }),
+  },
+}
+```
+
+- `workos` — `WorkOS` instance from `@workos-inc/node`; required
+- `cookiePassword` — password for unsealing the WorkOS session cookie; required
+- `cookieName` — override the cookie name the SDK looks for
+- `includeClaims` — attach non-standard user fields (everything outside the standard `id`, `email`, `firstName`, `lastName`, etc.) to `auth.claims`
+- `includeRawSession` — attach the full raw `WorkOsAuthenticateResponse` to `auth.raw`
+- `enrich` — async function that receives the resolved args and returns extra fields to merge into the auth context
+
+## Auth context shape
+
+WorkOS surfaces more RBAC fields than other providers — roles, permissions, entitlements, and feature flags are all normalized into the auth context when present:
+
+```ts
+// Authenticated
+{
+  provider: "workos",
+  authenticated: true,
+  actor: { kind: "user", id: "user_abc", email: "alice@example.com", name?: "Alice Smith" },
+  session: { id: "sess_xyz" },
+  organization: { id: "org_123" },
+  lookup: {
+    provider: "workos",
+    userId: "user_abc",
+    sessionId: "sess_xyz",
+    organizationId?: "org_123",
+    email?: "alice@example.com",
+  },
+  role?: "admin",
+  roles?: ["admin"],
+  permissions?: ["reports:read", "billing:write"],
+  entitlements?: ["enterprise-plan"],
+  featureFlags?: ["new-dashboard"],
+  impersonator?: { email: "support@example.com" },
+}
+
+// Unauthenticated (missing or invalid cookie)
+null   // auth field is omitted from the log record
+```
+
+## `extractWorkOsSessionCookie`
+
+`extractWorkOsSessionCookie` reads the WorkOS session cookie from a `Request` object. Useful when building custom middleware or resolving auth manually outside a framework adapter:
+
+```ts
+import { extractWorkOsSessionCookie } from "@blyp/core/workos";
+
+const cookie = extractWorkOsSessionCookie(request);
+// → "sealed-session-string..." | null
+```
+
+Returns `null` if the cookie is not present.
+
+## `identifyUser`
+
+`identifyUser` extracts a `WorkOsLookupDescriptor` from any object — useful for querying stored log rows by WorkOS identity:
+
+```ts
+import { identifyUser } from "@blyp/core/workos";
+
+// Works on Blyp log records (normalized shape)
+const descriptor = identifyUser(logRow);
+// → { provider: "workos", userId: "user_abc", sessionId: "sess_xyz", ... } | null
+
+// Also works on flat database column shapes
+const descriptor2 = identifyUser({
+  authProvider: "workos",
+  authActorId: "user_abc",
+  authSessionId: "sess_xyz",
+  authOrganizationId: "org_123",
+});
+```
+
+### Return shape
+
+```ts
+{
+  provider: "workos",
+  userId?: string,
+  sessionId?: string,
+  organizationId?: string,
+  email?: string,
+}
+```
+
+Returns `null` if the record has no WorkOS auth context.
+
+## Notes
+
+- WorkOS is mutually exclusive with Clerk and Better Auth
+- Both `workos` and `cookiePassword` are required — Blyp does not read `WORKOS_API_KEY` or `WORKOS_COOKIE_PASSWORD` directly; wire them through config
+- If the cookie is missing or verification fails, Blyp skips auth enrichment for that request without erroring
+- `includeClaims` only attaches fields not in WorkOS's standard user schema; standard fields (`id`, `email`, `firstName`, `lastName`, `emailVerified`, `profilePictureUrl`, `createdAt`, `updatedAt`) are always normalized into `auth.actor` directly

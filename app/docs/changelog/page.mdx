@@ -13,6 +13,26 @@ Track what shipped in each published `@blyp/core` and `@blyp/cli` release.
 
 GitHub Releases remain the source of truth for version publishing and the original release-note text. The feed below renders published releases directly from the upstream repositories, so version history here stays aligned with what was actually released.
 
+## What's new in 0.1.25-beta
+
+### Auth provider logging integrations
+
+Three new auth integrations attach authenticated user context — `userId`, `sessionId`, `orgId`, and more — to every Blyp log record automatically:
+
+- **Clerk** (`@blyp/core/clerk`) — direct backend auth resolution with optional bounded user-hydration cache (TTL + LRU eviction, 1,000-entry default)
+- **Better Auth** (`@blyp/core/better-auth`) — plugin-based integration; add `blypPlugin()` to your Better Auth instance and a matching `blypClientPlugin()` for browser and Expo context forwarding
+- **WorkOS** (`@blyp/core/workos`) — sealed session cookie auth with `userId`, `sessionId`, and `orgId` normalization
+
+Auth providers are mutually exclusive — only one may be configured at a time. TypeScript enforces this at the config level via a discriminated union, so misconfiguring multiple providers is a compile-time error.
+
+See [Authentication](/docs/authentication) for setup docs.
+
+### Other changes
+
+- Auth records are sanitized before persistence to prevent sensitive field leakage
+- Auth provider config is now a discriminated union type — misconfiguring multiple providers is a compile-time error
+- HTTP connector shutdown hooks are deduplicated across registries
+
 ## Blyp releases
 
 <ChangelogFeed source={CHANGELOG_SOURCES.blyp} />

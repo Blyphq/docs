@@ -1,0 +1,244 @@
+---
+title: "Better Auth"
+description: "Propagate Better Auth session context into Blyp log records using the Blyp server and client plugins."
+icon: "code"
+order: 3
+---
+
+# Better Auth
+
+Blyp integrates with Better Auth through two exports: a server plugin (`blyp`) that hooks into the Better Auth request lifecycle, and a client plugin (`blypClient`) for forwarding auth context from browser and Expo apps.
+
+## Install required peer package
+
+```bash
+bun add better-auth
+```
+
+Requires Better Auth `^1.6.5`.
+
+## Server plugin
+
+Add `blyp()` to your Better Auth instance's `plugins` array:
+
+```ts
+import { betterAuth } from "better-auth";
+import { blyp } from "@blyp/core/better-auth";
+
+export const auth = betterAuth({
+  // ...your Better Auth config
+  plugins: [blyp()],
+});
+```
+
+The plugin hooks into Better Auth's `onRequest` and `onResponse` lifecycle. On each auth endpoint request, it resolves the session and propagates the user context into the active Blyp log record.
+
+### `blyp()` options
+
+```ts
+blyp({
+  // Custom logger instance — defaults to a standalone Blyp logger
+  logger: myLogger,
+  loggerConfig: { level: "info" },
+
+  // Enable the built-in client log ingestion endpoint (default: disabled)
+  // When enabled, mounts a POST handler at the given path inside Better Auth
+  clientLogging: {
+    path: "/blyp/log",   // default path when clientLogging is true
+  },
+  // clientLogging: true     — enable at default path
+  // clientLogging: false    — disable (default)
+
+  // Log auth endpoint requests as structured events (default: true)
+  authEndpointLogging: true,
+
+  // Attach session/user claims to the auth context
+  includeClaims: false,
+
+  // Attach the raw session envelope to auth.raw
+  includeRawSession: false,
+
+  // Add custom fields to the auth context for each request
+  enrich: async ({ request, response, auth, action, session }) => ({
+    customField: "value",
+  }),
+})
+```
+
+#### `blyp()` config fields
+
+- `logger` — use an existing `BlypLogger` instance instead of creating one
+- `loggerConfig` — config for the internally-created standalone logger
+- `clientLogging` — `false` (default) | `true` | `{ path?: string }` — when truthy, registers a POST endpoint inside Better Auth that accepts browser log payloads; the session is automatically resolved and attached to forwarded records
+- `authEndpointLogging` — when `true` (default), the plugin logs a `better_auth_request` event for each auth endpoint request
+- `includeClaims` — attach session or user claims to `auth.claims`
+- `includeRawSession` — attach the raw `{ session, user }` envelope to `auth.raw`
+- `enrich` — async function called after auth normalization; return extra fields to merge into the auth context
+
+## Auth action events
+
+When `authEndpointLogging` is enabled (the default), the plugin emits a structured log event for every auth endpoint request:
+
+```ts
+{
+  type: "better_auth_request",
+  method: "POST",
+  path: "/api/auth/sign-in/email",
+  status: 200,
+  duration: 43,            // ms
+  traceId: "trace_abc",
+  betterAuth: {
+    action: "sign_in",     // see action values below
+  },
+}
+```
+
+**`betterAuth.action` values:**
+
+| Value | Triggered by |
+|---|---|
+| `sign_in` | `/sign-in` paths |
+| `sign_up` | `/sign-up` paths |
+| `sign_out` | `/sign-out` paths |
+| `get_session` | `/get-session` paths |
+| `set_active_organization` | `/organization/set-active` paths |
+| `unknown` | any other auth endpoint |
+
+## Client plugin
+
+For browser and Expo apps, add `blypClient()` to your Better Auth client instance:
+
+```ts
+import { createAuthClient } from "better-auth/client";
+import { blypClient } from "@blyp/core/better-auth";
+
+export const authClient = createAuthClient({
+  // ...your auth client config
+  plugins: [blypClient({ endpoint: "/blyp/log" })],
+});
+```
+
+This exposes a `blyp.createLogger(config)` action on `authClient`. The logger posts to the configured endpoint (which must match the `clientLogging.path` on the server plugin, or another Blyp ingestion route):
+
+```ts
+const logger = authClient.blyp.createLogger({
+  connector: "betterstack",  // optional — forward to a connector
+});
+
+logger.info("user viewed dashboard");
+```
+
+### `blypClient()` options
+
+- `endpoint` — path to post logs to (default: `/blyp/log`)
+
+### `createLogger(config)` options
+
+- `traceId` — fixed trace ID
+- `localConsole` — also log to `console`
+- `remoteSync` — await delivery confirmation
+- `connector` — forward to a named connector
+- `metadata` — static or dynamic extra fields
+- `delivery` — remote delivery config
+
+## Framework config (without the plugin)
+
+When using Blyp's framework adapters directly (not via the Better Auth plugin), pass the Better Auth instance through the `auth.betterAuth` config key:
+
+```ts
+import { betterAuth } from "better-auth";
+import { createLogger } from "@blyp/core/express"; // or your framework
+
+const auth = betterAuth({ /* ... */ });
+
+const { logger } = createLogger({
+  auth: {
+    betterAuth: {
+      betterAuth: auth,
+      includeClaims: false,
+      includeRawSession: false,
+      enrich: async ({ session }) => ({ /* extra fields */ }),
+    },
+  },
+});
+```
+
+## Auth context shape
+
+```ts
+// Authenticated
+{
+  provider: "better-auth",
+  authenticated: true,
+  actor: { kind: "user", id: "user_abc", email: "alice@example.com", name?: "Alice" },
+  session: { id: "sess_xyz", activeOrganizationId?: "org_123" },
+  organization: { id?: "org_123" },
+  lookup: {
+    provider: "better-auth",
+    userId: "user_abc",
+    sessionId: "sess_xyz",
+    organizationId?: "org_123",
+    email?: "alice@example.com",
+  },
+}
+
+// Unauthenticated
+{
+  provider: "better-auth",
+  authenticated: false,
+  actor: { kind: "anonymous" },
+  lookup: { provider: "better-auth" },
+}
+```
+
+## `identifyUser`
+
+`identifyUser` extracts a `BetterAuthLookupDescriptor` from any object — useful for querying stored log rows:
+
+```ts
+import { identifyUser } from "@blyp/core/better-auth";
+
+// Works on Blyp log records (normalized shape)
+const descriptor = identifyUser(logRow);
+// → { provider: "better-auth", userId: "user_abc", sessionId: "sess_xyz", ... } | null
+
+// Also works on flat database column shapes
+const descriptor2 = identifyUser({
+  authProvider: "better-auth",
+  authActorId: "user_abc",
+  authSessionId: "sess_xyz",
+  authOrganizationId: "org_123",
+});
+```
+
+### Return shape
+
+```ts
+{
+  provider: "better-auth",
+  userId?: string,
+  sessionId?: string,
+  organizationId?: string,
+  email?: string,
+}
+```
+
+Returns `null` if the record has no Better Auth context.
+
+## Security
+
+Auth records are passed through `sanitizeLogValue()` before being written to the database, stripping fields that would introduce sensitive data into stored records. The enrich hook is wrapped in a try-catch — a failure logs a one-time warning and does not crash the request.
+
+## Framework support
+
+The `blyp()` plugin integration is supported across:
+
+Astro, Express, Elysia, Fastify, Hono, Next.js, NestJS, React Router, Solid Start, SvelteKit, TanStack Start
+
+## Notes
+
+- Better Auth is mutually exclusive with Clerk and WorkOS
+- The `blyp()` plugin must be added to your Better Auth instance — Blyp does not patch Better Auth globally
+- `clientLogging` is disabled by default; enable it to receive browser log payloads forwarded through Better Auth's own endpoint infrastructure
+- `blypClient()` is only needed if browser or Expo logs should carry auth context
+- `isBlypBetterAuthPlugin(value)` can check whether a plugin in the plugins array is Blyp's plugin

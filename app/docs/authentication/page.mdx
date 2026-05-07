@@ -1,0 +1,83 @@
+---
+title: "Authentication"
+description: "Propagate auth context from Clerk, Better Auth, or WorkOS into every Blyp log record."
+icon: "code"
+order: 1
+---
+
+# Authentication
+
+Blyp resolves the authenticated user from your auth provider on each request and attaches identity fields to every log record automatically — so every log line emitted during a request carries who made it without any manual wiring.
+
+The context lands in a normalized `auth` block on each record:
+
+```ts
+{
+  auth: {
+    provider: "clerk",        // "clerk" | "better-auth" | "workos"
+    authenticated: true,
+    actor: { kind: "user", id: "user_abc", email: "alice@example.com" },
+    session: { id: "sess_xyz", activeOrganizationId: "org_123" },
+    organization: { id: "org_123", slug: "acme" },
+    lookup: { provider: "clerk", userId: "user_abc", sessionId: "sess_xyz", ... },
+  }
+}
+```
+
+## Supported providers
+
+| Provider | Style | Install | Import path |
+|---|---|---|---|
+| [Clerk](/docs/authentication/clerk) | Direct backend auth | `@clerk/backend` | `@blyp/core/clerk` |
+| [Better Auth](/docs/authentication/better-auth) | Plugin | `better-auth` | `@blyp/core/better-auth` |
+| [WorkOS](/docs/authentication/workos) | Sealed session cookie | `@workos-inc/node` | `@blyp/core/workos` |
+
+## Mutual exclusivity
+
+Only one auth provider may be active at a time. The config type is a three-way discriminated union — configuring two providers simultaneously is a compile-time error:
+
+```ts
+// ✅ valid
+export default {
+  auth: { clerk: clerk({ secretKey: process.env.CLERK_SECRET_KEY }) },
+};
+
+// ✗ TypeScript error — two providers cannot coexist
+export default {
+  auth: {
+    clerk: clerk({ ... }),
+    workos: { workos: workosClient, cookiePassword: "..." },
+  },
+};
+```
+
+## Querying stored logs by user
+
+Each provider exports an `identifyUser(record)` helper. Pass any stored log row (or any object) to get back a typed lookup descriptor for that provider, or `null` if the record does not belong to that provider.
+
+```ts
+import { identifyUser } from "@blyp/core/clerk";
+// or: "@blyp/core/better-auth" | "@blyp/core/workos"
+
+const descriptor = identifyUser(row);
+// { provider: "clerk", userId: "user_abc", sessionId: "sess_xyz", ... } | null
+```
+
+`identifyUser` handles both the normalized `auth.lookup` shape (standard Blyp records) and the flat column shape (`authProvider`, `authActorId`, etc.) that some database adapters write.
+
+## What gets attached
+
+Each provider normalizes its session into a consistent shape, though the exact fields vary:
+
+| Field | Clerk | Better Auth | WorkOS |
+|---|---|---|---|
+| `auth.actor.kind` | `user` \| `machine` \| `anonymous` | `user` \| `anonymous` | `user` \| `anonymous` |
+| `auth.actor.id` | ✓ | ✓ | ✓ |
+| `auth.actor.email` | ✓ (with `hydrateUser`) | ✓ | ✓ |
+| `auth.session.id` | ✓ | ✓ | ✓ |
+| `auth.organization.id` | ✓ | ✓ | ✓ |
+| `auth.impersonator` | ✓ | — | ✓ |
+| `auth.role` / `auth.permissions` | — | — | ✓ |
+| `auth.clerk` (token metadata) | ✓ | — | — |
+
+Fields not available from a given provider are omitted rather than set to `null`.

@@ -1,0 +1,230 @@
+---
+title: "Clerk"
+description: "Attach Clerk auth context to every Blyp log record using direct backend auth resolution."
+icon: "code"
+order: 2
+---
+
+# Clerk
+
+Blyp resolves the authenticated user from each request using `@clerk/backend` and attaches the result to every log record for that request. No middleware plugin is required — Blyp calls Clerk's `authenticateRequest` directly at the framework handler level.
+
+## Install required peer package
+
+```bash
+bun add @clerk/backend
+```
+
+## Setup
+
+Use the `clerk()` factory to create the integration config, then pass it to the framework logger's `auth.clerk` option:
+
+```ts
+import { createLogger } from "@blyp/core/nextjs"; // or your framework
+import { clerk } from "@blyp/core/clerk";
+
+export const { logger, GET, POST } = createLogger({
+  auth: {
+    clerk: clerk({
+      secretKey: process.env.CLERK_SECRET_KEY,
+    }),
+  },
+});
+```
+
+## `clerk()` config options
+
+```ts
+clerk({
+  // Clerk client credentials — fall back to CLERK_SECRET_KEY env var if omitted
+  secretKey: process.env.CLERK_SECRET_KEY,
+  publishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+  jwtKey: process.env.CLERK_JWT_KEY,
+
+  // Clerk API endpoint overrides (rarely needed)
+  apiUrl: "https://api.clerk.com",
+  apiVersion: "v1",
+
+  // Satellite / proxy setup
+  domain: process.env.CLERK_DOMAIN,
+  proxyUrl: process.env.CLERK_PROXY_URL,
+  isSatellite: false,
+
+  // Token validation
+  audience: process.env.CLERK_AUDIENCE,
+  authorizedParties: ["https://your-app.com"],
+
+  // Attach JWT claims to the auth context (default: false)
+  includeClaims: false,
+
+  // Attach the raw Clerk auth object to the context (default: false)
+  includeRawAuth: false,
+
+  // Fetch full User profile from Clerk API and cache it (default: false)
+  hydrateUser: {
+    cacheTtlMs: 30_000,   // how long to cache each user profile (default: 30s)
+    maxEntries: 1_000,    // LRU cap on cached entries (default: 1,000)
+  },
+
+  // Custom authenticate request options — static or a per-request resolver
+  authenticateRequestOptions: { acceptsToken: "session_token" },
+
+  // Add custom fields to the auth context
+  enrich: async ({ auth, request }) => ({
+    role: auth?.orgRole ?? null,
+  }),
+})
+```
+
+### Config fields
+
+- `secretKey` — Clerk secret key; falls back to `CLERK_SECRET_KEY` env var
+- `publishableKey` — Clerk publishable key
+- `jwtKey` — local JWT verification key (skips remote verification)
+- `apiUrl` / `apiVersion` — Clerk API endpoint overrides
+- `domain` / `proxyUrl` / `isSatellite` — satellite application config
+- `audience` / `authorizedParties` — token audience and party validation
+- `includeClaims` — attach decoded JWT claims to `auth.claims`
+- `includeRawAuth` — attach the raw Clerk auth object to `auth.raw`
+- `hydrateUser` — fetch the full Clerk `User` profile and merge it into the log context; set to `false` to disable (default)
+- `hydrateUser.cacheTtlMs` — per-entry TTL in milliseconds before refetching (default: `30000`)
+- `hydrateUser.maxEntries` — maximum cached profiles; oldest entry evicted when full (default: `1000`)
+- `authenticateRequest` / `authenticateRequestOptions` — static options or per-request resolver passed to `clerkClient.authenticateRequest()`
+- `enrich` — async function that receives the resolved args and returns extra fields to merge into the auth context
+
+## Auth context shape
+
+```ts
+// Authenticated user
+{
+  provider: "clerk",
+  authenticated: true,
+  actor: { kind: "user", id: "user_abc", email?: "...", name?: "..." },
+  session: { id: "sess_xyz", activeOrganizationId?: "org_123" },
+  organization: { id?: "org_123", slug?: "acme", role?: "admin" },
+  impersonator: { id?: "impersonator_id" }, // set during impersonation
+  lookup: {
+    provider: "clerk",
+    actorId: "user_abc",
+    actorKind: "user",
+    userId: "user_abc",
+    sessionId: "sess_xyz",
+    organizationId?: "org_123",
+    tokenType: "session_token",
+    email?: "...",
+  },
+  clerk: {
+    tokenType: "session_token",
+    orgPermissions?: ["org:feature:read"],
+    factorVerificationAge?: [0, 300],
+    scopes?: null,
+  },
+}
+
+// Machine-authenticated (API key, M2M token, etc.)
+{
+  provider: "clerk",
+  authenticated: true,
+  actor: { kind: "machine", id: "machine_abc" },
+  lookup: { provider: "clerk", actorId: "machine_abc", actorKind: "machine", tokenType: "api_key" },
+  clerk: { tokenType: "api_key" },
+}
+
+// Unauthenticated
+{
+  provider: "clerk",
+  authenticated: false,
+  actor: { kind: "anonymous" },
+  lookup: { provider: "clerk" },
+}
+```
+
+## User hydration
+
+When `hydrateUser` is enabled, Blyp fetches the full `User` object from Clerk's Backend API after resolving the session and merges profile fields (`email`, `name`, `fullName`, `firstName`, `lastName`) into `auth.actor`.
+
+Results are cached in an in-memory LRU store bounded by `maxEntries` and `cacheTtlMs`. The cache is per-process and resets on restart. On cache miss Blyp makes one Clerk API call per user; on failure the miss is cached for `cacheTtlMs` so one bad response does not hammer the API.
+
+Enable `hydrateUser` only when you need profile-level fields in your logs. `userId` and `sessionId` from the session token are sufficient for most use cases.
+
+## Client-side logging
+
+`createClerkClientLogger` creates a browser logger that posts logs to your Blyp ingestion endpoint. It is a thin wrapper around `createClientLogger` with a Clerk-appropriate default path:
+
+```ts
+import { createClerkClientLogger } from "@blyp/core/clerk";
+
+const logger = createClerkClientLogger({
+  endpoint: "/blyp/log",   // default
+  connector: "betterstack", // optional — forward to a connector
+});
+
+logger.info("user clicked checkout");
+```
+
+### `createClerkClientLogger` options
+
+- `endpoint` — server ingestion path (default: `/blyp/log`)
+- `traceId` — fixed trace ID to attach to all logs
+- `localConsole` — also log to `console` (default: `false`)
+- `remoteSync` — await delivery confirmation (default: `false`)
+- `connector` — forward logs to a named connector on the server
+- `metadata` — static or dynamic extra fields
+- `delivery` — remote delivery config (retries, queue behavior)
+
+## `identifyUser`
+
+`identifyUser` extracts a `ClerkLookupDescriptor` from any object — useful for querying stored log rows by Clerk identity:
+
+```ts
+import { identifyUser } from "@blyp/core/clerk";
+
+// Works on Blyp log records (normalized shape)
+const descriptor = identifyUser(logRow);
+// → { provider: "clerk", userId: "user_abc", sessionId: "sess_xyz", ... } | null
+
+// Also works on flat database column shapes
+const descriptor2 = identifyUser({
+  authProvider: "clerk",
+  authActorId: "user_abc",
+  authSessionId: "sess_xyz",
+  authOrganizationId: "org_123",
+  authActorKind: "user",
+  authTokenType: "session_token",
+});
+```
+
+### Return shape
+
+```ts
+{
+  provider: "clerk",
+  actorId?: string,          // actor's ID (userId for users, machineId for machines)
+  actorKind?: "user" | "machine",
+  userId?: string,
+  sessionId?: string,
+  organizationId?: string,
+  tokenType?: string,
+  email?: string,           // present when hydrateUser was enabled at log time
+}
+```
+
+Returns `null` if the record has no Clerk auth context.
+
+## Framework support
+
+Clerk auth resolution is supported in:
+
+- Next.js
+- Express
+- Fastify
+- React Router
+- Nuxt
+
+## Notes
+
+- Clerk is mutually exclusive with Better Auth and WorkOS
+- `hydrateUser` is `false` by default; enabling it adds a Clerk API call on first request per user
+- The hydration cache is per-process and resets on restart
+- If you pass `client` or `clerkClient` directly, Blyp uses that instance instead of constructing one
+- `includeClaims` and `includeRawAuth` are off by default — enable only for debugging
