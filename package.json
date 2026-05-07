@@ -20,6 +20,7 @@
     "postprocessing": "^6.38.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "thesvg": "^2.1.8",
     "three": "^0.183.2"
   },
   "devDependencies": {
