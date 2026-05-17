@@ -7,11 +7,11 @@ order: 1
 
 # Schema Contract
 
-Database mode depends on a fixed storage contract. The schema is not optional.
+Database mode depends on a fixed storage contract. The schema is not optional for SQL adapters, and MongoDB documents should preserve the same normalized Blyp row shape.
 
 If your database shape drifts away from the Blyp contract, inserts can fail, config resolution can disable database logging, and tooling such as Studio can lose the query shape it expects.
 
-> **Do not improvise the schema:** In database mode, Blyp expects the generated schema contract. Missing columns, renamed fields, missing JSON columns, or missing indexes can make the feature effectively unusable.
+> **Do not improvise the schema:** In database mode, Blyp expects the documented storage contract. Missing columns, renamed fields, missing JSON columns, missing indexes, or a mismatched MongoDB collection can make the feature effectively unusable.
 
 ## Canonical names
 
@@ -19,8 +19,14 @@ If your database shape drifts away from the Blyp contract, inserts can fail, con
 - Prisma model: `BlypLog`
 - Prisma delegate name used in adapter config: `blypLog`
 - Drizzle export: `blypLogs`
+- MongoDB collection: `blyp_logs`
+- MongoDB `_id`: Blyp row `id`
+
+SQL adapters use fixed columns and indexes. MongoDB stores the same normalized Blyp row fields as document properties and maps `id` to `_id`.
 
 ## Required columns
+
+For Prisma and Drizzle, the SQL table must include these columns:
 
 | App field | DB column or model field | Type shape | Required | Why Blyp stores it |
 | --- | --- | --- | --- | --- |
@@ -68,6 +74,8 @@ The first four can be `null` for some rows. That does not make them optional in 
 - `blyp_logs_type_timestamp_idx`
 - `blyp_logs_group_id_timestamp_idx`
 
+MongoDB support does not currently create or require these SQL indexes. Add MongoDB indexes yourself only when your own query workload needs them.
+
 ## Why the indexes exist
 
 - `blyp_logs_timestamp_idx`: supports time-based browsing and recent-log queries
@@ -85,4 +93,5 @@ Use these pages for the exact generated schema by adapter and dialect:
 
 - [Prisma](/docs/database/prisma)
 - [Drizzle](/docs/database/drizzle)
+- [MongoDB](/docs/database/mongodb)
 - [Migrations](/docs/database/migrations)

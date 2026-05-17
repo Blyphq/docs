@@ -9,7 +9,7 @@
     "check:examples": "tsc -p tsconfig.examples.json --noEmit"
   },
   "dependencies": {
-    "@farming-labs/docs": "0.1.5",
+    "@farming-labs/docs": "0.1.103",
     "@farming-labs/next": "0.1.5",
     "@farming-labs/theme": "0.1.5",
     "lucide-react": "^0.564.0",

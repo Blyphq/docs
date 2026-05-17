@@ -1,6 +1,6 @@
 ---
 title: "Database"
-description: "Required Blyp database schemas, adapter setup, migrations, and failure modes for Prisma and Drizzle."
+description: "Required Blyp database schemas, adapter setup, migrations, and failure modes for Prisma, Drizzle, and MongoDB."
 icon: "database"
 order: 10
 ---
@@ -15,15 +15,15 @@ In this mode, Blyp replaces file logging as the primary persistence layer and wr
 
 Database mode is not just a config flag. It depends on a specific schema contract.
 
-If the table, model, columns, indexes, or adapter wiring do not match what Blyp expects, database logging can become partially broken or fully unusable. Typical failure modes include:
+If the table, collection, model, columns, indexes, or adapter wiring do not match what Blyp expects, database logging can become partially broken or fully unusable. Typical failure modes include:
 
 - database logging being disabled during config resolution
-- adapter startup failures because the expected model or table is missing
-- failed inserts because required fields or JSON columns are missing
+- adapter startup failures because the expected model, table, collection, or connection is missing
+- failed inserts because required fields or JSON storage are missing
 - degraded Studio queries and slower inspection when expected indexes are missing
 - incorrect assumptions about what Blyp persists
 
-> **Schema is required:** Treat the generated Blyp schema as a compatibility contract. If you rename fields, remove indexes, or point the adapter at the wrong model or table, Blyp database logging may stop working correctly.
+> **Schema is required:** Treat the generated Blyp storage shape as a compatibility contract. If you rename fields, remove indexes, or point the adapter at the wrong model, table, or collection, Blyp database logging may stop working correctly.
 
 ## Supported setups
 
@@ -31,25 +31,28 @@ If the table, model, columns, indexes, or adapter wiring do not match what Blyp 
 - Prisma + MySQL
 - Drizzle + Postgres
 - Drizzle + MySQL
+- MongoDB through Mongoose
 
 ## Required setup sequence
 
-1. Choose your adapter: Prisma or Drizzle.
-2. Choose your dialect: Postgres or MySQL.
-3. Create the required Blyp schema contract.
-4. Run migrations so the database actually matches that contract.
+1. Choose your adapter: Prisma, Drizzle, or MongoDB through Mongoose.
+2. For SQL adapters, choose your dialect: Postgres or MySQL.
+3. Create the required Blyp storage contract.
+4. For SQL adapters, run migrations so the database actually matches that contract.
 5. Wire `blyp.config.ts` to the correct adapter runtime object.
 6. Run `blyp db:generate` if you are using Prisma.
-7. Emit a test log and confirm the row is inserted.
+7. Emit a test log and confirm the row or document is inserted.
 
 ## Required storage contract
 
-The current CLI-generated contract is:
+The current CLI-generated SQL contract is:
 
 - SQL table: `blyp_logs`
 - Prisma model: `BlypLog`
 - Prisma adapter delegate name: `blypLog`
 - Drizzle exported table symbol: `blypLogs`
+
+MongoDB uses the `blyp_logs` collection by default and maps the Blyp row `id` to MongoDB `_id`.
 
 For the full column and index contract, see [Schema Contract](/docs/database/schema).
 
@@ -57,6 +60,7 @@ For the full column and index contract, see [Schema Contract](/docs/database/sch
 
 - [Prisma](/docs/database/prisma)
 - [Drizzle](/docs/database/drizzle)
+- [MongoDB](/docs/database/mongodb)
 - [Migrations](/docs/database/migrations)
 - [Troubleshooting](/docs/database/troubleshooting)
 
@@ -64,7 +68,7 @@ For the full column and index contract, see [Schema Contract](/docs/database/sch
 
 Database mode requires an executable config file such as `blyp.config.ts`, `blyp.config.mts`, `blyp.config.js`, or `blyp.config.cjs`.
 
-`blyp.config.json` is not enough because Prisma and Drizzle adapters are runtime objects, not plain JSON values.
+`blyp.config.json` is not enough because database adapters are runtime objects, not plain JSON values.
 
 ## Prisma example
 
@@ -100,6 +104,24 @@ export default {
     adapter: createDrizzleDatabaseAdapter({
       db,
       table: blypLogs,
+    }),
+  },
+};
+```
+
+## MongoDB example
+
+```ts
+import mongoose from "mongoose";
+import { createMongooseDatabaseAdapter } from "@blyp/core/database";
+
+export default {
+  destination: "database",
+  database: {
+    adapter: createMongooseDatabaseAdapter({
+      mongoose,
+      mongoUrl: process.env.MONGODB_URI,
+      collection: "blyp_logs",
     }),
   },
 };
@@ -179,6 +201,7 @@ As of `@blyp/core@0.1.22`, request trace IDs are persisted in database records. 
 - [Schema Contract](/docs/database/schema)
 - [Prisma](/docs/database/prisma)
 - [Drizzle](/docs/database/drizzle)
+- [MongoDB](/docs/database/mongodb)
 - [Migrations](/docs/database/migrations)
 - [Troubleshooting](/docs/database/troubleshooting)
 - [CLI](/docs/cli)

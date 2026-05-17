@@ -1,0 +1,164 @@
+---
+title: "MongoDB"
+description: "Use Blyp's Mongoose database adapter to persist normalized logs into MongoDB."
+icon: "mongodb"
+order: 4
+---
+
+# MongoDB
+
+Use this path when your project stores Blyp logs in MongoDB through Mongoose.
+
+This is database persistence, not connector forwarding. Blyp writes normalized database rows into a MongoDB collection when `destination: "database"` is enabled.
+
+## Prerequisites
+
+- `mongoose` installed
+- a MongoDB deployment available
+- an executable Blyp config file such as `blyp.config.ts` or `blyp.config.js`
+- no `blyp.config.json`, because database adapters need runtime objects
+
+## Install
+
+```bash
+bun add mongoose
+```
+
+## Config with a Mongoose instance
+
+```ts
+import mongoose from "mongoose";
+import { createMongooseDatabaseAdapter } from "@blyp/core/database";
+
+export default {
+  destination: "database",
+  database: {
+    adapter: createMongooseDatabaseAdapter({
+      mongoose,
+      mongoUrl: process.env.MONGODB_URI,
+      collection: "blyp_logs",
+    }),
+  },
+};
+```
+
+## Config with an existing connection
+
+```ts
+import mongoose from "mongoose";
+import { createMongooseDatabaseAdapter } from "@blyp/core/database";
+
+const connection = mongoose.connection;
+
+export default {
+  destination: "database",
+  database: {
+    adapter: createMongooseDatabaseAdapter({
+      connection,
+      collection: "blyp_logs",
+    }),
+  },
+};
+```
+
+## Config fields
+
+- `mongoose`: a Mongoose module or object with `connection` and `connect()`
+- `mongoUrl`: MongoDB connection URI used when Blyp should open the connection
+- `connection`: existing Mongoose connection
+- `collection`: target collection name, defaults to `blyp_logs`
+
+The adapter config shape is:
+
+```ts
+type MongooseDatabaseAdapterConfig = {
+  type: "mongoose";
+  mongoose?: unknown;
+  mongoUrl?: string;
+  connection?: unknown;
+  collection?: string;
+};
+```
+
+`createMongooseDatabaseAdapter` and `MongooseDatabaseAdapterConfig` are exported from `@blyp/core/database`. The adapter is also available from the root `@blyp/core` package.
+
+MongoDB does not require `database.dialect: "postgres" | "mysql"`. That dialect field is only needed for SQL-backed Prisma and Drizzle setups.
+
+## Document shape
+
+The MongoDB collection defaults to `blyp_logs`.
+
+Blyp maps the internal row `id` to MongoDB `_id`. Other normalized log fields are stored on the document, including:
+
+- `timestamp`
+- `level`
+- `message`
+- `caller`
+- `type`
+- `groupId`
+- `method`
+- `path`
+- `status`
+- `duration`
+- `hasError`
+- `traceId`
+- `data`
+- `bindings`
+- `error`
+- `events`
+- `record`
+- `createdAt`
+
+`record` contains the full normalized Blyp log payload. Keep it available when building queries or inspection tools around the collection.
+
+## Connection behavior
+
+If `connection` is provided, Blyp uses it directly and expects the connection to expose a native MongoDB `db` instance.
+
+If `mongoose` and `mongoUrl` are provided, Blyp connects before writing when the Mongoose connection is not already open.
+
+If `mongoose` is already connected, Blyp reuses that connection.
+
+If no usable Mongoose object or connection exists, database logging is disabled during config resolution or insert setup fails with a Blyp warning or error.
+
+## Delivery behavior
+
+MongoDB uses the same database delivery settings as the other database adapters.
+
+Default values:
+
+- `strategy: "immediate"`
+- `batchSize: 1`
+- `flushIntervalMs: 250`
+- `maxQueueSize: 1000`
+- `overflowStrategy: "drop-oldest"`
+- `flushTimeoutMs: 5000`
+
+Batch delivery also works with MongoDB:
+
+```ts
+import mongoose from "mongoose";
+import { createMongooseDatabaseAdapter } from "@blyp/core/database";
+
+export default {
+  destination: "database",
+  database: {
+    adapter: createMongooseDatabaseAdapter({
+      mongoose,
+      mongoUrl: process.env.MONGODB_URI,
+    }),
+    delivery: {
+      strategy: "batch",
+      batchSize: 50,
+      flushIntervalMs: 1000,
+    },
+  },
+};
+```
+
+## Related docs
+
+- [Database](/docs/database)
+- [Schema Contract](/docs/database/schema)
+- [Troubleshooting](/docs/database/troubleshooting)
+- [Configuration](/docs/configuration)
