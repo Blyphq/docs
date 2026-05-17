@@ -22,10 +22,10 @@ Move the config to `blyp.config.ts`, `blyp.config.mts`, `blyp.config.js`, or ano
 ## Database logging is disabled because the dialect is unsupported
 
 Likely cause:
-`database.dialect` is not `postgres` or `mysql`.
+For a SQL-backed Prisma or Drizzle setup, `database.dialect` is not `postgres` or `mysql`.
 
 Fix:
-Use one of the supported dialects and make sure it matches your ORM configuration.
+Use one of the supported SQL dialects and make sure it matches your ORM configuration. MongoDB through Mongoose does not require `database.dialect`.
 
 ## Database logging is enabled without an adapter
 
@@ -33,7 +33,7 @@ Likely cause:
 `destination: "database"` is set but `database.adapter` is missing.
 
 Fix:
-Provide either `createPrismaDatabaseAdapter({ client, model })` or `createDrizzleDatabaseAdapter({ db, table })`.
+Provide `createPrismaDatabaseAdapter({ client, model })`, `createDrizzleDatabaseAdapter({ db, table })`, or `createMongooseDatabaseAdapter({ mongoose, mongoUrl })`.
 
 ## Prisma delegate `blypLog` is missing
 
@@ -55,6 +55,63 @@ Pass the real Drizzle DB instance and the correct table symbol:
 createDrizzleDatabaseAdapter({
   db,
   table: blypLogs,
+});
+```
+
+## Mongoose adapter is configured but database logging is disabled
+
+Likely cause:
+The adapter is missing both a Mongoose object and an existing connection.
+
+You may see this warning:
+
+```txt
+[Blyp] Warning: Mongoose adapter requires either a mongoUrl or an existing connection. Database logging is disabled.
+```
+
+Fix:
+Pass a Mongoose module/object or an existing connection:
+
+```ts
+createMongooseDatabaseAdapter({
+  mongoose,
+  mongoUrl: process.env.MONGODB_URI,
+});
+```
+
+## Mongoose is not installed
+
+Likely cause:
+The app config imports `mongoose`, but the package is missing from dependencies.
+
+Fix:
+Install Mongoose:
+
+```bash
+bun add mongoose
+```
+
+## MongoDB connection is missing or not ready
+
+Likely cause:
+`MONGODB_URI` is missing when using `mongoUrl`, or the existing Mongoose connection does not expose a native `db` instance yet.
+
+Fix:
+Set `MONGODB_URI` before starting the app, or wait until the existing Mongoose connection is open before passing it to Blyp.
+
+## MongoDB logs are inserted but not visible in the expected collection
+
+Likely cause:
+The adapter is writing to a custom `collection` value while you are inspecting the default `blyp_logs` collection.
+
+Fix:
+Check the configured collection name:
+
+```ts
+createMongooseDatabaseAdapter({
+  mongoose,
+  mongoUrl: process.env.MONGODB_URI,
+  collection: "blyp_logs",
 });
 ```
 
@@ -81,6 +138,7 @@ Fix:
 
 - Prisma: use `model: "blypLog"` unless you have intentionally changed the Prisma delegate name in a compatible way
 - Drizzle: pass `table: blypLogs`
+- MongoDB: inspect the configured `collection`, which defaults to `blyp_logs`
 
 ## Logs are missing at request boundaries in callback-style servers
 
@@ -110,4 +168,5 @@ Regenerate or update the Blyp database schema and migrations so the supported `t
 - [Schema Contract](/docs/database/schema)
 - [Prisma](/docs/database/prisma)
 - [Drizzle](/docs/database/drizzle)
+- [MongoDB](/docs/database/mongodb)
 - [Migrations](/docs/database/migrations)

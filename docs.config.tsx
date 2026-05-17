@@ -106,6 +106,7 @@ export default defineDocs({
     anthropic: logoIcon("/logos/anthropic.svg", "Anthropic", "object-contain invert dark:invert-0 dark:grayscale-0"),
     prisma: logoIcon("/logos/prisma.svg", "Prisma", "object-contain invert dark:invert-0 dark:grayscale-0"),
     drizzle: logoIcon("/logos/drizzle.svg", "Drizzle", "object-contain invert dark:invert-0 dark:grayscale-0"),
+    mongodb: logoIcon("/logos/mongodb.svg", "MongoDB", "object-contain p-0.5"),
     pino: logoIcon("/logos/pino.svg", "Pino"),
     database: <Database size={16} />,
     code: <Code size={16} />,
