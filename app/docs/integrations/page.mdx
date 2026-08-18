@@ -26,6 +26,7 @@ Blyp integrations cover browser logging, mobile transport, and server-side adapt
 | Fastify | `@blyp/core/fastify` | `createLogger()` | `request.blypLog` |
 | NestJS | `@blyp/core/nestjs` | `createLogger()` + `BlypModule.forRoot()` | `req.blypLog` and root `logger` |
 | Next.js App Router | `@blyp/core/nextjs` | `createLogger()` | `withLogger(..., { log })` |
+| Farm.js | `@blyp/core/farmjs` | `blypPlugin()` | request-aware exported `logger` |
 | React Router | `@blyp/core/react-router` | `createLogger()` | request-scoped logger stored in `context`, read through `getLogger(context)` |
 | TanStack Start | `@blyp/core/tanstack-start` | `createLogger()` | `context.blypLog` |
 | SolidStart | `@blyp/core/solid-start` | `createLogger()` | `event.locals.blypLog` and `getRequestEvent()?.locals.blypLog` |
@@ -75,6 +76,7 @@ Pick an integration page below for the exact wiring:
 - [Fastify](/docs/integrations/fastify)
 - [NestJS](/docs/integrations/nestjs)
 - [Next.js App Router](/docs/integrations/nextjs)
+- [Farm.js](/docs/integrations/farmjs)
 - [React Router](/docs/integrations/react-router)
 - [TanStack Start](/docs/integrations/tanstack-start)
 - [SolidStart](/docs/integrations/solid-start)

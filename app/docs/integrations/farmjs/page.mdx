@@ -1,0 +1,256 @@
+---
+title: "Farm.js"
+description: "Register Blyp as a Farm plugin for request-scoped logging, trace propagation, Farm lifecycle events, and browser telemetry."
+icon: "farm"
+order: 7
+---
+
+# Farm.js
+
+Import `blypPlugin()` and the request-aware `logger` from `@blyp/core/farmjs`. The integration supports Farm applications running on Node.js or Bun.
+
+```bash
+bun add @blyp/core @farm.js/core
+```
+
+## Register the plugin
+
+Add the plugin once in `farm.config.ts`:
+
+```ts
+import { defineConfig } from "@farm.js/core";
+import { blypPlugin } from "@blyp/core/farmjs";
+
+export default defineConfig({
+  plugins: [
+    blypPlugin({
+      level: "info",
+      telemetry: {
+        events: "curated",
+        browser: {
+          sampleRate: 0.1,
+        },
+      },
+    }),
+  ],
+});
+```
+
+Blyp automatically records successful requests, error responses, and thrown errors. It preserves the original response body and headers, then adds an `x-blyp-trace-id` response header.
+
+## Log inside routes
+
+The exported `logger` selects the active request logger in Farm pages, API routes, middleware, and server actions. Outside a request, it falls back to the logger configured by `blypPlugin()`.
+
+```ts
+import { logger } from "@blyp/core/farmjs";
+
+export async function GET() {
+  logger.info("loaded products");
+
+  return Response.json({ ok: true });
+}
+```
+
+Child and structured loggers retain the same request trace and authentication context:
+
+```ts
+import { logger } from "@blyp/core/farmjs";
+
+export async function POST() {
+  const checkout = logger.createStructuredLog("checkout", {
+    cartId: "cart_123",
+  });
+
+  checkout.info("validated cart");
+  checkout.emit({ status: 200 });
+
+  return Response.json({ ok: true });
+}
+```
+
+Emitting a structured log suppresses the automatic HTTP record for that request, preventing duplicate request records.
+
+## What auto-logged requests look like
+
+With automatic request logging enabled, Blyp emits terminal output like:
+
+```text
+[INFO]  GET  /health        200  2ms
+[INFO]  POST /checkout      200  143ms
+[INFO]  GET  /users/42      404  8ms
+[ERROR] POST /payments      500  1203ms
+```
+
+Farm records include the HTTP method, route and path, status code, duration, runtime kind, trace ID, authentication context, and configured custom properties.
+
+**In production (NDJSON):**
+
+```json
+{"level":"info","msg":"GET /products/42","type":"http_request","method":"GET","url":"/products/42","statusCode":200,"responseTime":8,"traceId":"trace_abc123","framework":"farmjs","farm":{"kind":"page","route":"/products/[id]"}}
+```
+
+## Request traces
+
+For every request, Blyp chooses a trace ID in this order:
+
+1. The incoming Blyp trace header.
+2. The active Farm or OpenTelemetry trace ID.
+3. A newly generated Blyp trace ID.
+
+The default header is `x-blyp-trace-id`. Change it when your application already uses a different propagation header:
+
+```ts
+blypPlugin({
+  traceHeader: "x-request-trace",
+});
+```
+
+Only the trace ID is exposed to Farm page props. The scoped logger and authentication data remain in Farm's private request store.
+
+## Farm lifecycle telemetry
+
+`telemetry.events` controls which events from Farm's observability stream are forwarded through Blyp:
+
+```ts
+blypPlugin({
+  telemetry: {
+    events: "curated",
+  },
+});
+```
+
+Available modes:
+
+| Value | Behavior |
+| --- | --- |
+| `"curated"` | Server and build milestones, generated-route summaries, validation failures, not-found events, warnings, and framework errors. This is the default. |
+| `"all"` | Every non-request Farm event. |
+| `FarmEventType[]` | Only the listed Farm event types. |
+| `false` | Disable Farm event forwarding. |
+
+Farm `request.*` events are always excluded because the runtime hooks already emit richer `http_request` and `http_error` records.
+
+```ts
+blypPlugin({
+  telemetry: {
+    events: ["server.ready", "build.complete", "route.notFound"],
+  },
+});
+```
+
+## Browser telemetry
+
+Browser telemetry is enabled by default. The client plugin records completed hydration, rendered navigations, navigation failures, browser errors, unhandled rejections, and allowlisted Web Vital-style performance entries.
+
+```ts
+blypPlugin({
+  telemetry: {
+    browser: {
+      hydration: true,
+      navigation: true,
+      errors: true,
+      performance: true,
+      sampleRate: 0.25,
+      localConsole: false,
+    },
+  },
+});
+```
+
+Non-error browser events are sampled once per page session. Development uses a 100% sample rate; production defaults to 10%. Errors and navigation failures are never sampled out.
+
+Disable browser telemetry while keeping server events enabled:
+
+```ts
+blypPlugin({
+  telemetry: {
+    events: "curated",
+    browser: false,
+  },
+});
+```
+
+Disable all Farm and browser telemetry while retaining HTTP request logging:
+
+```ts
+blypPlugin({
+  telemetry: false,
+});
+```
+
+## Client ingestion
+
+Farm browser telemetry uses Blyp's configured client-ingestion endpoint. The default is `/inngest`; the plugin intercepts it directly, so you do not need to create a separate Farm API route.
+
+```ts
+blypPlugin({
+  clientLogging: {
+    path: "/internal/client-logs",
+  },
+});
+```
+
+The existing Blyp delivery system provides redaction, retry queues, connector forwarding, and beacon fallback. A browser connector can be selected in the telemetry configuration:
+
+```ts
+blypPlugin({
+  telemetry: {
+    browser: {
+      connector: {
+        type: "otlp",
+        name: "browser",
+      },
+    },
+  },
+});
+```
+
+## Privacy defaults
+
+Farm browser telemetry sends only:
+
+- pathnames and matched route patterns
+- hydration, navigation, and performance timing
+- navigation and deployment identifiers
+- status data and normalized errors
+
+It does not send request bodies, query values, URL hashes, page data, document titles, referrers, route parameters, or arbitrary performance resource URLs.
+
+## Authentication and enrichment
+
+Farm uses the shared server adapter configuration, including `auth`, `customProps`, path filters, connectors, database logging, client-ingestion validation, and enrichment.
+
+```ts
+blypPlugin({
+  ignorePaths: ["/health"],
+  customProps: (context) => ({
+    runtimeKind: context.kind,
+    route: context.route?.pattern,
+  }),
+  clientLogging: {
+    validate: (_context, payload) => payload.message.length < 1_000,
+    enrich: (context) => ({
+      traceId: context.traceId,
+    }),
+  },
+});
+```
+
+The callback context includes the request, Farm runtime kind and route, response or error when available, trace ID, and scoped logger.
+
+## Runtime support
+
+The integration supports Node.js and Bun Farm presets. Known edge-only presets fail during Farm configuration with a clear error because Blyp's server logger and connector lifecycle require a Node/Bun runtime.
+
+## Relevant types
+
+```ts
+import type {
+  FarmJsBrowserTelemetryConfig,
+  FarmJsLoggerConfig,
+  FarmJsLoggerContext,
+  FarmJsTelemetryConfig,
+  FarmJsTelemetryEvents,
+} from "@blyp/core/farmjs";
+```
