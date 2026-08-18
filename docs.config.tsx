@@ -89,7 +89,11 @@ export default defineDocs({
     hono: logoIcon("/logos/hono.svg", "Hono"),
     nestjs: logoIcon("/logos/nestjs.svg", "NestJS"),
     nextjs: logoIcon("/logos/nextjs-icon.svg", "Next.js"),
-    farm: <Code size={16} />,
+    farm: logoIcon(
+      "/logos/farmjs.png",
+      "Farm.js",
+      "object-contain brightness-0 dark:invert",
+    ),
     posthog: logoIcon("/logos/posthog.svg", "PostHog"),
     react: logoIcon("/logos/reactrouter.svg", "React Router"),
     sentry: logoIcon("/logos/sentry.svg", "Sentry"),
