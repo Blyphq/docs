@@ -22,6 +22,7 @@ import type { TanStackStartLoggerFactory } from "@blyp/core/tanstack-start";
 import type { SolidStartLoggerFactory } from "@blyp/core/solid-start";
 import type { SvelteKitLoggerFactory } from "@blyp/core/sveltekit";
 import type { WorkersLoggerConfig, WorkersRequestLogger } from "@blyp/core/workers";
+import type { ConvexLogger, ConvexLoggerConfig } from "@blyp/core/convex";
 ```
 
 ## `HttpRequestLog`
@@ -42,6 +43,7 @@ Most server adapters also export `HttpRequestLog`, which includes:
 - `autoLogging.ignore(ctx)` when you want context-aware suppression
 - `clientLogging.validate(ctx, payload)` and `clientLogging.enrich(ctx, payload)`
 - wrapped handler helpers such as `NextJsLoggerFactory`, `TanStackStartLoggerFactory`, `SolidStartLoggerFactory`, and `SvelteKitLoggerFactory`
+- Convex `logger.wrap()` from `@blyp/core/convex` for isolate handlers that need `ctx` binding
 
 ## Request-scoped structured logs
 

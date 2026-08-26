@@ -11,6 +11,7 @@ export type SkillPreset = {
     | "hono"
     | "elysia"
     | "workers"
+    | "convex"
     | "client-expo"
     | "betterstack"
     | "databuddy"
@@ -138,6 +139,19 @@ export const skillPresets: SkillPreset[] = [
     relatedLabel: "Cloudflare Workers",
     docsPath: "/docs/skills/workers",
     rawPath: "/skills/blyp-workers/SKILL.md",
+  },
+  {
+    slug: "convex",
+    skillId: "blyp-convex",
+    title: "Convex",
+    category: "integration",
+    coverage: "Convex isolate logger, shared blyp.config.ts, and action-only OTLP fetch",
+    whenToInstall:
+      "Install when the target runtime is Convex instead of Node.js or Bun.",
+    relatedHref: "/docs/integrations/convex",
+    relatedLabel: "Convex",
+    docsPath: "/docs/skills/convex",
+    rawPath: "/skills/blyp-convex/SKILL.md",
   },
   {
     slug: "client-expo",

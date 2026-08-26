@@ -122,6 +122,8 @@ Inside framework handlers, the imported `createStructuredLog(...)` automatically
 
 That means you can keep the same root import in standalone code and in framework routes without switching APIs.
 
+Convex is the exception: call `logger.createStructuredLog(...)` from `@blyp/core/convex` inside Convex functions. The root `createStructuredLog` import would pull the Node logger graph into the isolate.
+
 See [Request Tracing](/docs/working-with-blyp/request-tracing) for the full correlation model across response headers, client logs, connectors, and database rows.
 
 ## Emit options

@@ -35,7 +35,8 @@ Use this skill whenever an agent needs to add, review, or change Blyp logging in
    - `@blyp/core` for root logger, standalone logger, config helpers, structured logs, and errors
    - `@blyp/core/client` for browser logging
    - `@blyp/core/expo` for Expo apps
-   - `@blyp/core/<framework>` for framework adapters such as `nextjs`, `react-router`, `nuxt`, `express`, `hono`, `elysia`, or `workers`
+   - `@blyp/core/config` for isolate-safe `defineConfig()` when Convex or Workers will import `blyp.config.ts`
+   - `@blyp/core/<framework>` for framework adapters such as `nextjs`, `react-router`, `nuxt`, `express`, `hono`, `elysia`, `workers`, or `convex`
 3. Add or update `blyp.config.*` if the project needs shared log level, file logging, client ingestion, or connector configuration.
 4. If browser logging is enabled, keep the ingestion path aligned across config and server route mounting. Default to `/inngest` unless the repo already standardizes a different path.
 5. If connectors are involved, configure them on the server side first. Client and Expo requests depend on server connector configuration.
@@ -61,4 +62,4 @@ Use this skill whenever an agent needs to add, review, or change Blyp logging in
 - Package: `@blyp/core`
 - Config files: `blyp.config.ts`, `blyp.config.mts`, `blyp.config.cts`, `blyp.config.js`, `blyp.config.mjs`, `blyp.config.cjs`, `blyp.config.json`
 - Core imports: `logger`, `createStandaloneLogger`, `createStructuredLog`, `createError`, `parseError`
-- Related add-ons: `blyp-nextjs`, `blyp-react-router`, `blyp-nuxt`, `blyp-express`, `blyp-hono`, `blyp-elysia`, `blyp-workers`, `blyp-client-expo`, `blyp-betterstack`, `blyp-databuddy`, `blyp-posthog`, `blyp-sentry`, `blyp-otlp`
+- Related add-ons: `blyp-nextjs`, `blyp-react-router`, `blyp-nuxt`, `blyp-express`, `blyp-hono`, `blyp-elysia`, `blyp-workers`, `blyp-convex`, `blyp-client-expo`, `blyp-betterstack`, `blyp-databuddy`, `blyp-posthog`, `blyp-sentry`, `blyp-otlp`

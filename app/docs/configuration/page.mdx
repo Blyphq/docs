@@ -28,6 +28,27 @@ Blyp loads the first matching config file from:
 
 Executable config files are loaded through `jiti`.
 
+If Convex (or another isolate) will import the same `blyp.config.ts`, use the isolate-safe helper so that file does not pull the Node logger graph:
+
+```ts
+import { defineConfig } from "@blyp/core/config";
+
+export default defineConfig({
+  level: "info",
+  connectors: {
+    otlp: [
+      {
+        name: "axiom",
+        endpoint: "https://api.axiom.co/v1/logs",
+        auth: `Bearer ${process.env.AXIOM_TOKEN}`,
+      },
+    ],
+  },
+});
+```
+
+Node apps can keep `import { defineConfig } from "@blyp/core"`. Convex must import the config module and pass it to `configureConvexLogger()`; it does not walk the filesystem. See [Convex](/docs/integrations/convex).
+
 ## Example `blyp.config.ts`
 
 ```ts

@@ -143,6 +143,12 @@ const integrations = [
     href: "/docs/integrations/workers",
   },
   {
+    name: "Convex",
+    src: "/logos/convex.svg",
+    darkInvert: true,
+    href: "/docs/integrations/convex",
+  },
+  {
     name: "Expo",
     src: "/logos/expo-icon.svg",
     darkInvert: true,

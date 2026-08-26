@@ -170,6 +170,32 @@ Use this page when Blyp is installed but something does not behave the way you e
 - confirm the client ingestion path matches the configured path and the mounted route
 - remember that some adapters auto-register ingestion and others expose a handler you must mount yourself
 
+### Convex logs appear in the dashboard but not in OTLP
+
+#### Symptoms
+
+- `npx convex logs` or the Convex dashboard shows Blyp console payloads
+- Grafana, Datadog, or another OTLP target never receives those logs
+- query or mutation logs never leave Convex
+
+#### Likely cause
+
+- the log ran in a query or mutation, which cannot `fetch`
+- the action handler was not wrapped with `logger.wrap()`, so remote export never flushed
+- no sink was configured (`posthog`, `axiom`, `betterstack`, `sentry`, `databuddy`, `http`, `connectors.otlp`, or `BLYP_OTLP_ENDPOINT`)
+- `blyp.config.ts` was not passed into `configureConvexLogger()`, so Convex never saw the shared connectors
+- Convex functions imported the root `@blyp/core` logger instead of `@blyp/core/convex`
+
+#### Fix
+
+- import `logger` from `@blyp/core/convex` and call `configureConvexLogger(blypConfig)` with the shared config object
+- import `defineConfig` from `@blyp/core/config` in that shared `blyp.config.ts`
+- configure `posthog`, `axiom`, `betterstack`, `sentry`, `databuddy`, `http`, or an auto `connectors.otlp` target
+- wrap action handlers with `logger.wrap(...)`, or call `logger.bind(ctx)` and `await logger.flush()` yourself
+- treat dashboard console output as the supported sink for queries and mutations
+
+See [Convex](/docs/integrations/convex).
+
 ### Config file not found or not loaded
 
 #### Symptoms

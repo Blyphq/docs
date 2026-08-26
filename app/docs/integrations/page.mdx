@@ -34,6 +34,7 @@ Blyp integrations cover browser logging, mobile transport, and server-side adapt
 | Astro | `@blyp/core/astro` | `createLogger()` | `context.locals.blypLog` |
 | Nuxt | `@blyp/core/nuxt` | `createLogger()` | `nuxtLogger.getLogger(event)` |
 | Cloudflare Workers | `@blyp/core/workers` | `initWorkersLogger()` + `createWorkersLogger()` | request-scoped logger returned per request |
+| Convex | `@blyp/core/convex` | `logger` + `configureConvexLogger()` | default logger in queries, mutations, and actions |
 
 ## Shared server-adapter config shape
 
@@ -84,3 +85,4 @@ Pick an integration page below for the exact wiring:
 - [Astro](/docs/integrations/astro)
 - [Nuxt](/docs/integrations/nuxt)
 - [Cloudflare Workers](/docs/integrations/workers)
+- [Convex](/docs/integrations/convex)

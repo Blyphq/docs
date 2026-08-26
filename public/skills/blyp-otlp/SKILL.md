@@ -24,6 +24,7 @@ Use this add-on when Blyp forwards logs to Grafana Cloud, Datadog, Honeycomb, or
 - Supported delivery modes are `auto` and `manual`.
 - Manual OTLP APIs and client or Expo forwarding requests must target an explicit connector name.
 - Browser and Expo OTLP requests still go through Blyp ingestion first.
+- Convex action export uses `@blyp/core/convex`. Shared `blyp.config.ts` must import `defineConfig` from `@blyp/core/config`. Auto `connectors.otlp` targets and native vendor connectors are used.
 
 ## Required implementation steps
 

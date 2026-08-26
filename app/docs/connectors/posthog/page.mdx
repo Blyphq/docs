@@ -116,6 +116,7 @@ Client `error` and `critical` logs requested through the PostHog connector are p
 ## Notes
 
 - PostHog direct delivery is for Node/Bun server runtimes
+- Convex maps `connectors.posthog` to PostHog Logs OTLP (`https://us.i.posthog.com/i/v1/logs`) from actions. Exception autocapture is ignored. See [Convex](/docs/integrations/convex).
 - `connectors.delivery` can make retryable PostHog forwarding failures durable without Redis or another external queue
 - browser and Expo still post to Blyp first
 - Blyp warns once when the client or Expo app requests PostHog forwarding but the server connector is missing

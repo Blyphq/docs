@@ -59,6 +59,8 @@ Blyp also now has a separate CLI project for local developer workflows, document
 | Connector helpers | `@blyp/core/betterstack`, `@blyp/core/posthog`, `@blyp/core/databuddy`, `@blyp/core/sentry`, `@blyp/core/otlp` | manual connector loggers, structured connector helpers, and provider-specific exception capture |
 | Framework adapters | `@blyp/core/<framework>` | `createLogger()` or equivalent framework factory plus framework-specific types |
 | Workers | `@blyp/core/workers` | `initWorkersLogger`, `createWorkersLogger`, Workers-specific request logger types |
+| Convex | `@blyp/core/convex` | `logger`, `configureConvexLogger`, `createConvexLogger`, Convex isolate logger types |
+| Isolate-safe config | `@blyp/core/config` | `defineConfig` for `blyp.config.ts` files that Convex can import |
 
 ## Quick start
 
@@ -96,6 +98,8 @@ throw createError({
 - `@blyp/core/astro`
 - `@blyp/core/nuxt`
 - `@blyp/core/workers`
+- `@blyp/core/convex`
+- `@blyp/core/config`
 
 ## Recommended reading order
 

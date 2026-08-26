@@ -89,3 +89,4 @@ Browser and Expo still send logs to Blyp first. Blyp forwards to Sentry only whe
 
 - `connectors.delivery` can make retryable Sentry forwarding failures durable without Redis or another external queue
 - if Sentry was already initialized by the app, Blyp reuses the existing client instead of replacing it
+- Convex maps `connectors.sentry` to Sentry OTLP logs from the DSN. The `@sentry/node` SDK is not loaded. See [Convex](/docs/integrations/convex).

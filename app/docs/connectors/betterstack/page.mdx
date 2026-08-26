@@ -128,3 +128,4 @@ Client `error` and `critical` logs requested through the Better Stack connector 
 - browser and Expo still post to Blyp first
 - browser and Expo do not use `@logtail/browser` directly
 - Workers remain out of scope for this connector
+- Convex maps `connectors.betterstack` to OTLP logs at `{ingestingHost}/v1/logs` from actions. Error tracking is ignored. See [Convex](/docs/integrations/convex).

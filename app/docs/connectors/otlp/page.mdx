@@ -116,3 +116,4 @@ Browser and Expo still post to Blyp first. Blyp forwards to the named OTLP targe
 
 - `connectors.delivery` can make retryable OTLP forwarding failures durable without Redis or another external queue
 - manual OTLP APIs always target a named connector
+- Convex isolate export uses `@blyp/core/convex`. Pass a shared `blyp.config.ts` into `configureConvexLogger()` so auto `connectors.otlp` targets and native vendor connectors export from actions. See [Convex](/docs/integrations/convex).

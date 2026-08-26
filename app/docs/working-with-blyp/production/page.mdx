@@ -7,9 +7,9 @@ order: 2
 
 # Production
 
-This guide covers Blyp behavior in production deployments: where logs are persisted, what `logger.flush()` actually guarantees, how connectors behave under sustained load, and what changes in serverless and Workers runtimes.
+This guide covers Blyp behavior in production deployments: where logs are persisted, what `logger.flush()` actually guarantees, how connectors behave under sustained load, and what changes in serverless, Workers, and Convex runtimes.
 
-Use this page together with [Configuration](/docs/configuration), [File Logging](/docs/file-logging), [Database Logging](/docs/database), [Connectors](/docs/connectors), [Next.js App Router](/docs/integrations/nextjs), and [Cloudflare Workers](/docs/integrations/workers).
+Use this page together with [Configuration](/docs/configuration), [File Logging](/docs/file-logging), [Database Logging](/docs/database), [Connectors](/docs/connectors), [Next.js App Router](/docs/integrations/nextjs), [Cloudflare Workers](/docs/integrations/workers), and [Convex](/docs/integrations/convex).
 
 ## File Logging In Production
 
@@ -252,6 +252,7 @@ For serverless deployments:
 - database mode is the recommended primary sink for serverless Node runtimes
 - call `await logger.flush()` before handler return when you are outside an auto-flushing promise-based Blyp adapter
 - Cloudflare Workers use a separate API and do not use file or database destinations or `blyp.config.*`
+- Convex uses a separate isolate API. Import a shared `blyp.config.ts` into `configureConvexLogger()`; file, database, delivery queues, and exception SDKs are ignored with a warning. Vendor connectors and auto OTLP targets sink from actions.
 
 ### Recommended config matrix
 
@@ -260,9 +261,10 @@ For serverless deployments:
 | Vercel Serverless Functions / Next.js Node runtime | `database` | `blyp.config.ts` | automatic in the Next.js adapter for database mode, manual in standalone or custom wrappers |
 | Vercel Edge | none of the Node/Bun primary sinks | no current dedicated Edge-only Blyp primary sink guidance | do not assume file or database mode; keep usage conservative and avoid Node/Bun persistence assumptions |
 | Cloudflare Workers | console-based Workers logger | `@blyp/core/workers` | no `logger.flush()` path; emit request logs explicitly with `emit()` |
+| Convex | console plus action-only HTTP | `@blyp/core/convex` | `logger.wrap()` flushes remote export on actions; queries and mutations cannot fetch |
 | AWS Lambda | `database` | executable config plus shared DB client | call `await logger.flush()` before returning in standalone or custom handling |
 
-If you are deploying to Vercel Edge, Blyp does not currently document a dedicated Edge runtime API the way it documents [Cloudflare Workers](/docs/integrations/workers). Keep the recommendation conservative and avoid treating Edge like a writable Node runtime.
+If you are deploying to Vercel Edge, Blyp does not currently document a dedicated Edge runtime API the way it documents [Cloudflare Workers](/docs/integrations/workers) or [Convex](/docs/integrations/convex). Keep the recommendation conservative and avoid treating Edge like a writable Node runtime.
 
 ### Vercel / Next.js App Router example
 
@@ -337,6 +339,27 @@ export default {
 };
 ```
 
+### Convex example
+
+Convex uses `@blyp/core/convex`. Queries and mutations write `console.*` only. Actions can `fetch` vendor connectors and auto `connectors.otlp` targets from a shared `blyp.config.ts`. File logging and exception SDKs are ignored with a warning.
+
+```ts
+import { action } from "convex/server";
+import blypConfig from "../blyp.config";
+import { configureConvexLogger, logger } from "@blyp/core/convex";
+
+configureConvexLogger(blypConfig);
+
+export const importFeed = action({
+  handler: logger.wrap(async () => {
+    logger.info("import started");
+    return { ok: true };
+  }),
+});
+```
+
+`logger.wrap()` binds `ctx` and flushes pending action OTLP, including when the handler throws. Shared configs must import `defineConfig` from `@blyp/core/config`.
+
 ### AWS Lambda example
 
 In standalone or custom Lambda handling, keep the database client outside the handler and flush before returning.
@@ -380,6 +403,7 @@ Recommended guidance:
 - keep Prisma or Drizzle client initialization outside the handler when the platform can reuse it
 - initialize connector SDKs through normal application startup paths, not per-request if you can avoid it
 - expect Workers to avoid file and database sink setup because they use the separate console-based API
+- expect Convex to import `@blyp/core/convex`, pass a shared config into `configureConvexLogger()`, and export action logs through vendor connectors or auto OTLP targets
 
 ## Outages And Monitoring
 
@@ -415,3 +439,4 @@ Current monitoring guidance:
 - [OTLP](/docs/connectors/otlp)
 - [Next.js App Router](/docs/integrations/nextjs)
 - [Cloudflare Workers](/docs/integrations/workers)
+- [Convex](/docs/integrations/convex)

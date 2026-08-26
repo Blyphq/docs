@@ -1,0 +1,276 @@
+---
+title: "Convex"
+description: "Use the isolate Convex logger with vendor configs, shared blyp.config.ts, and action-only HTTP export to PostHog, Axiom, Better Stack, Sentry, Databuddy, HTTP, or OTLP."
+icon: "convex"
+order: 15
+---
+
+# Convex
+
+Convex's default runtime is an isolate, not Node or Bun. Import `@blyp/core/convex` instead of the root logger so Convex does not bundle pino, filesystems, vendor Node SDKs, or the OpenTelemetry Node SDK.
+
+Keep importing `mutation`, `query`, and `action` from `convex/server`. Blyp does not re-export those builders.
+
+```ts
+import { mutation } from "convex/server";
+import { v } from "convex/values";
+import { logger } from "@blyp/core/convex";
+
+export const send = mutation({
+  args: { body: v.string() },
+  handler: async (ctx, args) => {
+    logger.info("send started", { body: args.body });
+  },
+});
+```
+
+## Convex-only config
+
+If you are not sharing a config file, pass vendor objects to `configureConvexLogger()`. Convex compiles each one to isolate-safe `fetch` from actions:
+
+```ts
+configureConvexLogger({
+  serviceName: "api",
+  posthog: {
+    projectKey: process.env.POSTHOG_PROJECT_KEY,
+  },
+  axiom: {
+    token: process.env.AXIOM_TOKEN,
+    dataset: process.env.AXIOM_DATASET,
+  },
+});
+```
+
+The same shape works for the other connectors:
+
+```ts
+configureConvexLogger({
+  serviceName: "api",
+  betterstack: {
+    sourceToken: process.env.SOURCE_TOKEN,
+    ingestingHost: process.env.INGESTING_HOST,
+  },
+  sentry: {
+    dsn: process.env.SENTRY_DSN,
+  },
+  databuddy: {
+    apiKey: process.env.DATABUDDY_API_KEY,
+    websiteId: process.env.DATABUDDY_WEBSITE_ID,
+  },
+  http: [{
+    name: "webhook",
+    endpoint: process.env.LOG_WEBHOOK_URL,
+    auth: process.env.LOG_WEBHOOK_AUTH,
+  }],
+  otlp: {
+    endpoint: process.env.BLYP_OTLP_ENDPOINT,
+    auth: process.env.BLYP_OTLP_AUTH,
+  },
+});
+```
+
+Empty objects such as `posthog: {}` or `sentry: {}` read the matching environment variables. `posthog: false`, `sentry: false`, and the other vendor `false` flags skip that sink. `otlp: false` disables every remote export.
+
+| Config | Export |
+| --- | --- |
+| `posthog` | OTLP JSON to `{host}/i/v1/logs` with `Authorization: Bearer {projectKey}` |
+| `axiom` | OTLP JSON to `https://api.axiom.co/v1/logs` with `X-Axiom-Dataset` |
+| `betterstack` | OTLP JSON to `{ingestingHost}/v1/logs` with `Authorization: Bearer {sourceToken}` |
+| `sentry` | OTLP JSON to the DSN's `/api/{project}/integration/otlp/v1/logs` endpoint |
+| `databuddy` | Track JSON to `{apiUrl}/track` |
+| `http` | Normalized JSON POST to each named endpoint |
+| `otlp` | Raw OTLP HTTP logs URL (Grafana, Honeycomb, and other collectors) |
+
+Convex does not load `posthog-node`, `@logtail/node`, `@sentry/node`, `@databuddy/sdk`, or OpenTelemetry peer packages.
+
+## Shared `blyp.config.ts`
+
+In a monorepo the HTTP API, browser app, and Convex backend can share one config file. Import `defineConfig` from `@blyp/core/config` so Convex can load that file without pulling the Node logger graph:
+
+```ts
+// blyp.config.ts
+import { defineConfig } from "@blyp/core/config";
+
+export default defineConfig({
+  level: "info",
+  destination: "file",
+  connectors: {
+    posthog: {
+      enabled: true,
+      mode: "auto",
+      projectKey: process.env.POSTHOG_PROJECT_KEY,
+    },
+    betterstack: {
+      enabled: true,
+      sourceToken: process.env.SOURCE_TOKEN,
+      ingestingHost: process.env.INGESTING_HOST,
+    },
+    sentry: {
+      enabled: true,
+      dsn: process.env.SENTRY_DSN,
+    },
+    databuddy: {
+      enabled: true,
+      apiKey: process.env.DATABUDDY_API_KEY,
+      websiteId: process.env.DATABUDDY_WEBSITE_ID,
+    },
+    http: [{
+      name: "webhook",
+      enabled: true,
+      endpoint: process.env.LOG_WEBHOOK_URL,
+    }],
+    otlp: [{
+      name: "grafana",
+      enabled: true,
+      mode: "auto",
+      endpoint: process.env.GRAFANA_OTLP_ENDPOINT,
+      auth: process.env.GRAFANA_OTLP_AUTH,
+    }],
+  },
+});
+```
+
+Pass that object into Convex once:
+
+```ts
+// convex/logger.ts
+import blypConfig from "../blyp.config";
+import { configureConvexLogger, logger } from "@blyp/core/convex";
+
+configureConvexLogger(blypConfig);
+
+export { logger };
+```
+
+Convex does not walk the filesystem for `blyp.config.ts`. Import the module (or pass the same object) so the isolate actually sees it.
+
+The HTTP API still uses the full Node logger. Convex keeps isolate-safe log export and ignores Node-only sinks:
+
+| Config | HTTP API | Convex |
+| --- | --- | --- |
+| `level`, `redact` | yes | yes |
+| `connectors.posthog` | `posthog-node` + OTLP | OTLP `fetch` from actions |
+| `connectors.betterstack` | `@logtail/node` | OTLP `fetch` from actions |
+| `connectors.sentry` | `@sentry/node` | OTLP `fetch` from actions |
+| `connectors.databuddy` | `@databuddy/sdk` | HTTP `fetch` from actions |
+| `connectors.http` | JSON POST | JSON `fetch` from actions |
+| `connectors.otlp` with `mode: "auto"` | Node OTLP SDK | JSON HTTP `fetch` from actions |
+| `destination: "file"` / `file` | yes | ignored, console warning |
+| `destination: "database"` | yes | ignored, console warning |
+| `connectors.delivery` | yes | ignored, console warning |
+| `clientLogging` | yes | ignored, console warning |
+| vendor exception autocapture | yes | ignored, console warning |
+
+If the shared config has no usable remote sink, Convex stays console-only and warns once.
+
+`mode: "manual"` connector targets are not auto-exported from Convex, matching Node auto-forwarding.
+
+## Queries, mutations, and actions
+
+| Function | `console.*` (dashboard / `npx convex logs`) | Remote `fetch` |
+| --- | --- | --- |
+| Query | yes | no |
+| Mutation | yes | no |
+| Action | yes | yes, if a sink is configured |
+| HTTP action | yes | yes, if a sink is configured |
+
+Queries and mutations are deterministic and cannot `fetch`. Log writes in the same mutation as business data also roll back if the mutation fails, so dashboard console output is the supported path there.
+
+Actions and HTTP actions can export over HTTP. Bind Convex `ctx` so Blyp can tell them apart:
+
+```ts
+import { action } from "convex/server";
+import { v } from "convex/values";
+import { logger } from "./logger";
+
+export const importFeed = action({
+  args: { url: v.string() },
+  handler: logger.wrap(async (ctx, args) => {
+    logger.info("import started", { url: args.url });
+  }),
+});
+```
+
+`wrap` does not wrap Convex's `action` helper. It wraps your handler: it binds `ctx` for that call and `await`s remote `flush()` when the handler is an action, including when the handler throws.
+
+If you keep a stock handler, bind and flush yourself:
+
+```ts
+export const importFeed = action({
+  args: { url: v.string() },
+  handler: async (ctx, args) => {
+    const log = logger.bind(ctx);
+    log.info("import started", { url: args.url });
+    await log.flush();
+  },
+});
+```
+
+Wrapping queries or mutations is optional. It only adds `functionKind` to the console payload; it never enables remote export.
+
+## Environment variables
+
+| Variable | Role |
+| --- | --- |
+| `POSTHOG_PROJECT_KEY` / `POSTHOG_HOST` | PostHog Logs when `posthog` is set |
+| `AXIOM_TOKEN` / `AXIOM_DATASET` / `AXIOM_URL` | Axiom when `axiom` is set |
+| `SOURCE_TOKEN` / `INGESTING_HOST` | Better Stack when `betterstack` is set |
+| `SENTRY_DSN` | Sentry Logs OTLP when `sentry` is set |
+| `DATABUDDY_API_KEY` / `DATABUDDY_WEBSITE_ID` | Databuddy when `databuddy` is set |
+| `BLYP_OTLP_ENDPOINT` | Absolute OTLP HTTP logs URL |
+| `OTEL_EXPORTER_OTLP_LOGS_ENDPOINT` | Same, if `BLYP_OTLP_ENDPOINT` is unset |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | Root collector URL; Blyp appends `/v1/logs` |
+| `BLYP_OTLP_AUTH` | `Authorization` header for raw OTLP |
+| `BLYP_SERVICE_NAME` | Service name when config omits `serviceName` |
+
+Failed exports warn once and do not throw. No vendor or OpenTelemetry peer packages are required.
+
+`createConvexLogger()` is only for a second instance. `logger.child({ function: "messages:send" })` adds bindings without creating a new logger.
+
+## Console payload
+
+Each log is one JSON object on `console.*`:
+
+```json
+{
+  "blyp": 1,
+  "level": "info",
+  "msg": "send started",
+  "service": "api",
+  "source": "convex",
+  "timestamp": "2026-08-25T00:00:00.000Z",
+  "functionKind": "mutation",
+  "function": "messages:send",
+  "data": { "body": "hello" }
+}
+```
+
+Oversized payloads are truncated around 3500 bytes and marked with `is_truncated`. Secrets are redacted before they reach console or remote export.
+
+## Differences from the Node/Bun adapters
+
+- import `@blyp/core/convex`, not `@blyp/core`
+- import shared `defineConfig` from `@blyp/core/config` if Convex will load `blyp.config.ts`
+- vendor connectors export over isolate `fetch`; file, database, delivery queues, client ingestion, and exception SDKs are ignored with a one-time warning
+- no Convex table, file storage, or R2 destination
+- no Convex Pro log-stream ingest
+- remote export only from actions and HTTP actions
+- no extra vendor or OTLP peer packages
+
+## Relevant types
+
+```ts
+import type {
+  ConvexLogger,
+  ConvexLoggerConfig,
+  ConvexOtlpConfig,
+  ConvexPostHogConfig,
+  ConvexAxiomConfig,
+  ConvexBetterStackConfig,
+  ConvexSentryConfig,
+  ConvexDatabuddyConfig,
+  ConvexHttpConfig,
+  ConvexFunctionKind,
+} from "@blyp/core/convex";
+import type { BlypUserConfig } from "@blyp/core/config";
+```

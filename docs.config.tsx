@@ -101,6 +101,7 @@ export default defineDocs({
     astro: logoIcon("/logos/astro.svg", "Astro"),
     nuxt: logoIcon("/logos/nuxtjs.svg", "Nuxt"),
     workers: logoIcon("/logos/cloudflare-workers-icon.svg", "Cloudflare Workers"),
+    convex: logoIcon("/logos/convex.svg", "Convex"),
     tanstack: logoIcon("/logos/tanstack-start.png", "TanStack"),
     solid: logoIcon("/logos/solidjs.svg", "SolidStart", "object-contain"),
     vercel: logoIcon("/logos/vercel.svg", "Vercel", "object-contain invert dark:invert-0 dark:grayscale-0"),

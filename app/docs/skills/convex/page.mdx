@@ -1,0 +1,35 @@
+---
+title: "Convex"
+description: "Blyp skill preset for Convex isolate logging with the default logger, handler wrap(), and action-only HTTP export."
+icon: "convex"
+order: 9
+---
+
+import { SkillInstall } from "@/app/components/skill-install";
+import { SkillSource } from "@/app/components/skill-source";
+
+# Blyp Convex
+
+Install `blyp-convex` after `blyp-core` when the runtime is Convex. This preset deliberately overrides Node.js and Bun assumptions: shared config must come from `@blyp/core/config`, file logging is ignored, and remote export is action-only over `fetch`.
+
+## When to install it
+
+- the runtime is Convex
+- Convex functions must not import the root `@blyp/core` logger
+- action logs should export to PostHog, Axiom, Better Stack, Sentry, Databuddy, HTTP, or OTLP without Convex Pro log streams
+
+## What it covers
+
+- `blyp.config.*` via isolate-safe `@blyp/core/config`
+- `configureConvexLogger({ posthog, axiom, betterstack, sentry, databuddy, http, otlp })`
+- shared `connectors.posthog`, `betterstack`, `sentry`, `databuddy`, `http`, and auto `connectors.otlp`
+- `logger.wrap()` on handlers, not Convex builders
+- ignored file/database/delivery/exception SDK sinks with one-time warnings
+
+<SkillInstall slug="convex" />
+
+## Related docs
+
+- [Convex](/docs/integrations/convex)
+
+<SkillSource slug="convex" />
