@@ -3,9 +3,29 @@ title: "Troubleshooting"
 description: "Common database logging failures in Blyp and how to fix them."
 icon: "file"
 order: 5
+related: [/docs/database, /docs/database/schema, /docs/database/migrations]
+agent:
+  task: Diagnose missing or failed Blyp database writes without losing existing log data.
+  outcome: The failing layer is identified as config loading, adapter wiring, schema drift, connectivity, or flushing.
+  appliesTo: { package: "@blyp/core" }
+  prerequisites: [Capture the startup error and preserve the current config, migration state, and database data.]
+  files: [blyp.config.ts, prisma/schema.prisma, drizzle.config.ts]
+  sideEffects: [Repair migrations can alter production schema; inspect them before applying.]
+  verification: [Emit a unique record, flush, and query it directly from the database.]
+  rollback: [Revert only the repair change while leaving retained log data intact.]
+  failureModes:
+    - symptom: No useful error is visible.
+      resolution: Reproduce with startup diagnostics and a direct adapter connectivity check before changing schema.
 ---
 
 # Troubleshooting
+
+<Agent>
+Preserve data and isolate the layer in order: executable config, adapter construction, database
+connectivity, live schema, insert, then flush. Compare the live schema to `/docs/database/schema`.
+Prove recovery with a uniquely named record queried directly from the database; avoid destructive
+schema resets as a diagnostic shortcut.
+</Agent>
 
 Use this page when database mode is configured but logs are missing, inserts fail, or Blyp falls back to a disabled database state.
 

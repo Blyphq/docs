@@ -3,9 +3,30 @@ title: "Databuddy"
 description: "Use Blyp's Databuddy connector for automatic forwarding, manual helper APIs, and browser or Expo forwarding through Blyp ingestion."
 icon: "databuddy"
 order: 3
+related: [/docs/connectors, /docs/configuration, /docs/integrations/client]
+agent:
+  task: Forward server and client-ingested Blyp records to Databuddy.
+  outcome: A uniquely named log appears as a Databuddy event with normalized metadata.
+  appliesTo: { package: ["@blyp/core", "@databuddy/sdk"] }
+  prerequisites: [A Databuddy API key and project are available.]
+  files: [blyp.config.ts, .env]
+  commands: ["pnpm add @blyp/core @databuddy/sdk"]
+  sideEffects: [Logs and handled errors leave the application for Databuddy.]
+  verification: [Emit and flush a test record, then locate its event in Databuddy.]
+  rollback: [Set connectors.databuddy to false and remove the provider peer if unused.]
+  failureModes:
+    - symptom: Browser records arrive locally but not in Databuddy.
+      resolution: Verify browser logs use Blyp ingestion and the server connector is enabled on that ingestion handler.
 ---
 
 # Databuddy
+
+<Agent>
+Configure Databuddy on the server, including the API key, and send browser/Expo records through Blyp
+ingestion rather than directly to the provider. Verify with a unique event after flush. Missing
+client events usually indicate the ingestion route and connector are not running in the same server
+configuration.
+</Agent>
 
 Use `connectors.databuddy` when you want Blyp logs and handled server errors forwarded into Databuddy events.
 

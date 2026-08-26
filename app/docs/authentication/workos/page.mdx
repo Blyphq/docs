@@ -3,9 +3,29 @@ title: "WorkOS"
 description: "Attach WorkOS sealed session auth context to every Blyp log record."
 icon: "workos"
 order: 4
+related: [/docs/authentication, /docs/configuration, /docs/integrations/nextjs]
+agent:
+  task: Verify WorkOS sealed sessions and attach identity, roles, and organization context to Blyp logs.
+  outcome: Authenticated request logs contain normalized WorkOS session context without sealed cookie contents.
+  appliesTo: { package: ["@blyp/core", "@workos-inc/node"] }
+  prerequisites: [WorkOS sessions and the cookie password already work in the application.]
+  files: [blyp.config.ts, src/lib/workos.ts]
+  commands: ["pnpm add @blyp/core @workos-inc/node"]
+  sideEffects: [Selected roles, permissions, and entitlements can be attached to log records.]
+  verification: [Send an authenticated request and confirm the record contains the expected userId and organization context.]
+  rollback: [Remove auth.workos from the framework logger configuration.]
+  failureModes:
+    - symptom: Session verification fails for every request.
+      resolution: Confirm the cookie name and password match the WorkOS session configuration used to seal the cookie.
 ---
 
 # WorkOS
+
+<Agent>
+Pass the existing WorkOS client and sealed-session settings to `auth.workos`. Verify identity on an
+authenticated request without logging the sealed cookie itself. Persistent anonymous records usually
+mean the cookie name/password differs from the WorkOS session configuration.
+</Agent>
 
 Blyp's WorkOS integration reads the sealed session cookie on each request, verifies it using the WorkOS SDK, and attaches the resolved identity — including roles, permissions, and entitlements — to every log record for that request.
 

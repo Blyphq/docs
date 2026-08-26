@@ -3,9 +3,30 @@ title: "Better Stack"
 description: "Use Blyp's Better Stack connector for automatic log forwarding, manual helper APIs, and Better Stack error tracking."
 icon: "betterstack"
 order: 1
+related: [/docs/connectors, /docs/configuration, /docs/working-with-blyp/production]
+agent:
+  task: Forward Blyp logs and exceptions to Better Stack with the optional provider SDKs.
+  outcome: A test log reaches Better Stack Logs and configured exceptions reach error tracking.
+  appliesTo: { package: ["@blyp/core", "@logtail/node", "@sentry/node"] }
+  prerequisites: [A Better Stack source token and ingestion endpoint are available.]
+  files: [blyp.config.ts, .env]
+  commands: ["pnpm add @blyp/core @logtail/node @sentry/node"]
+  sideEffects: [Logs and selected exceptions leave the application for Better Stack.]
+  verification: [Emit a uniquely named test record, flush Blyp, and find it in the configured source.]
+  rollback: [Set connectors.betterstack to false and remove unused peer packages.]
+  failureModes:
+    - symptom: Local logs appear but Better Stack remains empty.
+      resolution: Verify the source token and endpoint, then await logger flush before shutdown.
 ---
 
 # Better Stack
+
+<Agent>
+Install the optional Logtail and Sentry peers, configure the Better Stack source token/endpoint,
+emit a uniquely named record, and await flush. Local output without remote delivery points to
+credentials, endpoint selection, or an early process exit. Disable `connectors.betterstack` to roll
+back without changing other sinks.
+</Agent>
 
 Blyp's Better Stack connector covers two related server-side flows:
 

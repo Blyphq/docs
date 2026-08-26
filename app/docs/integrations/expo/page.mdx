@@ -3,9 +3,29 @@ title: "Expo"
 description: "Use Blyp in Expo apps with createExpoLogger(), expo-network, queued retries, and an absolute ingestion URL."
 icon: "expo"
 order: 16
+related: [/docs/integrations/client, /docs/configuration, /docs/connectors]
+agent:
+  task: Configure the Expo client logger with queued delivery to an absolute Blyp ingestion URL.
+  outcome: Offline records queue and later reach the server ingestion handler when connectivity resumes.
+  appliesTo: { framework: "expo", package: ["@blyp/core", "expo-network"] }
+  prerequisites: [A reachable server-side Blyp ingestion handler is deployed or running on the LAN.]
+  files: [app.json, src/lib/logger.ts]
+  commands: ["pnpm add @blyp/core", "pnpm exec expo install expo-network"]
+  sideEffects: [Client logs can be queued locally and sent over the network.]
+  verification: [Emit a unique Expo record, restore connectivity if needed, and confirm server ingestion receives it.]
+  rollback: [Remove the Expo logger and restore the previous client logging path.]
+  failureModes:
+    - symptom: Delivery works on web but not on a device or simulator.
+      resolution: Replace localhost with an absolute host reachable from that device and verify the ingestion route.
 ---
 
 # Expo
+
+<Agent>
+Install `expo-network`, configure an absolute ingestion URL reachable from the simulator or device,
+and test a unique record through the server handler. `localhost` points at the device itself in many
+setups. If delivery stays queued, verify network state and reachability before adjusting retry limits.
+</Agent>
 
 Expo is a mobile/client integration rather than a server adapter. Use it when you want Blyp logs from an Expo app to sync directly to your backend.
 

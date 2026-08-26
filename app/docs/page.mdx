@@ -3,9 +3,30 @@ title: "Overview"
 description: "Blyp is a runtime-adaptive logger for standalone apps, browser clients, and modern TypeScript server frameworks."
 icon: "rocket"
 order: 1
+related: [/docs/installation, /docs/basic-usage, /docs/configuration, /docs/mcp]
+agent:
+  task: Select the correct Blyp surface and complete a minimal logger setup.
+  outcome: The application emits a structured Blyp record through the intended runtime entrypoint.
+  appliesTo: { package: "@blyp/core" }
+  prerequisites: [Identify whether the target runs on a server, browser, Expo, Worker, or framework adapter.]
+  files: [blyp.config.ts, src/index.ts]
+  commands: ["pnpm add @blyp/core"]
+  sideEffects: [The first run may create local config and log output paths.]
+  verification: [Emit a uniquely named info record and confirm it appears in the configured destination.]
+  rollback: [Remove the Blyp initialization and restore the previous logging call.]
+  failureModes:
+    - symptom: An import resolves in development but fails in another runtime.
+      resolution: Use the documented runtime-specific subpath instead of importing a server surface into browser or isolate code.
 ---
 
 # Blyp Logger
+
+<Agent>
+Identify the runtime first, install `@blyp/core`, and use the matching documented entrypoint. Start
+with one uniquely named record before enabling databases or connectors. If an import fails only in a
+browser, Worker, or framework build, replace the server entrypoint with that runtime's dedicated
+subpath rather than adding polyfills.
+</Agent>
 
 > Grep less. Understand more.
 
@@ -105,6 +126,8 @@ throw createError({
 
 - [Installation](/docs/installation) for package managers, peer dependencies, and exported subpaths.
 - [CLI](/docs/cli) for the `blyp` command, Studio launch flow, health checks, and skill installation.
+- [Changelog](/docs/changelog) for the consolidated `@blyp/core` and `@blyp/cli` release history.
+- [Docs MCP](/docs/mcp) to connect Claude Code, Cursor, Codex, or another MCP client directly to these docs.
 - [Basic Usage](/docs/basic-usage) for logger methods, child loggers, and standalone instances.
 - [Configuration](/docs/configuration) for `blyp.config.*`, connector setup, `ignorePaths`, and client ingestion config.
 - [Database](/docs/database) for required schemas, Prisma and Drizzle adapters, delivery, and CLI-assisted setup.

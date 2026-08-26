@@ -1,0 +1,22 @@
+---
+title: "Better Agent tracing and reasoning capture"
+description: "Blyp traces multi-step Better Agent runs, tool usage, token consumption, and opt-in reasoning payloads."
+authors: ["Blyp"]
+version: "v0.1.23"
+tags: ["core", "ai", "better-agent", "tracing"]
+---
+
+## @blyp/core v0.1.23
+
+### Highlights
+
+- Added the `@blyp/core/ai/better-agent` plugin and manual tracker.
+- Added lifecycle tracing for multi-step agent runs, tool use, and aggregated token usage.
+- Added provider resolution for mapping runs to OpenAI, Anthropic, and other underlying providers.
+- Added opt-in reasoning and raw-provider-payload capture.
+
+### Privacy
+
+Reasoning, tool inputs, prompts, and outputs remain capture-controlled. Enable only the fields the application is permitted to retain.
+
+[View the original release on GitHub](https://github.com/Blyphq/blyp/releases/tag/0.1.23).

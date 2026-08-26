@@ -1,5 +1,5 @@
 import { defineDocs } from "@farming-labs/docs";
-import { fumadocs } from "@farming-labs/theme";
+import { fumadocs } from "@farming-labs/theme/default";
 import {
   BookOpen,
   Bot,
@@ -29,6 +29,7 @@ const logoIcon = (src: string, alt: string, className = "object-contain dark:inv
 
 export default defineDocs({
   entry: "docs",
+  contentDir: "app/docs",
   theme: fumadocs({
     ui: {
       colors: {
@@ -60,15 +61,151 @@ export default defineDocs({
     ),
     url: "/docs",
   },
+  // Keep OG before other endpoint-bearing config. Farming Labs 0.2.111's
+  // static MDX setup reads the first literal `endpoint` from this file.
+  og: {
+    enabled: true,
+    type: "dynamic",
+    endpoint: "/api/og",
+  },
   mcp: {
     enabled: true,
     route: "/api/docs/mcp",
     name: "Blyp Docs",
-    tools: {
-      listPages: true,
-      readPage: true,
-      searchDocs: true,
-      getNavigation: true,
+  },
+  changelog: {
+    enabled: true,
+    path: "changelog",
+    contentDir: "release-notes",
+    title: "Blyp Changelog",
+    description:
+      "Release history for @blyp/core and @blyp/cli, including new integrations, fixes, and migration notes.",
+    search: true,
+  },
+  llmsTxt: {
+    enabled: true,
+    baseUrl: "https://www.blyp.dev",
+    siteTitle: "Blyp Docs",
+    siteDescription:
+      "Implementation documentation for Blyp logging, tracing, connectors, databases, frameworks, and AI SDKs.",
+    sections: [
+      {
+        title: "Getting started",
+        description: "Install, configure, and use Blyp.",
+        match: ["/docs", "/docs/installation", "/docs/basic-usage", "/docs/configuration", "/docs/cli"],
+      },
+      {
+        title: "Integrations",
+        description: "Framework, browser, mobile, and runtime adapters.",
+        match: "/docs/integrations/**",
+      },
+      {
+        title: "Connectors",
+        description: "Forward logs to observability backends.",
+        match: "/docs/connectors/**",
+      },
+      {
+        title: "Authentication",
+        description: "Attach authenticated identity to Blyp records.",
+        match: "/docs/authentication/**",
+      },
+      {
+        title: "Databases",
+        description: "Persist, migrate, and troubleshoot Blyp logs.",
+        match: "/docs/database/**",
+      },
+      {
+        title: "AI tracing",
+        description: "Trace AI SDK and agent workloads.",
+        match: "/docs/ai/**",
+      },
+      {
+        title: "Migrations",
+        description: "Move existing logging setups to Blyp.",
+        match: "/docs/migrations/**",
+      },
+      {
+        title: "Agent skills",
+        description: "Reusable Blyp instructions for coding agents.",
+        match: "/docs/skills/**",
+      },
+    ],
+  },
+  sitemap: {
+    enabled: true,
+    baseUrl: "https://www.blyp.dev",
+  },
+  robots: {
+    enabled: true,
+    baseUrl: "https://www.blyp.dev",
+    ai: "allow",
+  },
+  agent: {
+    skills: {
+      paths: "public/skills",
+    },
+    evaluations: {
+      enabled: true,
+      surface: "mcp-context",
+      tokenBudget: 4_000,
+      topK: 1,
+      tasks: [
+        {
+          id: "install-blyp",
+          query: "How do I install Blyp and choose the right package entrypoint?",
+          expect: {
+            relevantSources: ["/docs/installation"],
+            minRecallAtK: 1,
+            maxFirstRelevantRank: 1,
+            safety: { rejectConflictingFrameworkVersions: true },
+            coverage: { executableExamples: "not-applicable" },
+          },
+        },
+        {
+          id: "nextjs-request-logging",
+          query: "Configure request-scoped Blyp logging in a Next.js App Router route handler",
+          expect: {
+            relevantSources: ["/docs/skills/nextjs"],
+            minRecallAtK: 1,
+            maxFirstRelevantRank: 1,
+            safety: { rejectConflictingFrameworkVersions: true },
+            coverage: { executableExamples: "not-applicable" },
+          },
+        },
+        {
+          id: "better-stack-connector",
+          query: "Send Blyp logs to Better Stack and verify connector delivery",
+          expect: {
+            relevantSources: ["/docs/skills/betterstack"],
+            minRecallAtK: 1,
+            maxFirstRelevantRank: 1,
+            safety: { rejectConflictingFrameworkVersions: true },
+            coverage: { executableExamples: "not-applicable" },
+          },
+        },
+        {
+          id: "openai-tracing",
+          query: "Trace OpenAI responses and chat completions with Blyp",
+          expect: {
+            relevantSources: ["/docs/ai/openai-sdk"],
+            minRecallAtK: 1,
+            maxFirstRelevantRank: 1,
+            safety: { rejectConflictingFrameworkVersions: true },
+            coverage: { executableExamples: "not-applicable" },
+          },
+        },
+        {
+          id: "migrate-pino",
+          query: "Migrate an existing Pino logger to Blyp safely",
+          expect: {
+            relevantSources: ["/docs/migrations/pino"],
+            minRecallAtK: 1,
+            maxFirstRelevantRank: 1,
+            safety: { rejectConflictingFrameworkVersions: true },
+            coverage: { executableExamples: "not-applicable" },
+          },
+        },
+      ],
     },
   },
   icons: {
@@ -124,9 +261,15 @@ export default defineDocs({
   breadcrumb: { enabled: true },
   lastUpdated: { position: "below-title" },
   pageActions: {
+    position: "below-title",
     alignment: "right",
-    copyMarkdown: { enabled: true },
-    openDocs: { enabled: false },
+    copyMarkdown: { enabled: true, includeTitle: true },
+    openDocs: {
+      enabled: true,
+      target: "markdown",
+      prompt: "Use this Blyp documentation while working on the current codebase: {url}",
+      providers: ["chatgpt", "claude", { id: "cursor", mode: "app" }],
+    },
   },
   metadata: {
     titleTemplate: "%s | Blyp Docs",
@@ -137,11 +280,5 @@ export default defineDocs({
     enabled: true,
     default: "system",
     mode: "light-dark-system",
-  },
-  og: {
-    enabled: true,
-    type: "dynamic",
-    endpoint: "/api/og",
-    defaultImage: "/og/default.png",
   },
 });

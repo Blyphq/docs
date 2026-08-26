@@ -3,9 +3,29 @@ title: "Vercel AI SDK"
 description: "Set up Blyp tracing for Vercel AI SDK calls with blypModel() or blypMiddleware()."
 icon: "vercel"
 order: 2
+related: [/docs/ai/tracing, /docs/ai/privacy-and-capture, /docs/ai/openai-sdk]
+agent:
+  task: Instrument Vercel AI SDK generateText or streamText calls with Blyp.
+  outcome: Model calls emit ai_trace records, including first-chunk latency for streams.
+  appliesTo: { package: ["@blyp/core", "ai"] }
+  prerequisites: [A Vercel AI SDK model can complete a request without Blyp.]
+  files: [blyp.config.ts, src/lib/ai.ts]
+  commands: ["pnpm add @blyp/core ai"]
+  sideEffects: [Configured capture can persist prompts, outputs, or tool payloads.]
+  verification: [Run generateText or consume a complete stream and confirm one ai_trace record.]
+  rollback: [Pass the original model directly to the AI SDK call.]
+  failureModes:
+    - symptom: A streaming trace never completes.
+      resolution: Consume or cancel the stream so the tracing middleware can finalize the record.
 ---
 
 # Vercel AI SDK
+
+<Agent>
+Use `blypModel()` for the shortest setup or `blypMiddleware()` when composing middleware. Execute
+the wrapped model and fully consume streams before checking output. Success is one `ai_trace` with
+usage and timing; incomplete stream consumption is the common cause of unfinished traces.
+</Agent>
 
 Use `@blyp/core/ai/vercel` when your app already uses the Vercel AI SDK and you want Blyp to trace `generateText()` or `streamText()` calls.
 

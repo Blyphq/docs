@@ -1,0 +1,21 @@
+---
+title: "Live GitHub-backed skill installation"
+description: "The CLI moves skill discovery and installation from bundled assets to the latest Blyphq/skills repository."
+authors: ["Blyp"]
+version: "CLI v0.1.51"
+tags: ["cli", "skills"]
+---
+
+## @blyp/cli v0.1.51
+
+### Highlights
+
+- Replaced bundled CLI skills with live installs from `Blyphq/skills`.
+- Updated `blyp skills install` to fetch the latest main revision and use repository directory names.
+- Added clearer failures for missing Git, network errors, invalid skills, and overwrite conflicts.
+
+### Migration notes
+
+Local-path skill installation was removed. Use a published skill name from the remote repository.
+
+[View the original release on GitHub](https://github.com/Blyphq/cli/releases/tag/v0.1.51).

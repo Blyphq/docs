@@ -7,6 +7,7 @@ import {
 } from "next/font/google";
 import { RootProvider } from "@farming-labs/theme";
 import docsConfig from "@/docs.config";
+import { CanonicalLink } from "@/app/components/canonical-link";
 import "./global.css";
 
 const geistSans = Geist({
@@ -43,13 +44,33 @@ const spaceMono = Space_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blyp.dev",
   ),
   title: {
     default: "Blyp Docs",
     template: docsConfig.metadata?.titleTemplate ?? "%s",
   },
   description: docsConfig.metadata?.description,
+  openGraph: {
+    type: "website",
+    title: "Blyp Docs",
+    description: docsConfig.metadata?.description,
+    images: [
+      {
+        url: "/api/og?title=Blyp%20Docs&description=Runtime-adaptive%20logging%20for%20modern%20TypeScript%20applications.",
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blyp Docs",
+    description: docsConfig.metadata?.description,
+    images: [
+      "/api/og?title=Blyp%20Docs&description=Runtime-adaptive%20logging%20for%20modern%20TypeScript%20applications.",
+    ],
+  },
   manifest: "/site.webmanifest",
   icons: {
     icon: [
@@ -70,6 +91,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <CanonicalLink />
         <script
           defer
           src="https://cloud.umami.is/script.js"

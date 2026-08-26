@@ -3,9 +3,30 @@ title: "Migrations"
 description: "How Blyp creates, applies, and verifies Prisma and Drizzle migrations for database logging."
 icon: "code"
 order: 4
+related: [/docs/database, /docs/database/schema, /docs/database/prisma, /docs/database/drizzle]
+agent:
+  task: Generate, inspect, apply, and verify the database migration required by Blyp.
+  outcome: The live database matches the Blyp schema contract before database logging is enabled.
+  appliesTo: { package: ["@blyp/core", "@blyp/cli"] }
+  prerequisites: [The selected Prisma or Drizzle datasource connects successfully and migrations are backed up.]
+  files: [prisma/schema.prisma, drizzle.config.ts, blyp.config.ts]
+  commands: ["blyp db:init", "blyp db:migrate", "blyp db:generate"]
+  sideEffects: [Migration commands change the application database schema.]
+  verification: [Inspect the migration, apply it, and confirm required columns and indexes exist.]
+  rollback: [Use the project's reviewed migration rollback process and preserve existing Blyp rows.]
+  failureModes:
+    - symptom: Runtime inserts fail after configuration succeeds.
+      resolution: Compare migration state and the live schema to /docs/database/schema before retrying.
 ---
 
 # Database Migrations
+
+<Agent>
+Back up the database, generate the migration, review its SQL, apply it, and only then enable database
+logging. `db:generate` is Prisma-only. A successful config load does not prove migration success;
+verify the live columns and indexes. Roll back through the application's normal migration process,
+not by manually dropping a production table.
+</Agent>
 
 Running database mode safely means the database has to match the Blyp schema contract, not just the app config.
 

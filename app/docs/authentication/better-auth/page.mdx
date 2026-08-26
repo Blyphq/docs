@@ -3,9 +3,29 @@ title: "Better Auth"
 description: "Propagate Better Auth session context into Blyp log records using the Blyp server and client plugins."
 icon: "better-auth"
 order: 3
+related: [/docs/authentication, /docs/configuration, /docs/integrations/client]
+agent:
+  task: Register Blyp's Better Auth server and client plugins to propagate session context into logs.
+  outcome: Server and forwarded client records contain matching sanitized Better Auth identity.
+  appliesTo: { package: ["@blyp/core", "better-auth"], version: ">=1.6.5" }
+  prerequisites: [A Better Auth instance and client already authenticate successfully.]
+  files: [blyp.config.ts, src/lib/auth.ts, src/lib/auth-client.ts]
+  commands: ["pnpm add @blyp/core better-auth"]
+  sideEffects: [The plugins add auth lifecycle hooks and forward normalized session context.]
+  verification: [Sign in and confirm server plus client-ingested logs share the expected userId and sessionId.]
+  rollback: [Remove both the Blyp server and client plugins.]
+  failureModes:
+    - symptom: Browser logs lack auth context while server logs include it.
+      resolution: Register blypClient in the matching Better Auth client and verify ingestion requests reach Blyp.
 ---
 
 # Better Auth
+
+<Agent>
+Register both halves of the integration: `blyp()` on the Better Auth server and `blypClient()` in
+the corresponding client. Verify a signed-in request and a browser-ingested record share normalized
+identity. If only server logs are enriched, the client plugin or ingestion route is missing.
+</Agent>
 
 Blyp integrates with Better Auth through two exports: a server plugin (`blyp`) that hooks into the Better Auth request lifecycle, and a client plugin (`blypClient`) for forwarding auth context from browser and Expo apps.
 

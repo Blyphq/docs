@@ -1,6 +1,7 @@
 ---
 name: blyp-client-expo
 description: Portable Blyp add-on skill for browser and Expo logging with @blyp/core/client, @blyp/core/expo, default /inngest ingestion, retry queues, and connector forwarding requests through Blyp.
+compatibility: Requires a browser or Expo project; Expo projects also require expo-network.
 ---
 
 # Blyp Client and Expo

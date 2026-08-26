@@ -160,6 +160,12 @@ const integrations = [
     darkInvert: false,
     href: "/docs/integrations/tanstack-start",
   },
+  {
+    name: "Farm.js",
+    src: "/logos/farmjs.png",
+    darkInvert: false,
+    href: "/docs/integrations/farmjs",
+  },
 ];
 
 const landingEase = [0.22, 1, 0.36, 1] as const;
@@ -212,6 +218,12 @@ export function BlypLandingPage() {
               className="text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               CLI
+            </Link>
+            <Link
+              href="/docs/changelog"
+              className="hidden text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:inline-flex"
+            >
+              Changelog
             </Link>
             <a
               href="https://github.com/Blyphq/blyp"

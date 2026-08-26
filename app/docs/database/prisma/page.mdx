@@ -3,9 +3,30 @@ title: "Prisma"
 description: "Required Prisma schema, adapter wiring, and migration flow for Blyp database mode."
 icon: "prisma"
 order: 2
+related: [/docs/database, /docs/database/schema, /docs/database/migrations, /docs/database/troubleshooting]
+agent:
+  task: Add the Blyp Prisma model, migrate the database, generate the client, and wire its adapter.
+  outcome: The generated Prisma client exposes blypLog and Blyp persists a test record.
+  appliesTo: { package: ["@blyp/core", "prisma", "@prisma/client"] }
+  prerequisites: [A Prisma datasource using PostgreSQL or MySQL already connects successfully.]
+  files: [prisma/schema.prisma, blyp.config.ts]
+  commands: ["blyp db:init", "blyp db:migrate", "blyp db:generate"]
+  sideEffects: [A migration adds the Blyp log table and indexes.]
+  verification: [Confirm prisma.blypLog exists, then emit and query a persisted log.]
+  rollback: [Revert the generated migration only after preserving any retained log data.]
+  failureModes:
+    - symptom: prisma.blypLog is undefined.
+      resolution: Regenerate @prisma/client after applying the exact documented model and datasource provider.
 ---
 
 # Prisma
+
+<Agent>
+Add the exact Blyp model to `prisma/schema.prisma`, apply the migration, regenerate the client, and
+pass that generated client to the adapter. Success requires a real `prisma.blypLog` delegate and a
+queryable test row. If the delegate is missing, fix the schema/generation step before touching Blyp
+runtime configuration.
+</Agent>
 
 Use this path when your project stores Blyp logs through Prisma and your datasource provider is either Postgres or MySQL.
 

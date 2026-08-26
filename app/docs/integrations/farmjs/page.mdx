@@ -3,9 +3,30 @@ title: "Farm.js"
 description: "Register Blyp as a Farm plugin for request-scoped logging, trace propagation, Farm lifecycle events, and browser telemetry."
 icon: "farm"
 order: 7
+related: [/docs/integrations, /docs/configuration, /docs/working-with-blyp/request-tracing]
+agent:
+  task: Register the Blyp Farm.js plugin and use its request-aware logger in Farm routes.
+  outcome: Farm requests emit correlated server logs and configured lifecycle or browser telemetry.
+  appliesTo: { framework: "farmjs", package: ["@blyp/core", "@farm.js/core"] }
+  prerequisites: [The Farm application runs on Node.js or Bun and its config loads successfully.]
+  files: [farm.config.ts, blyp.config.ts]
+  commands: ["pnpm add @blyp/core @farm.js/core"]
+  sideEffects: [The plugin adds request hooks, a trace response header, and optional browser telemetry.]
+  verification: [Request a Farm route and confirm one HTTP record plus x-blyp-trace-id in the response.]
+  rollback: [Remove blypPlugin from farm.config.ts and any client telemetry wiring.]
+  failureModes:
+    - symptom: Every request is logged twice.
+      resolution: Register blypPlugin once and avoid a second manual HTTP log when a structured request log is emitted.
 ---
 
 # Farm.js
+
+<Agent>
+Register `blypPlugin()` once in `farm.config.ts` and import the request-aware logger from
+`@blyp/core/farmjs`. Verify a request produces one HTTP record and an `x-blyp-trace-id` header.
+Duplicate records indicate duplicate plugin registration or a manual request log alongside the
+automatic lifecycle hook.
+</Agent>
 
 Import `blypPlugin()` and the request-aware `logger` from `@blyp/core/farmjs`. The integration supports Farm applications running on Node.js or Bun.
 

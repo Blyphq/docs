@@ -1,0 +1,21 @@
+---
+title: "Database-backed Studio logs"
+description: "Studio can read database destinations directly and presents grouped trace payloads more clearly."
+authors: ["Blyp"]
+version: "CLI v0.1.5"
+tags: ["cli", "studio", "database", "tracing"]
+---
+
+## @blyp/cli v0.1.5
+
+### Highlights
+
+- Added Studio support for projects using `destination: "database"` and direct SQL through `DATABASE_URL`.
+- Improved structured trace grouping, labels, previews, event payloads, and default timeline expansion.
+
+### Fixes
+
+- Removed Prisma circular-serialization failures in database mode.
+- Fixed snake-case database column mapping and preserved group IDs stored outside the JSON record.
+
+[View the original release on GitHub](https://github.com/Blyphq/cli/releases/tag/v0.1.5).

@@ -1,0 +1,158 @@
+---
+title: "Docs MCP"
+description: "Connect Claude Code, Cursor, Codex, or another MCP client to Blyp's live machine-readable documentation."
+icon: "skills"
+order: 5
+related:
+  - /docs/skills
+  - /docs/installation
+  - /docs/configuration
+  - /docs/troubleshooting
+agent:
+  tokenBudget: 1100
+  task: Connect an MCP client to the public or local Blyp documentation server and verify page discovery, search, and reading.
+  outcome: The client initializes successfully and can call list_docs, search_docs, and read_page against the Blyp docs corpus.
+  appliesTo:
+    package: "@farming-labs/docs"
+    version: ">=0.2.111"
+  prerequisites:
+    - Use the hosted HTTPS endpoint for normal use or start this docs project before using a loopback endpoint.
+    - Install the selected MCP-capable client before running its setup command.
+  files:
+    - .cursor/mcp.json
+    - .codex/config.toml
+  commands:
+    - run: pnpm exec docs mcp
+      description: Start the project-local stdio MCP transport from this repository.
+  sideEffects:
+    - Client setup commands update that client's MCP configuration.
+    - The public server exposes documentation only and does not mutate a Blyp project.
+  verification:
+    - description: Initialize the MCP client and call list_docs, search_docs, then read_page for /docs/installation.
+      expect: Each tool returns structured Blyp documentation without authentication or HTML scraping.
+  rollback:
+    - Remove the blyp-docs server entry from the client configuration.
+  failureModes:
+    - symptom: The client receives 404 from /mcp.
+      resolution: Use https://www.blyp.dev/mcp for hosted docs or restart the upgraded local Next.js server so withDocs rewrites are active.
+    - symptom: A local client reports an SSL or certificate error.
+      resolution: Use http://127.0.0.1:3002/mcp locally rather than https://localhost.
+    - symptom: The client connects but shows stale tools.
+      resolution: Remove the cached connection, restart the client, and initialize the MCP server again.
+---
+
+# Blyp Docs MCP
+
+<Agent>
+Use `https://www.blyp.dev/mcp` for the public Streamable HTTP transport. For a local checkout, run
+`pnpm exec docs mcp` for stdio or start the site and connect to `http://127.0.0.1:3002/mcp`.
+After connecting, require a successful initialization followed by `list_docs`, `search_docs`, and
+`read_page` for `/docs/installation`. A hosted 404 usually means an old deployment; a local TLS
+error means the client used HTTPS against the HTTP development server.
+</Agent>
+
+The Blyp Docs MCP server gives coding agents direct access to the same Markdown that powers this site. Clients can discover navigation, search documentation, read one or several pages, inspect sections and code examples, and retrieve configuration context without scraping rendered HTML.
+
+## Hosted endpoints
+
+Use the short endpoint for normal client setup:
+
+```text
+https://www.blyp.dev/mcp
+```
+
+The discovery-friendly alias serves the same public, read-only server:
+
+```text
+https://www.blyp.dev/.well-known/mcp
+```
+
+## Connect a client
+
+The **Connect Docs MCP** action at the top of every docs page can copy the endpoint or generate setup instructions for Claude Code, Cursor, and Codex.
+
+### Cursor
+
+Add a project-level `.cursor/mcp.json`:
+
+```json title=".cursor/mcp.json"
+{
+  "mcpServers": {
+    "blyp-docs": {
+      "url": "https://www.blyp.dev/mcp"
+    }
+  }
+}
+```
+
+### Claude Code
+
+```bash
+claude mcp add --transport http blyp-docs https://www.blyp.dev/mcp
+```
+
+### Codex
+
+```bash
+codex mcp add blyp-docs --url https://www.blyp.dev/mcp
+```
+
+## Local transports
+
+Run the documentation graph directly over stdio from this repository:
+
+```bash
+pnpm exec docs mcp
+```
+
+If the Next.js development server is already running, connect over HTTP instead:
+
+```text
+http://127.0.0.1:3002/mcp
+http://127.0.0.1:3002/.well-known/mcp
+```
+
+Local development uses HTTP, not HTTPS.
+
+## Read-only tools and resources
+
+The default server includes tools for:
+
+- listing docs and navigation
+- finding content changes
+- listing pages and page sections
+- searching the docs
+- reading one page or a bounded batch of pages
+- extracting code examples
+- reading the docs configuration schema
+- assembling task-focused context
+
+It also exposes the navigation graph and each docs page as MCP resources. The public endpoint does not provide authoring or repository-write tools.
+
+## Verify the connection
+
+After the client initializes, test this sequence:
+
+1. Call `list_docs` and confirm it returns Blyp documentation.
+2. Call `search_docs` with `request-scoped logging`.
+3. Call `read_page` with `/docs/installation`.
+
+A working connection returns structured Markdown and source metadata for all three calls.
+
+## Troubleshooting
+
+### The endpoint returns 404
+
+Confirm the URL is exactly `/mcp` or `/.well-known/mcp`. For a local checkout, restart the Next.js server after upgrading the Farming Labs packages so the generated rewrites and handler are current.
+
+### The client reports an SSL error
+
+Use `http://127.0.0.1:3002/mcp` for the local development server. Reserve HTTPS for `https://www.blyp.dev/mcp`.
+
+### The connection exposes an older tool list
+
+Restart the MCP client and recreate the connection. Some clients retain initialized server capabilities until their process restarts.
+
+### The client needs plain Markdown instead
+
+Every documentation page also has a `.md` route, such as `https://www.blyp.dev/docs/installation.md`. The full indexes are available at [`/llms.txt`](/llms.txt) and [`/llms-full.txt`](/llms-full.txt).

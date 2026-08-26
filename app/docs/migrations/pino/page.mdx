@@ -3,9 +3,30 @@ title: "Pino"
 description: "Why Blyp is a better fit than Pino for broader runtime coverage, plus AI-assisted and manual migration steps."
 icon: "pino"
 order: 2
+related: [/docs/migrations, /docs/basic-usage, /docs/structured-logs, /docs/configuration]
+agent:
+  task: Replace Pino logger, child, HTTP, and transport usage with the corresponding Blyp surfaces.
+  outcome: Existing log levels and structured fields remain observable through Blyp with request behavior verified.
+  appliesTo: { package: ["pino", "@blyp/core"] }
+  prerequisites: [Inventory Pino transports, serializers, child bindings, redaction, and request middleware before editing.]
+  files: [package.json, blyp.config.ts, src]
+  commands: ["pnpm add @blyp/core"]
+  sideEffects: [Log formatting, destinations, and request lifecycle behavior change during migration.]
+  verification: [Compare representative info, error, child-context, and HTTP records before removing Pino.]
+  rollback: [Keep the Pino dependency and original logger module until output parity is confirmed.]
+  failureModes:
+    - symptom: Fields or destinations disappear after replacement.
+      resolution: Map Pino bindings and transports explicitly to Blyp child context, config, files, or connectors.
 ---
 
 # Pino -> Blyp
+
+<Agent>
+Inventory Pino children, serializers, redaction, `pino-http`, and transports before replacing the
+shared logger module. Migrate representative calls, compare structured fields and request output,
+then remove Pino only after parity. Missing fields usually come from unmapped child bindings or
+serializers, not from the base logger call.
+</Agent>
 
 If your current app starts with `pino()` and layers on `child()`, `pino-http`, or transport configuration later, Blyp gives you a broader system: shared root logging, framework adapters, built-in structured batching, file logging, connector delivery, and support beyond the classic Node.js server boundary.
 

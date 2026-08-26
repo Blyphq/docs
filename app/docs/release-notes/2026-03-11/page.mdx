@@ -1,0 +1,31 @@
+---
+title: "Expo delivery, structured logs, and first-party connectors"
+description: "Two core releases add queued client delivery, request-scoped structured logs, and PostHog, Sentry, and OTLP support."
+authors: ["Blyp"]
+version: "Core v0.1.01–v0.1.02"
+tags: ["core", "expo", "structured-logs", "connectors"]
+---
+
+## @blyp/core v0.1.01
+
+### Highlights
+
+- Added the Expo client and queued retry delivery for browser and Expo loggers.
+- Added a shared remote delivery manager with queue limits, hooks, retry, and network-resume behavior.
+- Added request-scoped structured logging and explicit batch emission across the framework adapters.
+
+[View v0.1.01](https://github.com/Blyphq/blyp/releases/tag/v0.1.01).
+
+## @blyp/core v0.1.02
+
+### Highlights
+
+- Added first-party PostHog logging and error tracking.
+- Added dedicated PostHog, Sentry, and OTLP connector entrypoints across server, client, and Expo runtimes.
+- Expanded configuration-file format support and improved exception delivery and shutdown reliability.
+
+### Notes
+
+Browser and Expo connectors send through Blyp ingestion rather than directly to provider SDKs.
+
+[View v0.1.02](https://github.com/Blyphq/blyp/releases/tag/v0.1.02).

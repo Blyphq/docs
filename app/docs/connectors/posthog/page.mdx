@@ -3,9 +3,29 @@ title: "PostHog"
 description: "Use Blyp's PostHog connector for automatic log forwarding, manual logger APIs, and server-side error tracking."
 icon: "posthog"
 order: 2
+related: [/docs/connectors, /docs/configuration, /docs/integrations/client]
+agent:
+  task: Forward Blyp server logs to PostHog Logs and optionally promote exceptions to Error Tracking.
+  outcome: A test record appears in PostHog Logs and an opted-in exception appears in Error Tracking.
+  appliesTo: { package: ["@blyp/core", "posthog-node"] }
+  prerequisites: [A PostHog project key and host are available.]
+  files: [blyp.config.ts, .env]
+  commands: ["pnpm add @blyp/core posthog-node @opentelemetry/api-logs @opentelemetry/exporter-logs-otlp-http @opentelemetry/resources @opentelemetry/sdk-logs"]
+  sideEffects: [Logs and selected exception metadata leave the application for PostHog.]
+  verification: [Emit a unique log, flush Blyp, and find it in the configured PostHog project.]
+  rollback: [Set connectors.posthog to false and remove unused peers.]
+  failureModes:
+    - symptom: Events appear but exceptions are absent from Error Tracking.
+      resolution: Enable the connector errorTracking option and use the documented exception capture path.
 ---
 
 # PostHog
+
+<Agent>
+Configure the project key and host, emit a unique server record, and await flush before checking
+PostHog Logs. Browser and Expo logs must traverse Blyp ingestion. Error Tracking is a separate opt-in;
+ordinary forwarded logs do not automatically become exception issues.
+</Agent>
 
 Blyp's PostHog connector covers two related flows on server runtimes:
 

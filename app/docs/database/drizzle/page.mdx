@@ -3,9 +3,29 @@ title: "Drizzle"
 description: "Required Drizzle schema, adapter wiring, and migration flow for Blyp database mode."
 icon: "drizzle"
 order: 3
+related: [/docs/database, /docs/database/schema, /docs/database/migrations, /docs/database/troubleshooting]
+agent:
+  task: Add the Blyp Drizzle table, generate and apply its migration, and wire the Drizzle adapter.
+  outcome: Blyp inserts a normalized test record into the expected blyp_logs table.
+  appliesTo: { package: ["@blyp/core", "drizzle-orm", "drizzle-kit"] }
+  prerequisites: [A PostgreSQL or MySQL Drizzle connection and config file already work.]
+  files: [drizzle.config.ts, src/db/schema.ts, blyp.config.ts]
+  commands: ["blyp db:init", "blyp db:migrate"]
+  sideEffects: [A migration creates or alters the Blyp log table and indexes.]
+  verification: [Emit and flush a record, then query it through the configured Drizzle database.]
+  rollback: [Revert the migration only after preserving retained log rows.]
+  failureModes:
+    - symptom: Inserts fail with missing or mismatched columns.
+      resolution: Compare the live table to the Blyp schema contract and apply the generated migration.
 ---
 
 # Drizzle
+
+<Agent>
+Use the documented table name and columns, include that schema in Drizzle Kit, generate and apply the
+migration, then pass the working database instance to Blyp. Verify a persisted record. Column errors
+mean the live database and checked-in schema differ; repair the migration before changing adapter code.
+</Agent>
 
 Use this path when your project stores Blyp logs through Drizzle and your dialect is Postgres or MySQL.
 

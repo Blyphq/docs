@@ -3,9 +3,29 @@ title: "OTLP"
 description: "Send Blyp logs to named OTLP-compatible targets such as Grafana Cloud, Datadog, Honeycomb, or your own collector."
 icon: "link"
 order: 5
+related: [/docs/connectors, /docs/configuration, /docs/working-with-blyp/production]
+agent:
+  task: Export Blyp logs to one or more named OTLP HTTP targets.
+  outcome: A test record reaches the selected collector with Blyp resource and log attributes.
+  appliesTo: { package: ["@blyp/core", "@opentelemetry/sdk-logs"] }
+  prerequisites: [An OTLP HTTP logs endpoint and required authentication headers are available.]
+  files: [blyp.config.ts, .env]
+  commands: ["pnpm add @blyp/core @opentelemetry/api-logs @opentelemetry/exporter-logs-otlp-http @opentelemetry/resources @opentelemetry/sdk-logs"]
+  sideEffects: [Selected logs are exported to external collectors.]
+  verification: [Emit and flush a unique record, then query the configured OTLP backend for it.]
+  rollback: [Set connectors.otlp to false or remove the affected named target.]
+  failureModes:
+    - symptom: The collector returns 404 or unsupported media type.
+      resolution: Use the OTLP HTTP logs endpoint rather than a traces endpoint and retain the exporter content type.
 ---
 
 # OTLP
+
+<Agent>
+Install the OpenTelemetry log peers, configure a named OTLP HTTP logs endpoint and auth headers, then
+emit a unique record and await flush. A 404 commonly means the URL points to traces or the collector
+root instead of its logs endpoint. Remove only the failing named target to preserve other exports.
+</Agent>
 
 Use `connectors.otlp` when you want Blyp to forward logs to one or more OTLP-compatible backends.
 

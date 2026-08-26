@@ -3,9 +3,29 @@ title: "MongoDB"
 description: "Use Blyp's Mongoose database adapter to persist normalized logs into MongoDB."
 icon: "mongodb"
 order: 4
+related: [/docs/database, /docs/database/schema, /docs/database/troubleshooting]
+agent:
+  task: Configure the Blyp Mongoose adapter and persist normalized logs to MongoDB.
+  outcome: A flushed test log appears in the configured MongoDB collection with expected indexes.
+  appliesTo: { package: ["@blyp/core", "mongoose"] }
+  prerequisites: [A MongoDB deployment is reachable and Mongoose can connect to it.]
+  files: [blyp.config.ts, src/db/mongoose.ts]
+  commands: ["pnpm add @blyp/core mongoose"]
+  sideEffects: [Blyp writes documents and creates or relies on collection indexes.]
+  verification: [Emit and flush a test log, then query the configured collection for it.]
+  rollback: [Restore the previous destination and disconnect the Blyp adapter cleanly.]
+  failureModes:
+    - symptom: The adapter cannot load from configuration.
+      resolution: Use an executable blyp.config file because JSON cannot contain a live Mongoose adapter.
 ---
 
 # MongoDB
+
+<Agent>
+Connect Mongoose first, create the documented Blyp adapter in an executable config, and verify a
+flushed record in the target collection. Do not use `blyp.config.json` for database adapters. If the
+adapter cannot load, move configuration to TypeScript or JavaScript before investigating MongoDB.
+</Agent>
 
 Use this path when your project stores Blyp logs in MongoDB through Mongoose.
 

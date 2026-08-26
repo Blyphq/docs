@@ -1,6 +1,7 @@
 ---
 name: blyp-workers
 description: Portable Blyp add-on skill for Cloudflare Workers using @blyp/core/workers, initWorkersLogger(), createWorkersLogger(), and explicit request emit() calls.
+compatibility: Requires a Cloudflare Workers-compatible runtime.
 ---
 
 # Blyp Workers

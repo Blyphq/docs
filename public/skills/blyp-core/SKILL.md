@@ -1,6 +1,7 @@
 ---
 name: blyp-core
 description: Portable Blyp integration skill for installing @blyp/core, choosing the right runtime export, configuring blyp.config.*, wiring /inngest ingestion, and keeping server, browser, and Expo logging production-safe.
+compatibility: Requires a JavaScript or TypeScript project using Bun, pnpm, npm, or Yarn.
 ---
 
 # Blyp Core

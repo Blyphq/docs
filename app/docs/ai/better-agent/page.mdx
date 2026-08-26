@@ -3,9 +3,30 @@ title: "Better Agent"
 description: "Trace Better Agent runs with Blyp’s plugin or manual tracker entrypoint."
 icon: "code"
 order: 5
+related: [/docs/ai/tracing, /docs/ai/privacy-and-capture, /docs/ai/openai-sdk]
+agent:
+  task: Trace a Better Agent run with the Blyp plugin or manual run tracker.
+  outcome: Each completed agent run emits one aggregated ai_trace containing its model and tool steps.
+  appliesTo: { package: ["@blyp/core", "@better-agent/core"] }
+  prerequisites: [A Better Agent runtime can complete a run before instrumentation.]
+  files: [blyp.config.ts, src/agents/index.ts]
+  commands: ["pnpm add @blyp/core @better-agent/core"]
+  sideEffects: [Opt-in capture can retain agent inputs, outputs, reasoning, or tool payloads.]
+  verification: [Complete a multi-step run and confirm Blyp emits one aggregated ai_trace.]
+  rollback: [Remove blypPlugin or the manual tracker and restore the original run path.]
+  failureModes:
+    - symptom: One trace appears for every model step.
+      resolution: Register the run-level Better Agent plugin once instead of wrapping each model call separately.
 ---
 
 # Better Agent
+
+<Agent>
+Prefer `blypPlugin()` for normal Better Agent registration and the manual tracker only for custom
+runtimes. A multi-step run should produce one aggregated `ai_trace`, not one per model step. Enable
+reasoning or tool-payload capture only with explicit approval; duplicate traces usually mean both
+plugin and manual tracking were installed.
+</Agent>
 
 Use `@blyp/core/ai/better-agent` when your app uses Better Agent and you want Blyp to emit one normalized run-level `ai_trace` record per Better Agent run.
 

@@ -1,0 +1,28 @@
+---
+title: "AI tracing, durable delivery, and redaction"
+description: "A major core release adds AI traces, end-to-end trace IDs, durable connector queues, dead letters, and automatic sensitive-data redaction."
+authors: ["Blyp"]
+version: "v0.1.22"
+tags: ["core", "ai", "tracing", "connectors", "security"]
+---
+
+## @blyp/core v0.1.22
+
+### Highlights
+
+- Added normalized AI traces for Vercel AI SDK, OpenAI, Anthropic, and OpenRouter-compatible clients.
+- Added end-to-end `x-blyp-trace-id` propagation across requests, browser logs, connectors, and databases.
+- Added an optional SQLite-backed connector delivery queue with retries, inspection, and dead-letter recovery.
+- Added automatic redaction before records reach console, file, database, connector, or ingestion sinks.
+
+### Fixes
+
+- `flush()` now waits for durable replay to drain.
+- Fastify pre-validation failures receive trace headers.
+- NestJS trace propagation and request-scoped trace precedence are consistent with other adapters.
+
+### Migration notes
+
+Connector SDKs are optional peers and must be installed directly. Durable queues write to `.blyp/connectors.sqlite` by default when enabled.
+
+[View the original release on GitHub](https://github.com/Blyphq/blyp/releases/tag/v0.1.22).

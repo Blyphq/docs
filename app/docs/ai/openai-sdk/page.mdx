@@ -3,9 +3,30 @@ title: "OpenAI SDK"
 description: "Set up Blyp tracing for OpenAI SDK calls, including OpenRouter through the OpenAI-compatible client path."
 icon: "openai"
 order: 3
+related: [/docs/ai/tracing, /docs/ai/privacy-and-capture, /docs/ai/vercel-ai-sdk]
+agent:
+  task: Wrap an OpenAI-compatible client so Blyp traces Responses or Chat Completions calls.
+  outcome: OpenAI or OpenRouter calls emit normalized ai_trace records with usage and timing.
+  appliesTo: { package: ["@blyp/core", "openai"] }
+  prerequisites: [The OpenAI-compatible client and its base URL or API key already work.]
+  files: [blyp.config.ts, src/lib/openai.ts]
+  commands: ["pnpm add @blyp/core openai"]
+  sideEffects: [Opt-in content capture can persist prompts, outputs, reasoning, and tool payloads.]
+  verification: [Call responses.create or chat.completions.create and confirm one ai_trace record.]
+  rollback: [Restore the original unwrapped OpenAI client.]
+  failureModes:
+    - symptom: OpenRouter traces show the wrong provider.
+      resolution: Configure the OpenAI-compatible client base URL before wrapping it and set provider metadata where documented.
 ---
 
 # OpenAI SDK
+
+<Agent>
+Wrap the configured OpenAI or OpenRouter-compatible client once, then call `responses.create()` or
+`chat.completions.create()` through that wrapper. Verify a normalized `ai_trace` with model, usage,
+and duration. Do not enable prompt/output capture by default; missing traces usually indicate calls
+still use the original client instance.
+</Agent>
 
 Use `@blyp/core/ai/openai` when you want direct OpenAI SDK instrumentation without going through the Vercel AI SDK abstraction.
 

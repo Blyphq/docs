@@ -1,6 +1,7 @@
 ---
 name: blyp-convex
 description: Portable Blyp add-on skill for Convex isolate logging with @blyp/core/convex, shared blyp.config.ts via @blyp/core/config, handler wrap(), and action-only HTTP export for PostHog, Axiom, Better Stack, Sentry, Databuddy, HTTP, and OTLP.
+compatibility: Requires a Convex project; remote connector export runs from Convex actions.
 ---
 
 # Blyp Convex

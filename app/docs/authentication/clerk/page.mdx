@@ -3,9 +3,30 @@ title: "Clerk"
 description: "Attach Clerk auth context to every Blyp log record using direct backend auth resolution."
 icon: "clerk"
 order: 2
+related: [/docs/authentication, /docs/configuration, /docs/integrations/nextjs]
+agent:
+  task: Resolve Clerk request identity and attach it to request-scoped Blyp records.
+  outcome: Authenticated requests include normalized user and session context without sensitive tokens.
+  appliesTo: { package: ["@blyp/core", "@clerk/backend"] }
+  prerequisites: [Clerk backend authentication already validates requests.]
+  files: [blyp.config.ts, src/lib/logger.ts]
+  commands: ["pnpm add @blyp/core @clerk/backend"]
+  sideEffects: [Authentication identifiers are attached to logs after sanitization.]
+  verification: [Send one authenticated request and confirm its log includes the expected Clerk userId.]
+  rollback: [Remove auth.clerk from the framework logger configuration.]
+  failureModes:
+    - symptom: Every request is logged as anonymous.
+      resolution: Verify Clerk secrets and request cookies reach the same server handler wrapped by Blyp.
 ---
 
 # Clerk
+
+<Agent>
+Install `@clerk/backend`, create the integration with `clerk()`, and pass it as `auth.clerk` to the
+framework logger. Test one authenticated and one anonymous request. The authenticated record should
+contain sanitized identity fields; if both are anonymous, verify cookies and Clerk credentials reach
+the Blyp-wrapped handler.
+</Agent>
 
 Blyp resolves the authenticated user from each request using `@clerk/backend` and attaches the result to every log record for that request. No middleware plugin is required — Blyp calls Clerk's `authenticateRequest` directly at the framework handler level.
 

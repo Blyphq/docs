@@ -3,9 +3,30 @@ title: "Winston"
 description: "Why Blyp is a better fit than Winston for modern TypeScript apps, plus AI-assisted and manual migration steps."
 icon: "code"
 order: 1
+related: [/docs/migrations, /docs/basic-usage, /docs/structured-logs, /docs/configuration]
+agent:
+  task: Replace Winston logger, format, and transport pipelines with Blyp configuration and structured calls.
+  outcome: Existing severity, metadata, file, and remote delivery behavior is preserved through Blyp.
+  appliesTo: { package: ["winston", "@blyp/core"] }
+  prerequisites: [Inventory custom formats, transports, default metadata, exception handlers, and request middleware.]
+  files: [package.json, blyp.config.ts, src]
+  commands: ["pnpm add @blyp/core"]
+  sideEffects: [Formatting and transport pipelines are replaced by Blyp destinations and connectors.]
+  verification: [Compare representative levels, metadata, exceptions, and remote outputs before removing Winston.]
+  rollback: [Retain the Winston module and dependency until behavior parity is verified.]
+  failureModes:
+    - symptom: A custom transport has no direct equivalent.
+      resolution: Map it to a supported connector or keep a temporary compatibility boundary while implementing an explicit sink.
 ---
 
 # Winston -> Blyp
+
+<Agent>
+Inventory Winston formats, transports, default metadata, and exception handlers first. Replace the
+shared logger boundary, map metadata to structured fields and transports to Blyp destinations or
+connectors, then compare output before uninstalling Winston. Keep a temporary boundary for custom
+transports that lack a direct connector.
+</Agent>
 
 If your current setup centers on `winston.createLogger(...)`, custom transports, and formatter pipelines, Blyp gives you a simpler model: structured logs by default, first-party request logging for frameworks, built-in file logging and rotation, and connector delivery without transport object sprawl.
 

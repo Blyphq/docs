@@ -3,9 +3,30 @@ title: "Anthropic SDK"
 description: "Set up Blyp tracing for direct Anthropic SDK messages.create() calls."
 icon: "anthropic"
 order: 4
+related: [/docs/ai/tracing, /docs/ai/privacy-and-capture, /docs/configuration]
+agent:
+  task: Wrap an Anthropic SDK client so Blyp emits normalized traces for messages.create calls.
+  outcome: Anthropic calls emit ai_trace records with model, timing, usage, and request correlation.
+  appliesTo: { package: ["@blyp/core", "@anthropic-ai/sdk"] }
+  prerequisites: [An Anthropic client and API key already work without Blyp.]
+  files: [blyp.config.ts, src/lib/anthropic.ts]
+  commands: ["pnpm add @blyp/core @anthropic-ai/sdk"]
+  sideEffects: [Configured capture fields may persist model input or output content.]
+  verification: [Run one messages.create call and confirm a single ai_trace record is emitted.]
+  rollback: [Use the original Anthropic client instead of the wrapped client.]
+  failureModes:
+    - symptom: No trace is emitted.
+      resolution: Call messages.create on the wrapped client and flush Blyp before a short-lived process exits.
 ---
 
 # Anthropic SDK
+
+<Agent>
+Install the Anthropic peer, wrap the already-working client with `wrapAnthropic()`, and use only the
+wrapped client. Verify one `messages.create()` call produces an `ai_trace`. Keep content capture off
+unless retention is explicitly permitted; if traces are missing, confirm the wrapper is on the
+executed client and flush before process exit.
+</Agent>
 
 Use `@blyp/core/ai/anthropic` when you want direct Anthropic SDK instrumentation without going through the Vercel AI SDK abstraction.
 

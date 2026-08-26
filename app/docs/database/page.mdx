@@ -3,9 +3,29 @@ title: "Database"
 description: "Required Blyp database schemas, adapter setup, migrations, and failure modes for Prisma, Drizzle, and MongoDB."
 icon: "database"
 order: 10
+related: [/docs/database/schema, /docs/database/migrations, /docs/database/troubleshooting]
+agent:
+  task: Select and configure a supported Blyp database adapter as the primary log destination.
+  outcome: Blyp starts with a valid adapter and persists normalized records matching the schema contract.
+  appliesTo: { package: "@blyp/core" }
+  prerequisites: [Choose Prisma, Drizzle, or MongoDB and ensure its database is reachable.]
+  files: [blyp.config.ts, prisma/schema.prisma, drizzle.config.ts]
+  sideEffects: [Database mode writes production log records and may require schema migrations.]
+  verification: [Apply the schema, emit a test record, flush Blyp, and query the persisted row or document.]
+  rollback: [Restore the previous destination and remove only Blyp-owned schema objects after preserving required data.]
+  failureModes:
+    - symptom: Database mode disables itself at startup.
+      resolution: Use an executable config and confirm the adapter object, dialect, and schema contract agree.
 ---
 
 # Database
+
+<Agent>
+Choose exactly one supported adapter, apply the documented schema before enabling
+`destination: "database"`, then emit, flush, and query a test record. Treat schema names and indexes
+as a compatibility contract. Startup disablement usually means an inert JSON config, missing adapter
+object, unsupported dialect, or unapplied migration.
+</Agent>
 
 Use database mode when Blyp cannot safely rely on local file persistence, especially in serverless or short-lived runtimes.
 

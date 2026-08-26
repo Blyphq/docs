@@ -3,9 +3,29 @@ title: "Installation"
 description: "Install Blyp, understand the published subpaths, and match the right peer dependency to your framework."
 icon: "terminal"
 order: 2
+related: [/docs/basic-usage, /docs/configuration, /docs/integrations, /docs/troubleshooting]
+agent:
+  task: Install Blyp and any optional peer required by the selected runtime integration.
+  outcome: The package and selected public subpath resolve during type-checking and runtime startup.
+  appliesTo: { package: "@blyp/core" }
+  prerequisites: [Choose the target runtime and package manager before installing optional peers.]
+  files: [package.json, pnpm-lock.yaml, bun.lock]
+  commands: ["pnpm add @blyp/core"]
+  sideEffects: [The package manager updates the dependency manifest and lockfile.]
+  verification: [Import the selected public entrypoint and run the application's type-check or build.]
+  rollback: [Remove @blyp/core and any optional peers added only for this integration.]
+  failureModes:
+    - symptom: A documented subpath cannot resolve.
+      resolution: Confirm @blyp/core is current and install the optional framework or provider peer named by that guide.
 ---
 
 # Installation
+
+<Agent>
+Install `@blyp/core`, then add only the optional peer required by the chosen integration. Verify the
+exact public subpath with the application's type-check and build. Do not install every connector SDK.
+Subpath errors usually mean an outdated core package or a missing optional peer.
+</Agent>
 
 > **Package name vs project name:** The npm package is published as `@blyp/core`. The project, CLI, and all tooling use the name **Blyp**. The CLI is `@blyp/cli` with the `blyp` command.
 
@@ -111,13 +131,15 @@ npx expo install expo-network
 
 ## Local development
 
-```bash
+These commands run inside a cloned `Blyphq/blyp` checkout, not inside an application or this docs repository:
+
+```text
 git clone https://github.com/Blyphq/blyp.git
 cd blyp
 bun install
-bun run test
+bun test tests/
 bun run build
-bun run type-check
+bun run tsc --noEmit
 ```
 
 ## Migrating from other loggers

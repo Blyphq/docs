@@ -1,0 +1,28 @@
+---
+title: "Convex support"
+description: "Blyp adds isolate-safe logging for Convex functions with shared configuration and action-only connector export."
+authors: ["Blyp"]
+tags: ["core", "convex", "integration", "connectors"]
+---
+
+## Convex integration
+
+### Highlights
+
+- Added the isolate-safe `@blyp/core/convex` logger for queries, mutations, actions, and HTTP actions.
+- Added `configureConvexLogger()` for Convex-only configuration and shared `blyp.config.ts` support through `@blyp/core/config`.
+- Added `logger.wrap()` and `logger.bind()` to identify function kinds and flush action exports before handlers finish.
+- Added action-only remote delivery to PostHog, Axiom, Better Stack, Sentry, Databuddy, HTTP endpoints, and OTLP collectors using native `fetch`.
+- Added structured console payloads that remain visible in the Convex dashboard and through `npx convex logs`.
+
+### Runtime notes
+
+- Queries and mutations write to `console.*` because deterministic Convex functions cannot perform network requests.
+- Actions and HTTP actions can export logs remotely when a compatible connector is configured.
+- Convex does not load Node-only vendor SDKs, file storage, database destinations, delivery queues, or exception autocapture.
+
+### Migration notes
+
+Import `logger` from `@blyp/core/convex`, not the root `@blyp/core` entrypoint. When sharing configuration with a Node application, import `defineConfig` from `@blyp/core/config` and pass the resulting object to `configureConvexLogger()` once.
+
+[Read the Convex integration guide](/docs/integrations/convex) or [view the Blyp repository](https://github.com/Blyphq/blyp).

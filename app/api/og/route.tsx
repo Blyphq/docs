@@ -3,39 +3,10 @@ import { NextRequest } from "next/server";
 
 export const runtime = "edge";
 
-async function loadGoogleFont(family: string, weight: number) {
-  const params = new URLSearchParams({
-    family: `${family}:wght@${weight}`,
-    display: "swap",
-  });
-  const url = `https://fonts.googleapis.com/css2?${params.toString()}`;
-  const css = await fetch(url, {
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (BB10; Touch) AppleWebKit/537.10+ (KHTML, like Gecko) Version/10.0.9.2372 Mobile Safari/537.10+",
-    },
-  }).then((res) => res.text());
-
-  const match = css.match(/src:\s*url\(([^)]+)\)/);
-  if (!match) throw new Error(`Failed to load font: ${family}`);
-
-  return fetch(match[1]).then((res) => res.arrayBuffer());
-}
-
-async function loadFonts() {
-  const [bold, mono] = await Promise.all([
-    loadGoogleFont("Inter", 700),
-    loadGoogleFont("JetBrains Mono", 400),
-  ]);
-  return { bold, mono };
-}
-
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const title = searchParams.get("title") ?? "Blyp Docs";
   const description = searchParams.get("description") ?? "";
-
-  const { bold, mono } = await loadFonts();
 
   const imageResponse = new ImageResponse(
     <div
@@ -111,7 +82,7 @@ export async function GET(request: NextRequest) {
         />
         <span
           style={{
-            fontFamily: '"JetBrains Mono"',
+            fontFamily: "monospace",
             fontSize: "11px",
             color: "rgba(255,255,255,0.35)",
             letterSpacing: "-0.02em",
@@ -135,7 +106,7 @@ export async function GET(request: NextRequest) {
       >
         <h1
           style={{
-            fontFamily: '"Inter"',
+            fontFamily: "sans-serif",
             fontSize: title.length > 40 ? "48px" : title.length > 25 ? "56px" : "68px",
             fontWeight: 700,
             color: "#ffffff",
@@ -152,7 +123,7 @@ export async function GET(request: NextRequest) {
         {description && (
           <p
             style={{
-              fontFamily: '"JetBrains Mono"',
+              fontFamily: "monospace",
               fontSize: "14px",
               color: "rgba(255,255,255,0.4)",
               letterSpacing: "0.03em",
@@ -181,7 +152,7 @@ export async function GET(request: NextRequest) {
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
           <span
             style={{
-              fontFamily: '"JetBrains Mono"',
+              fontFamily: "monospace",
               fontSize: "10px",
               color: "rgba(255,255,255,0.25)",
               textTransform: "uppercase" as const,
@@ -199,7 +170,7 @@ export async function GET(request: NextRequest) {
           />
           <span
             style={{
-              fontFamily: '"JetBrains Mono"',
+              fontFamily: "monospace",
               fontSize: "10px",
               color: "rgba(255,255,255,0.2)",
               textTransform: "uppercase" as const,
@@ -216,7 +187,7 @@ export async function GET(request: NextRequest) {
             backgroundColor: "#ffffff",
             color: "#000000",
             padding: "7px 18px",
-            fontFamily: '"JetBrains Mono"',
+            fontFamily: "monospace",
             fontSize: "10px",
             textTransform: "uppercase" as const,
             letterSpacing: "0.06em",
@@ -229,20 +200,6 @@ export async function GET(request: NextRequest) {
     {
       width: 1200,
       height: 630,
-      fonts: [
-        {
-          name: "Inter",
-          data: bold,
-          weight: 700 as const,
-          style: "normal" as const,
-        },
-        {
-          name: "JetBrains Mono",
-          data: mono,
-          weight: 400 as const,
-          style: "normal" as const,
-        },
-      ],
     },
   );
 
