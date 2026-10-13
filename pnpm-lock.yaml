@@ -17,6 +17,12 @@ importers:
       '@farming-labs/theme':
         specifier: 0.2.111
         version: 0.2.111(@farming-labs/docs@0.2.111(react@19.2.4))(@mdx-js/mdx@3.1.1)(@tailwindcss/oxide@4.2.1)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/mdx@2.0.13)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(lucide-react@0.564.0(react@19.2.4))(next@16.1.6(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tailwindcss@4.2.1)
+      '@hugeicons/core-free-icons':
+        specifier: ^4.3.5
+        version: 4.3.5
+      '@hugeicons/react':
+        specifier: ^1.1.10
+        version: 1.1.10(react@19.2.4)
       lucide-react:
         specifier: ^0.564.0
         version: 0.564.0(react@19.2.4)
@@ -32,9 +38,6 @@ importers:
       ogl:
         specifier: ^1.0.11
         version: 1.0.11
-      postprocessing:
-        specifier: ^6.38.3
-        version: 6.38.3(three@0.183.2)
       react:
         specifier: ^19.0.0
         version: 19.2.4
@@ -44,13 +47,10 @@ importers:
       thesvg:
         specifier: ^2.1.8
         version: 2.1.8
-      three:
-        specifier: ^0.183.2
-        version: 0.183.2
     devDependencies:
       '@blyp/core':
         specifier: github:Blyphq/blyp#v0.1.22
-        version: https://codeload.github.com/Blyphq/blyp/tar.gz/e87e1ff53cd8cfd3e81765ef57f560371e50258a(@databuddy/sdk@2.3.29(react@19.2.4))(@logtail/node@0.5.8)(@opentelemetry/api-logs@0.206.0)(@opentelemetry/exporter-logs-otlp-http@0.206.0(@opentelemetry/api@1.9.1))(@opentelemetry/resources@2.6.1(@opentelemetry/api@1.9.1))(@opentelemetry/sdk-logs@0.206.0(@opentelemetry/api@1.9.1))(@sentry/node@10.46.0)(express@5.2.1)(hono@4.12.12)(next@16.1.6(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(posthog-node@5.28.6)(typescript@5.9.3)
+        version: https://codeload.github.com/Blyphq/blyp/tar.gz/e87e1ff53cd8cfd3e81765ef57f560371e50258a(@databuddy/sdk@2.3.29(react@19.2.4))(@logtail/node@0.5.8)(@opentelemetry/api-logs@0.206.0)(@opentelemetry/exporter-logs-otlp-http@0.206.0(@opentelemetry/api@1.9.1))(@opentelemetry/resources@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/sdk-logs@0.206.0(@opentelemetry/api@1.9.1))(@sentry/node@10.46.0)(express@5.2.1)(hono@4.12.12)(next@16.1.6(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(posthog-node@5.28.6)(typescript@5.9.3)
       '@tailwindcss/postcss':
         specifier: ^4.1.18
         version: 4.2.1
@@ -66,9 +66,6 @@ importers:
       '@types/react-dom':
         specifier: ^19.0.0
         version: 19.2.3(@types/react@19.2.14)
-      '@types/three':
-        specifier: ^0.183.1
-        version: 0.183.1
       postcss:
         specifier: ^8.5.6
         version: 8.5.8
@@ -221,9 +218,6 @@ packages:
       vue:
         optional: true
 
-  '@dimforge/rapier3d-compat@0.12.0':
-    resolution: {integrity: sha512-uekIGetywIgopfD97oDL5PfeezkFpNhwlzlaEYNOA0N6ghdsOvh/HYjSMek5Q2O1PYvRSDFcqFVJl4r4ZBwOow==}
-
   '@emnapi/runtime@1.8.1':
     resolution: {integrity: sha512-mehfKSMWjjNol8659Z8KxEMrdSJDDot5SXMq00dM8BN4o+CLNXQ0xH2V7EchNHV4RmbZLmmPdEaXZc5H2FXmDg==}
 
@@ -310,6 +304,14 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  '@hugeicons/core-free-icons@4.3.5':
+    resolution: {integrity: sha512-Sv+NjHRPnQk+yZsGCMcGznCHdTfJR9PMMOEKcJYAQU4gy90dmlc9PwdtvYOImBZIjiheMsTLL5eMn2DmHxUiUg==}
+
+  '@hugeicons/react@1.1.10':
+    resolution: {integrity: sha512-9tAsd92yMVVGP+E+d8cM+wc0VnXuYZHNbWQi7TOe8k2neawmhiaFmVFbzyruejhOMa197/LbgvSED32ayUo3ZA==}
+    peerDependencies:
+      react: '>=16.0.0'
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -631,12 +633,6 @@ packages:
     peerDependencies:
       '@opentelemetry/api': '>=1.0.0 <1.10.0'
 
-  '@opentelemetry/core@2.6.1':
-    resolution: {integrity: sha512-8xHSGWpJP9wBxgBpnqGL0R3PbdWQndL1Qp50qrg71+B28zK5OQmUgcDKLJgzyAAV38t4tOyLMGDD60LneR5W8g==}
-    engines: {node: ^18.19.0 || >=20.6.0}
-    peerDependencies:
-      '@opentelemetry/api': '>=1.0.0 <1.10.0'
-
   '@opentelemetry/exporter-logs-otlp-http@0.206.0':
     resolution: {integrity: sha512-VWcHEnS+1kN+sQTAdCgSn2anqHPxY1/e52fhpe2mcSnEaXI1srFf3RU5DAu7hzQO6T9DPQzOKG8kc76vCtyYDw==}
     engines: {node: ^18.19.0 || >=20.6.0}
@@ -817,12 +813,6 @@ packages:
 
   '@opentelemetry/resources@2.10.0':
     resolution: {integrity: sha512-q6MMm2zhggzsHVNbabYwut+a6nbuQQe3URUoxaojM/8K1IBfwwPzvxIjNi2/lI1TFe+fMHMW9MWhrtDLEXEnkA==}
-    engines: {node: ^18.19.0 || >=20.6.0}
-    peerDependencies:
-      '@opentelemetry/api': '>=1.3.0 <1.10.0'
-
-  '@opentelemetry/resources@2.6.1':
-    resolution: {integrity: sha512-lID/vxSuKWXM55XhAKNoYXu9Cutoq5hFdkbTdI/zDKQktXzcWBVhNsOkiZFTMU9UtEWuGRNe0HUgmsFldIdxVA==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': '>=1.3.0 <1.10.0'
@@ -1488,9 +1478,6 @@ packages:
     resolution: {integrity: sha512-lc02vnfrTzyJg2SvhWUTst5+ktcUeqhhxeee38Z6U52XlfpY9jX2CwwQoKbhQGXg5o0nvqcvd/0YhLvrTljN1A==}
     engines: {node: '>=18'}
 
-  '@tweenjs/tween.js@23.1.3':
-    resolution: {integrity: sha512-vJmvvwFxYuGnF2axRtPYocag6Clbb5YS7kLL+SO/TeVFzHqDIWrNKYtcsPMibjDx9O+bu+psAy9NKfWklassUA==}
-
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
 
@@ -1541,23 +1528,14 @@ packages:
   '@types/stack-trace@0.0.33':
     resolution: {integrity: sha512-O7in6531Bbvlb2KEsJ0dq0CHZvc3iWSR5ZYMtvGgnHA56VgriAN/AU2LorfmcvAl2xc9N5fbCTRyMRRl8nd74g==}
 
-  '@types/stats.js@0.17.4':
-    resolution: {integrity: sha512-jIBvWWShCvlBqBNIZt0KAshWpvSjhkwkEu4ZUcASoAvhmrgAUI2t1dXrjSL4xXVLB4FznPrIsX3nKXFl/Dt4vA==}
-
   '@types/tedious@4.0.14':
     resolution: {integrity: sha512-KHPsfX/FoVbUGbyYvk1q9MMQHLPeRZhRJZdO45Q4YjvFkv4hMNghCWTvy7rdKessBsmtz4euWCWAB6/tVpI1Iw==}
-
-  '@types/three@0.183.1':
-    resolution: {integrity: sha512-f2Pu5Hrepfgavttdye3PsH5RWyY/AvdZQwIVhrc4uNtvF7nOWJacQKcoVJn0S4f0yYbmAE6AR+ve7xDcuYtMGw==}
 
   '@types/unist@2.0.11':
     resolution: {integrity: sha512-CmBKiL6NNo/OqgmMn95Fk9Whlp2mtvIv+KNpQKN2F4SjvrEesubTRWGYSg+BnWZOnlCaSTU1sMpsBOzgbYhnsA==}
 
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
-
-  '@types/webxr@0.5.24':
-    resolution: {integrity: sha512-h8fgEd/DpoS9CBrjEQXR+dIDraopAEfu4wYVNY2tEPwk60stPWhvZMf4Foo5FakuQ7HFZoa8WceaWFervK2Ovg==}
 
   '@ungap/structured-clone@1.3.3':
     resolution: {integrity: sha512-60YRaenCQcVjYEKOcG824+DRGGIQ3VKErcBoAEDJZz5bKIs2ZG+X/H9Nk+Q6EVkwJk5QNApxbrc5QtBSwtrXAg==}
@@ -1568,9 +1546,6 @@ packages:
 
   '@vercel/sandbox@2.9.2':
     resolution: {integrity: sha512-tnPtCNL6MZKM9eRYvmyL0geA2Nifq+PSxVXBNhk/lQNeCWgMp/EYzCDOotKEWR/VH+c0Yv9HG4qk0w2I65xnLA==}
-
-  '@webgpu/types@0.1.69':
-    resolution: {integrity: sha512-RPmm6kgRbI8e98zSD3RVACvnuktIja5+yLgDAkTmxLr90BEwdTXRQWNLF3ETTTyH/8mKhznZuN5AveXYFEsMGQ==}
 
   '@workflow/serde@4.1.0-beta.2':
     resolution: {integrity: sha512-8kkeoQKLDaKXefjV5dbhBj2aErfKp1Mc4pb6tj8144cF+Em5SPbyMbyLCHp+BVrFfFVCBluCtMx+jjvaFVZGww==}
@@ -2398,9 +2373,6 @@ packages:
     resolution: {integrity: sha512-Snk314V5ayFLhp3fkUREub6WtjBfPdCPY1Ln8/8munuLuiYhsABgBVWsozAG+MWMbVEvcdcpbi9R7ww22l9Q3g==}
     engines: {node: '>=18'}
 
-  meshoptimizer@1.0.1:
-    resolution: {integrity: sha512-Vix+QlA1YYT3FwmBBZ+49cE5y/b+pRrcXKqGpS5ouh33d3lSp2PoTpCw19E0cKDFWalembrHnIaZetf27a+W2g==}
-
   micromark-core-commonmark@2.0.3:
     resolution: {integrity: sha512-RDBrHEMSxVFLg6xvnXmb1Ayr2WzLAWjeSATAoxwKYJV94TeNavgoIdA0a9ytzDSVzBy2YKFK+emCPOEibLeCrg==}
 
@@ -2704,11 +2676,6 @@ packages:
     peerDependenciesMeta:
       rxjs:
         optional: true
-
-  postprocessing@6.38.3:
-    resolution: {integrity: sha512-5qCFp8j62nWL6sSVv/RKuHscQUIV+VMMgWeHLYZQEBpAk7G+r3jA3bSKON7gZjiuxdZ/F4PXj2Jc1oPh/7Eg+g==}
-    peerDependencies:
-      three: '>= 0.157.0 < 0.184.0'
 
   process-warning@5.0.0:
     resolution: {integrity: sha512-a39t9ApHNx2L4+HBnQKqxxHNs1r7KF+Intd8Q/g1bUh6q0WIp9voPXJ/x0j+ZL45KF1pJd9+q2jLIRMfvEshkA==}
@@ -3042,9 +3009,6 @@ packages:
   thread-stream@3.1.0:
     resolution: {integrity: sha512-OqyPZ9u96VohAyMfJykzmivOrY2wfMSf3C5TtFJVgN+Hm6aj+voFhlK+kZEIv2FBh1X6Xp3DlnCOfEQ3B2J86A==}
 
-  three@0.183.2:
-    resolution: {integrity: sha512-di3BsL2FEQ1PA7Hcvn4fyJOlxRRgFYBpMTcyOgkwJIaDOdJMebEFPA+t98EvjuljDx4hNulAGwF6KIjtwI5jgQ==}
-
   tinyglobby@0.2.17:
     resolution: {integrity: sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g==}
     engines: {node: '>=12.0.0'}
@@ -3208,7 +3172,7 @@ snapshots:
       '@babel/helper-string-parser': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
 
-  '@blyp/core@https://codeload.github.com/Blyphq/blyp/tar.gz/e87e1ff53cd8cfd3e81765ef57f560371e50258a(@databuddy/sdk@2.3.29(react@19.2.4))(@logtail/node@0.5.8)(@opentelemetry/api-logs@0.206.0)(@opentelemetry/exporter-logs-otlp-http@0.206.0(@opentelemetry/api@1.9.1))(@opentelemetry/resources@2.6.1(@opentelemetry/api@1.9.1))(@opentelemetry/sdk-logs@0.206.0(@opentelemetry/api@1.9.1))(@sentry/node@10.46.0)(express@5.2.1)(hono@4.12.12)(next@16.1.6(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(posthog-node@5.28.6)(typescript@5.9.3)':
+  '@blyp/core@https://codeload.github.com/Blyphq/blyp/tar.gz/e87e1ff53cd8cfd3e81765ef57f560371e50258a(@databuddy/sdk@2.3.29(react@19.2.4))(@logtail/node@0.5.8)(@opentelemetry/api-logs@0.206.0)(@opentelemetry/exporter-logs-otlp-http@0.206.0(@opentelemetry/api@1.9.1))(@opentelemetry/resources@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/sdk-logs@0.206.0(@opentelemetry/api@1.9.1))(@sentry/node@10.46.0)(express@5.2.1)(hono@4.12.12)(next@16.1.6(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(posthog-node@5.28.6)(typescript@5.9.3)':
     dependencies:
       fflate: 0.8.2
       jiti: 2.6.1
@@ -3221,7 +3185,7 @@ snapshots:
       '@logtail/node': 0.5.8
       '@opentelemetry/api-logs': 0.206.0
       '@opentelemetry/exporter-logs-otlp-http': 0.206.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/resources': 2.6.1(@opentelemetry/api@1.9.1)
+      '@opentelemetry/resources': 2.10.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/sdk-logs': 0.206.0(@opentelemetry/api@1.9.1)
       '@sentry/node': 10.46.0
       express: 5.2.1
@@ -3245,8 +3209,6 @@ snapshots:
     optionalDependencies:
       react: 19.2.4
     optional: true
-
-  '@dimforge/rapier3d-compat@0.12.0': {}
 
   '@emnapi/runtime@1.8.1':
     dependencies:
@@ -3404,6 +3366,12 @@ snapshots:
       react-dom: 19.2.4(react@19.2.4)
     optionalDependencies:
       '@types/react': 19.2.14
+
+  '@hugeicons/core-free-icons@4.3.5': {}
+
+  '@hugeicons/react@1.1.10(react@19.2.4)':
+    dependencies:
+      react: 19.2.4
 
   '@img/colour@1.1.0':
     optional: true
@@ -3675,12 +3643,6 @@ snapshots:
     optional: true
 
   '@opentelemetry/core@2.6.0(@opentelemetry/api@1.9.1)':
-    dependencies:
-      '@opentelemetry/api': 1.9.1
-      '@opentelemetry/semantic-conventions': 1.43.0
-    optional: true
-
-  '@opentelemetry/core@2.6.1(@opentelemetry/api@1.9.1)':
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/semantic-conventions': 1.43.0
@@ -3972,13 +3934,6 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/core': 2.10.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/semantic-conventions': 1.43.0
-    optional: true
-
-  '@opentelemetry/resources@2.6.1(@opentelemetry/api@1.9.1)':
-    dependencies:
-      '@opentelemetry/api': 1.9.1
-      '@opentelemetry/core': 2.6.1(@opentelemetry/api@1.9.1)
       '@opentelemetry/semantic-conventions': 1.43.0
     optional: true
 
@@ -4493,7 +4448,7 @@ snapshots:
   '@sentry/core@10.46.0':
     optional: true
 
-  '@sentry/node-core@10.46.0(@opentelemetry/api@1.9.1)(@opentelemetry/context-async-hooks@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/core@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/instrumentation@0.213.0(@opentelemetry/api@1.9.1))(@opentelemetry/resources@2.6.1(@opentelemetry/api@1.9.1))(@opentelemetry/sdk-trace-base@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/semantic-conventions@1.43.0)':
+  '@sentry/node-core@10.46.0(@opentelemetry/api@1.9.1)(@opentelemetry/context-async-hooks@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/core@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/instrumentation@0.213.0(@opentelemetry/api@1.9.1))(@opentelemetry/resources@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/sdk-trace-base@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/semantic-conventions@1.43.0)':
     dependencies:
       '@sentry/core': 10.46.0
       '@sentry/opentelemetry': 10.46.0(@opentelemetry/api@1.9.1)(@opentelemetry/context-async-hooks@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/core@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/sdk-trace-base@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/semantic-conventions@1.43.0)
@@ -4503,7 +4458,7 @@ snapshots:
       '@opentelemetry/context-async-hooks': 2.10.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/core': 2.10.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/instrumentation': 0.213.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/resources': 2.6.1(@opentelemetry/api@1.9.1)
+      '@opentelemetry/resources': 2.10.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/sdk-trace-base': 2.10.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/semantic-conventions': 1.43.0
     optional: true
@@ -4537,12 +4492,12 @@ snapshots:
       '@opentelemetry/instrumentation-redis': 0.61.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/instrumentation-tedious': 0.32.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/instrumentation-undici': 0.23.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/resources': 2.6.1(@opentelemetry/api@1.9.1)
+      '@opentelemetry/resources': 2.10.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/sdk-trace-base': 2.10.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/semantic-conventions': 1.43.0
       '@prisma/instrumentation': 7.4.2(@opentelemetry/api@1.9.1)
       '@sentry/core': 10.46.0
-      '@sentry/node-core': 10.46.0(@opentelemetry/api@1.9.1)(@opentelemetry/context-async-hooks@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/core@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/instrumentation@0.213.0(@opentelemetry/api@1.9.1))(@opentelemetry/resources@2.6.1(@opentelemetry/api@1.9.1))(@opentelemetry/sdk-trace-base@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/semantic-conventions@1.43.0)
+      '@sentry/node-core': 10.46.0(@opentelemetry/api@1.9.1)(@opentelemetry/context-async-hooks@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/core@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/instrumentation@0.213.0(@opentelemetry/api@1.9.1))(@opentelemetry/resources@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/sdk-trace-base@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/semantic-conventions@1.43.0)
       '@sentry/opentelemetry': 10.46.0(@opentelemetry/api@1.9.1)(@opentelemetry/context-async-hooks@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/core@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/sdk-trace-base@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/semantic-conventions@1.43.0)
       import-in-the-middle: 3.3.3
     transitivePeerDependencies:
@@ -4679,8 +4634,6 @@ snapshots:
 
   '@thesvg/icons@2.1.7': {}
 
-  '@tweenjs/tween.js@23.1.3': {}
-
   '@types/connect@3.4.38':
     dependencies:
       '@types/node': 22.20.1
@@ -4745,28 +4698,14 @@ snapshots:
   '@types/stack-trace@0.0.33':
     optional: true
 
-  '@types/stats.js@0.17.4': {}
-
   '@types/tedious@4.0.14':
     dependencies:
       '@types/node': 22.20.1
     optional: true
 
-  '@types/three@0.183.1':
-    dependencies:
-      '@dimforge/rapier3d-compat': 0.12.0
-      '@tweenjs/tween.js': 23.1.3
-      '@types/stats.js': 0.17.4
-      '@types/webxr': 0.5.24
-      '@webgpu/types': 0.1.69
-      fflate: 0.8.2
-      meshoptimizer: 1.0.1
-
   '@types/unist@2.0.11': {}
 
   '@types/unist@3.0.3': {}
-
-  '@types/webxr@0.5.24': {}
 
   '@ungap/structured-clone@1.3.3': {}
 
@@ -4788,8 +4727,6 @@ snapshots:
     transitivePeerDependencies:
       - bare-abort-controller
       - react-native-b4a
-
-  '@webgpu/types@0.1.69': {}
 
   '@workflow/serde@4.1.0-beta.2': {}
 
@@ -5799,8 +5736,6 @@ snapshots:
   merge-descriptors@2.0.0:
     optional: true
 
-  meshoptimizer@1.0.1: {}
-
   micromark-core-commonmark@2.0.3:
     dependencies:
       decode-named-character-reference: 1.3.0
@@ -6286,10 +6221,6 @@ snapshots:
       '@posthog/core': 1.24.1
     optional: true
 
-  postprocessing@6.38.3(three@0.183.2):
-    dependencies:
-      three: 0.183.2
-
   process-warning@5.0.0: {}
 
   process@0.11.10: {}
@@ -6763,8 +6694,6 @@ snapshots:
   thread-stream@3.1.0:
     dependencies:
       real-require: 0.2.0
-
-  three@0.183.2: {}
 
   tinyglobby@0.2.17:
     dependencies:

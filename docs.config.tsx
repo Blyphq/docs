@@ -47,6 +47,10 @@ export default defineDocs({
       },
       typography: {
         font: {
+          style: {
+            sans: "var(--font-body), ui-sans-serif, system-ui, sans-serif",
+            mono: "var(--font-geist-mono), ui-monospace, monospace",
+          },
           h1: { size: "2.75rem", weight: 800 },
         },
       },

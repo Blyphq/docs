@@ -1,114 +1,165 @@
-@import "tailwindcss";
+/*
+ * The theme ships a precompiled Tailwind build whose utilities would otherwise
+ * override our responsive variants (e.g. its `.hidden` beating `md:flex`). Load
+ * it first, then regenerate the docs chrome's classes in our own correctly
+ * ordered build: `@reference` pulls in fumadocs' class lists and variants
+ * without re-emitting the preset's styles.
+ */
 @import "@farming-labs/theme/default/css";
+@import "tailwindcss";
+@reference "@farming-labs/theme/presets/neutral";
+@source "../node_modules/@farming-labs/theme/dist";
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Blyp — "signal on paper"
+ * Warm paper + ink neutrals (hue ~80) with one saturated coral signal.
+ * The coral is reserved for the thing that matters, like a highlighted log level.
+ */
 :root {
-  --background: oklch(0.9850 0 0);
-  --foreground: oklch(0.2050 0 0);
-  --card: oklch(0.9700 0 0);
-  --card-foreground: oklch(0.2050 0 0);
-  --popover: oklch(0.9700 0 0);
-  --popover-foreground: oklch(0.2050 0 0);
-  --primary: oklch(0.7116 0.1812 22.84);
-  --primary-foreground: oklch(0.9850 0.0010 106.4230);
-  --secondary: oklch(0.9850 0.0010 106.4230);
-  --secondary-foreground: oklch(0.2680 0.0070 34.2980);
-  --muted: oklch(0.9230 0.0030 48.7170);
-  --muted-foreground: oklch(0.2160 0.0060 56.0430);
-  --accent: oklch(0.9850 0.0010 106.4230);
-  --accent-foreground: oklch(0.3740 0.0100 67.5580);
-  --destructive: oklch(0.5770 0.2450 27.3250);
-  --destructive-foreground: oklch(0.9850 0.0010 106.4230);
-  --border: oklch(0.8690 0.0050 56.3660);
-  --input: oklch(0.7090 0.0100 56.2590);
-  --ring: oklch(0.6660 0.1790 58.3180);
-  --chart-1: oklch(0.6660 0.1790 58.3180);
-  --chart-2: oklch(0.7050 0.2130 47.6040);
-  --chart-3: oklch(0.7950 0.1840 86.0470);
-  --chart-4: oklch(0.6370 0.2370 25.3310);
-  --chart-5: oklch(0.6560 0.2410 354.3080);
-  --sidebar: oklch(0.9850 0.0010 106.4230);
-  --sidebar-foreground: oklch(0.2680 0.0070 34.2980);
-  --sidebar-primary: oklch(0.2046 0 0);
-  --sidebar-primary-foreground: oklch(0.6660 0.1790 58.3180);
-  --sidebar-accent: oklch(0.9850 0.0010 106.4230);
-  --sidebar-accent-foreground: oklch(0.2680 0.0070 34.2980);
-  --sidebar-border: oklch(0.8690 0.0050 56.3660);
-  --sidebar-ring: oklch(0.6660 0.1790 58.3180);
-  --font-sans: Geist Mono, monospace;
-  --font-serif: Geist Mono, monospace;
-  --font-mono: Geist Mono, monospace;
-  --radius: 0rem;
-  --shadow-x: 0px;
-  --shadow-y: 1px;
-  --shadow-blur: 0px;
-  --shadow-spread: 0px;
-  --shadow-opacity: 0;
-  --shadow-color: hsl(0 0% 0%);
-  --shadow-2xs: 0px 1px 0px 0px hsl(0 0% 0% / 0.00);
-  --shadow-xs: 0px 1px 0px 0px hsl(0 0% 0% / 0.00);
-  --shadow-sm: 0px 1px 0px 0px hsl(0 0% 0% / 0.00), 0px 1px 2px -1px hsl(0 0% 0% / 0.00);
-  --shadow: 0px 1px 0px 0px hsl(0 0% 0% / 0.00), 0px 1px 2px -1px hsl(0 0% 0% / 0.00);
-  --shadow-md: 0px 1px 0px 0px hsl(0 0% 0% / 0.00), 0px 2px 4px -1px hsl(0 0% 0% / 0.00);
-  --shadow-lg: 0px 1px 0px 0px hsl(0 0% 0% / 0.00), 0px 4px 6px -1px hsl(0 0% 0% / 0.00);
-  --shadow-xl: 0px 1px 0px 0px hsl(0 0% 0% / 0.00), 0px 8px 10px -1px hsl(0 0% 0% / 0.00);
-  --shadow-2xl: 0px 1px 0px 0px hsl(0 0% 0% / 0.00);
-  --tracking-normal: 0em;
-  --spacing: 0.25rem;
+  --paper: oklch(97.4% 0.006 80);
+  --sheet: oklch(99.4% 0.003 80);
+  --ink: oklch(19.5% 0.01 60);
+  --graphite: oklch(48% 0.012 70);
+  --rule: oklch(89.5% 0.008 80);
+  --rule-strong: oklch(83.5% 0.01 80);
+  --stage: oklch(94.6% 0.008 80);
+
+  --signal: oklch(64.5% 0.195 29);
+  --signal-hover: oklch(58.5% 0.2 29);
+  --signal-soft: oklch(95% 0.03 32);
+  --signal-soft-foreground: oklch(50% 0.17 29);
+
+  --level-info: oklch(58% 0.13 240);
+  --level-warn: oklch(68% 0.14 70);
+  --level-ok: oklch(58% 0.14 155);
+  --level-error: var(--signal);
+
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--sheet);
+  --card-foreground: var(--ink);
+  --popover: var(--sheet);
+  --popover-foreground: var(--ink);
+  --primary: var(--signal);
+  --primary-foreground: oklch(99% 0.005 30);
+  --secondary: oklch(94.2% 0.007 80);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(94.5% 0.007 80);
+  --muted-foreground: var(--graphite);
+  --accent: oklch(93.5% 0.008 80);
+  --accent-foreground: var(--ink);
+  --destructive: oklch(55% 0.2 27);
+  --destructive-foreground: oklch(99% 0.005 27);
+  --border: var(--rule);
+  --input: var(--rule-strong);
+  --ring: var(--signal);
+  --chart-1: var(--signal);
+  --chart-2: var(--level-info);
+  --chart-3: var(--level-warn);
+  --chart-4: var(--level-ok);
+  --chart-5: oklch(55% 0.15 330);
+  --sidebar: oklch(96.6% 0.007 80);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--signal);
+  --sidebar-primary-foreground: oklch(99% 0.005 30);
+  --sidebar-accent: oklch(92.5% 0.009 80);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--rule);
+  --sidebar-ring: var(--signal);
+
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-display), ui-sans-serif, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-heading: var(--font-display), ui-sans-serif, sans-serif;
+  --fd-font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --fd-font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --radius: 0.5rem;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --shadow-xs: 0 1px 2px oklch(20% 0.01 70 / 0.06);
+  --shadow-sm: 0 1px 2px oklch(20% 0.01 70 / 0.05), 0 2px 6px oklch(20% 0.01 70 / 0.05);
+  --shadow-md: 0 2px 4px oklch(20% 0.01 70 / 0.05), 0 10px 24px -6px oklch(20% 0.01 70 / 0.12);
+  --shadow-lg: 0 4px 8px oklch(20% 0.01 70 / 0.05), 0 24px 48px -12px oklch(20% 0.01 70 / 0.18);
+  --shadow-stage: 0 1px 0 oklch(100% 0 0 / 0.6) inset, 0 30px 80px -24px oklch(25% 0.03 40 / 0.28);
+
+  /* Docs (Farming Labs / Fumadocs) palette */
+  --color-fd-background: var(--paper);
+  --color-fd-foreground: var(--ink);
+  --color-fd-muted: oklch(94.5% 0.007 80);
+  --color-fd-muted-foreground: var(--graphite);
+  --color-fd-popover: var(--sheet);
+  --color-fd-popover-foreground: var(--ink);
+  --color-fd-card: var(--sheet);
+  --color-fd-card-foreground: var(--ink);
+  --color-fd-border: var(--rule);
+  --color-fd-primary: var(--signal);
+  --color-fd-primary-foreground: oklch(99% 0.005 30);
+  --color-fd-secondary: oklch(94.2% 0.007 80);
+  --color-fd-secondary-foreground: var(--ink);
+  --color-fd-accent: oklch(92.5% 0.009 80);
+  --color-fd-accent-foreground: var(--ink);
+  --color-fd-ring: var(--signal);
 }
 
 .dark {
-  --background: oklch(0.1450 0 0);
-  --foreground: oklch(0.9700 0 0);
-  --card: oklch(0.2050 0 0);
-  --card-foreground: oklch(0.9700 0.0010 106.4240);
-  --popover: oklch(0.2050 0 0);
-  --popover-foreground: oklch(0.9700 0.0010 106.4240);
-  --primary: oklch(0.7116 0.1812 22.84);
-  --primary-foreground: oklch(0.9700 0.0010 106.4240);
-  --secondary: oklch(0.2680 0.0070 34.2980);
-  --secondary-foreground: oklch(0.9700 0.0010 106.4240);
-  --muted: oklch(0.2160 0.0060 56.0430);
-  --muted-foreground: oklch(0.7090 0.0100 56.2590);
-  --accent: oklch(0.3740 0.0100 67.5580);
-  --accent-foreground: oklch(0.9700 0.0010 106.4240);
-  --destructive: oklch(0.5050 0.2130 27.5180);
-  --destructive-foreground: oklch(0.9700 0.0010 106.4240);
-  --border: oklch(0.3740 0.0100 67.5580);
-  --input: oklch(0.2680 0.0070 34.2980);
-  --ring: oklch(0.4730 0.1370 46.2010);
-  --chart-1: oklch(0.5550 0.1630 48.9980);
-  --chart-2: oklch(0.5530 0.1950 38.4020);
-  --chart-3: oklch(0.5540 0.1350 66.4420);
-  --chart-4: oklch(0.5050 0.2130 27.5180);
-  --chart-5: oklch(0.5250 0.2230 3.9580);
-  --sidebar: oklch(0.2050 0 0);
-  --sidebar-foreground: oklch(0.9700 0.0010 106.4240);
-  --sidebar-primary: oklch(0.5550 0.1630 48.9980);
-  --sidebar-primary-foreground: oklch(0.9700 0.0010 106.4240);
-  --sidebar-accent: oklch(0.2680 0.0070 34.2980);
-  --sidebar-accent-foreground: oklch(0.9700 0.0010 106.4240);
-  --sidebar-border: oklch(0.3740 0.0100 67.5580);
-  --sidebar-ring: oklch(0.4730 0.1370 46.2010);
-  --font-sans: Geist Mono, monospace;
-  --font-serif: Geist Mono, monospace;
-  --font-mono: Geist Mono, monospace;
-  --radius: 0rem;
-  --shadow-x: 0px;
-  --shadow-y: 1px;
-  --shadow-blur: 0px;
-  --shadow-spread: 0px;
-  --shadow-opacity: 0;
-  --shadow-color: hsl(0 0% 0%);
-  --shadow-2xs: 0px 1px 0px 0px hsl(0 0% 0% / 0.00);
-  --shadow-xs: 0px 1px 0px 0px hsl(0 0% 0% / 0.00);
-  --shadow-sm: 0px 1px 0px 0px hsl(0 0% 0% / 0.00), 0px 1px 2px -1px hsl(0 0% 0% / 0.00);
-  --shadow: 0px 1px 0px 0px hsl(0 0% 0% / 0.00), 0px 1px 2px -1px hsl(0 0% 0% / 0.00);
-  --shadow-md: 0px 1px 0px 0px hsl(0 0% 0% / 0.00), 0px 2px 4px -1px hsl(0 0% 0% / 0.00);
-  --shadow-lg: 0px 1px 0px 0px hsl(0 0% 0% / 0.00), 0px 4px 6px -1px hsl(0 0% 0% / 0.00);
-  --shadow-xl: 0px 1px 0px 0px hsl(0 0% 0% / 0.00), 0px 8px 10px -1px hsl(0 0% 0% / 0.00);
-  --shadow-2xl: 0px 1px 0px 0px hsl(0 0% 0% / 0.00);
+  --paper: oklch(16.4% 0.006 60);
+  --sheet: oklch(19.8% 0.007 60);
+  --ink: oklch(95.2% 0.006 80);
+  --graphite: oklch(71% 0.01 70);
+  --rule: oklch(27.5% 0.008 60);
+  --rule-strong: oklch(34% 0.009 60);
+  --stage: oklch(13.4% 0.006 60);
+
+  --signal: oklch(70.5% 0.175 31);
+  --signal-hover: oklch(76% 0.15 31);
+  --signal-soft: oklch(27% 0.06 30);
+  --signal-soft-foreground: oklch(82% 0.1 32);
+
+  --level-info: oklch(72% 0.12 240);
+  --level-warn: oklch(80% 0.13 75);
+  --level-ok: oklch(74% 0.14 155);
+
+  --primary-foreground: oklch(17% 0.04 30);
+  --secondary: oklch(23.5% 0.007 60);
+  --muted: oklch(22.5% 0.007 60);
+  --accent: oklch(25.5% 0.008 60);
+  --destructive: oklch(65% 0.18 27);
+  --destructive-foreground: oklch(17% 0.04 27);
+  --sidebar: oklch(18% 0.006 60);
+  --sidebar-primary-foreground: oklch(17% 0.04 30);
+  --sidebar-accent: oklch(24% 0.008 60);
+
+  --shadow-xs: 0 1px 2px oklch(0% 0 0 / 0.3);
+  --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.3), 0 2px 6px oklch(0% 0 0 / 0.2);
+  --shadow-md: 0 2px 4px oklch(0% 0 0 / 0.3), 0 10px 24px -6px oklch(0% 0 0 / 0.45);
+  --shadow-lg: 0 4px 8px oklch(0% 0 0 / 0.3), 0 24px 48px -12px oklch(0% 0 0 / 0.55);
+  --shadow-stage: 0 1px 0 oklch(100% 0 0 / 0.05) inset, 0 30px 80px -24px oklch(0% 0 0 / 0.7);
+
+  --color-fd-background: var(--paper);
+  --color-fd-foreground: var(--ink);
+  --color-fd-muted: oklch(22.5% 0.007 60);
+  --color-fd-muted-foreground: var(--graphite);
+  --color-fd-popover: var(--sheet);
+  --color-fd-popover-foreground: var(--ink);
+  --color-fd-card: var(--sheet);
+  --color-fd-card-foreground: var(--ink);
+  --color-fd-border: var(--rule);
+  --color-fd-primary: var(--signal);
+  --color-fd-primary-foreground: oklch(17% 0.04 30);
+  --color-fd-secondary: oklch(23.5% 0.007 60);
+  --color-fd-secondary-foreground: var(--ink);
+  --color-fd-accent: oklch(25.5% 0.008 60);
+  --color-fd-accent-foreground: var(--ink);
+  --color-fd-ring: var(--signal);
+}
+
+.dark #nd-sidebar {
+  --color-fd-muted: oklch(22.5% 0.007 60);
+  --color-fd-secondary: oklch(24% 0.008 60);
+  --color-fd-muted-foreground: var(--graphite);
 }
 
 @theme inline {
@@ -120,6 +171,9 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--signal-hover);
+  --color-primary-soft: var(--signal-soft);
+  --color-primary-soft-foreground: var(--signal-soft-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -129,8 +183,14 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
+  --color-border-strong: var(--rule-strong);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-stage: var(--stage);
+  --color-level-info: var(--level-info);
+  --color-level-warn: var(--level-warn);
+  --color-level-ok: var(--level-ok);
+  --color-level-error: var(--level-error);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -148,20 +208,21 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
+  --font-heading: var(--font-heading);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
 
-  --shadow-2xs: var(--shadow-2xs);
+  --ease-out-expo: var(--ease-out-expo);
+
   --shadow-xs: var(--shadow-xs);
   --shadow-sm: var(--shadow-sm);
-  --shadow: var(--shadow);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
-  --shadow-xl: var(--shadow-xl);
-  --shadow-2xl: var(--shadow-2xl);
+  --shadow-stage: var(--shadow-stage);
 }
 
 @layer base {
@@ -170,56 +231,503 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: color-mix(in oklch, var(--signal) 26%, transparent);
   }
 }
 
-/* Home landing — typography + overflow (theme colors via Tailwind on the page root) */
+/* ─── Landing ─────────────────────────────────────────────────────── */
+
 .blyp-home {
   overflow-x: clip;
-  font-family: var(--font-plus-jakarta), var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-sans);
 }
 
-.blyp-home :is(code, pre) {
-  font-family: var(--font-space-mono), var(--font-geist-mono), monospace;
+.blyp-home :is(code, pre, kbd, samp) {
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
-.blyp-terminal-grid {
-  background-image:
-    linear-gradient(to right, color-mix(in srgb, var(--color-border) 26%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in srgb, var(--color-border) 18%, transparent) 1px, transparent 1px);
-  background-position: center;
-  background-size: 24px 24px;
+.font-heading {
+  font-family: var(--font-heading);
+  font-optical-sizing: auto;
 }
 
-.blyp-noise {
-  background-image:
-    radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--color-primary) 10%, transparent) 0, transparent 34%),
-    radial-gradient(circle at 80% 0%, color-mix(in srgb, var(--color-foreground) 6%, transparent) 0, transparent 28%),
-    radial-gradient(circle at 50% 100%, color-mix(in srgb, var(--color-primary) 8%, transparent) 0, transparent 42%);
+/* Hairline dot grid used on stages and the closing CTA */
+.blyp-dot-grid {
+  background-image: radial-gradient(
+    color-mix(in oklch, var(--ink) 16%, transparent) 1px,
+    transparent 1.2px
+  );
+  background-size: 18px 18px;
 }
 
-.blyp-scanline {
-  background:
-    linear-gradient(
-      to bottom,
-      transparent 0%,
-      color-mix(in srgb, var(--color-primary) 14%, transparent) 45%,
-      color-mix(in srgb, var(--color-primary) 8%, transparent) 60%,
-      transparent 100%
-    );
-}
-/* Always-dark terminal surface for CLI panel — real terminals are dark regardless of theme */
-.blyp-terminal-surface {
-  background-color: oklch(0.11 0.004 40);
+/* Ruled paper — faint horizontal rules for log-y surfaces */
+.blyp-ruled {
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in oklch, var(--rule) 70%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 100% 2.25rem;
 }
 
-/* Live status dot — subtle continuous pulse */
-@keyframes blyp-live-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.28; }
+/* Grain overlay, applied as a pseudo-layer on hero + CTA */
+.blyp-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.dark .blyp-grain::after {
+  mix-blend-mode: screen;
+  opacity: 0.035;
 }
 
+/* TechType selection specks — blink in, flicker, fade */
+@keyframes blyp-speck {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  4%,
+  32%,
+  36% {
+    opacity: calc(var(--a) * 0.35);
+  }
+  8%,
+  30%,
+  40%,
+  64% {
+    opacity: var(--a);
+  }
+  70% {
+    opacity: 0;
+  }
+}
+.blyp-speck {
+  opacity: 0;
+  animation: blyp-speck 1s linear infinite;
+}
+
+/* Live dot — continuous pulse with expanding ring */
+@keyframes blyp-live-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
 .blyp-live-dot {
-  animation: blyp-live-pulse 2.4s ease-in-out infinite;
+  position: relative;
+}
+.blyp-live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  animation: blyp-live-ring 1.8s var(--ease-out-expo) infinite;
+}
+
+/* Log line entrance */
+@keyframes blyp-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+.blyp-line-in {
+  animation: blyp-line-in 420ms var(--ease-out-expo) both;
+}
+
+/* Marquee for the runtime ticker */
+@keyframes blyp-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.blyp-marquee {
+  animation: blyp-marquee 40s linear infinite;
+}
+.blyp-marquee-mask {
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+.blyp-marquee-mask:hover .blyp-marquee {
+  animation-play-state: paused;
+}
+
+/* Blinking caret for terminal panels */
+@keyframes blyp-caret {
+  50% {
+    opacity: 0;
+  }
+}
+.blyp-caret {
+  animation: blyp-caret 1.05s steps(1) infinite;
+}
+
+/* FAQ disclosure */
+.blyp-faq summary::-webkit-details-marker {
+  display: none;
+}
+.blyp-faq[open] .blyp-faq-icon {
+  transform: rotate(45deg);
+}
+.blyp-faq::details-content {
+  block-size: 0;
+  overflow-y: clip;
+  transition:
+    block-size 360ms var(--ease-out-expo),
+    content-visibility 360ms allow-discrete;
+}
+.blyp-faq[open]::details-content {
+  block-size: auto;
+}
+:root {
+  interpolate-size: allow-keywords;
+}
+
+/* Always-dark terminal surface */
+.blyp-terminal-surface {
+  background-color: oklch(15% 0.006 60);
+  color: oklch(93% 0.006 80);
+}
+
+/* Nav: full-width bar at the top, floating pill once scrolled */
+.blyp-nav {
+  max-width: 90rem;
+  border: 1px solid transparent;
+  border-radius: 0.9rem;
+  transition:
+    max-width 600ms var(--ease-out-expo),
+    background-color 400ms ease,
+    border-color 400ms ease,
+    box-shadow 400ms ease,
+    border-radius 600ms var(--ease-out-expo);
+}
+.blyp-nav[data-scrolled="true"] {
+  max-width: 68rem;
+  border-color: var(--rule);
+  border-radius: 999px;
+  background-color: color-mix(in oklch, var(--paper) 78%, transparent);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  box-shadow: var(--shadow-md);
+}
+
+/* Section eyebrow: a signal square + small caps */
+.blyp-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--graphite);
+}
+.blyp-eyebrow::before {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  background: var(--signal);
+  border-radius: 1px;
+}
+
+@keyframes blyp-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+.blyp-fade-in {
+  animation: blyp-fade-in 1.2s var(--ease-out-expo) both;
+}
+
+/* Bento tile: cursor-following signal spotlight */
+.blyp-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    22rem circle at var(--mx, 50%) var(--my, 0%),
+    color-mix(in oklch, var(--signal) 9%, transparent),
+    transparent 70%
+  );
+  transition: opacity 400ms ease;
+}
+.blyp-tile:hover::before {
+  opacity: 1;
+}
+.blyp-tile {
+  transition:
+    border-color 300ms ease,
+    box-shadow 400ms var(--ease-out-expo);
+}
+.blyp-tile:hover {
+  border-color: var(--rule-strong);
+  box-shadow: var(--shadow-lg);
+}
+
+/* How it works: time left before the next step */
+@keyframes blyp-countdown {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.blyp-countdown {
+  animation: blyp-countdown 3s linear forwards;
+}
+
+/* MCP wires: dashes flowing toward the server */
+@keyframes blyp-wire {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+.blyp-wire {
+  animation: blyp-wire 700ms linear infinite;
+}
+
+/* Streaming trace span: tokens flowing through the bar */
+@keyframes blyp-stream {
+  to {
+    background-position: 11.31px 0;
+  }
+}
+.blyp-stream {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    color-mix(in oklch, var(--paper) 30%, transparent) 0 4px,
+    transparent 4px 8px
+  );
+  animation: blyp-stream 500ms linear infinite;
+}
+
+/* Error code jolts when the card is hovered */
+@keyframes blyp-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-4px) rotate(-2deg);
+  }
+  40% {
+    transform: translateX(3px) rotate(1deg);
+  }
+  60% {
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(1px);
+  }
+}
+.blyp-shake {
+  display: inline-block;
+}
+.blyp-tile:hover .blyp-shake {
+  animation: blyp-shake 520ms var(--ease-out-expo);
+}
+
+@keyframes blyp-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+.blyp-pop {
+  animation: blyp-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Packets travelling from client to server */
+@keyframes blyp-packet {
+  0% {
+    left: 0;
+    opacity: 0;
+  }
+  15%,
+  85% {
+    opacity: 1;
+  }
+  100% {
+    left: calc(100% - 0.375rem);
+    opacity: 0;
+  }
+}
+.blyp-packet {
+  animation: blyp-packet 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blyp-live-dot::after,
+  .blyp-marquee,
+  .blyp-caret,
+  .blyp-line-in,
+  .blyp-fade-in,
+  .blyp-stream,
+  .blyp-wire,
+  .blyp-pop,
+  .blyp-packet,
+  .blyp-tile:hover .blyp-shake {
+    animation: none;
+  }
+  .blyp-speck {
+    animation: none;
+    opacity: var(--a);
+  }
+  .blyp-nav {
+    transition: none;
+  }
+}
+
+/* ─── Docs chrome ─────────────────────────────────────────────────── */
+
+#nd-docs-layout {
+  font-family: var(--fd-font-sans);
+}
+
+#nd-docs-layout :is(h1, h2, h3) {
+  font-family: var(--font-heading);
+  font-optical-sizing: auto;
+  letter-spacing: -0.035em;
+}
+
+#nd-docs-layout h1 {
+  font-weight: 650;
+  letter-spacing: -0.045em;
+}
+
+#nd-docs-layout :is(code, pre, kbd) {
+  font-family: var(--fd-font-mono);
+}
+
+/* Paper-grain wash at the top of every docs page */
+#nd-page {
+  position: relative;
+}
+#nd-page::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 22rem;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(60% 100% at 12% 0%, color-mix(in oklch, var(--signal) 9%, transparent), transparent 70%),
+    radial-gradient(
+      color-mix(in oklch, var(--ink) 9%, transparent) 1px,
+      transparent 1.2px
+    )
+    0 0 / 18px 18px;
+  mask-image: linear-gradient(to bottom, #000, transparent);
+}
+
+/* Prose links get the signal treatment with an animated underline */
+#nd-page :where(p, li, td) > a:not([class*="fd-"]) {
+  color: var(--ink);
+  text-decoration: none;
+  background-image: linear-gradient(var(--signal), var(--signal));
+  background-size: 100% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition:
+    background-size 260ms var(--ease-out-expo),
+    color 160ms ease;
+}
+#nd-page :where(p, li, td) > a:not([class*="fd-"]):hover {
+  color: var(--signal);
+  background-size: 100% 2px;
+}
+
+/* Inline code reads like a log token */
+#nd-page :not(pre) > code {
+  border: 1px solid var(--rule);
+  background: color-mix(in oklch, var(--sheet) 70%, var(--paper));
+  border-radius: 0.3rem;
+  padding: 0.08em 0.36em;
+  font-size: 0.86em;
+}
+
+/* Code blocks: sheet with soft stage shadow */
+#nd-page figure,
+#nd-page pre {
+  border-radius: 0.6rem;
+}
+#nd-page figure {
+  box-shadow: var(--shadow-xs);
+  transition:
+    box-shadow 240ms var(--ease-out-expo),
+    border-color 240ms ease;
+}
+#nd-page figure:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--rule-strong);
+}
+
+/* Blockquote = signal-ruled aside */
+#nd-page blockquote {
+  border-left: 2px solid var(--signal);
+  background: linear-gradient(to right, color-mix(in oklch, var(--signal) 6%, transparent), transparent 70%);
+  border-radius: 0 0.5rem 0.5rem 0;
+  padding-block: 0.25rem;
+  color: var(--ink);
+}
+
+/* Sidebar active item: signal tick */
+#nd-sidebar a[data-active="true"] {
+  position: relative;
+  color: var(--ink);
+  font-weight: 550;
+}
+#nd-sidebar a[data-active="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0.15rem;
+  top: 50%;
+  width: 3px;
+  height: 0.9rem;
+  border-radius: 9px;
+  translate: 0 -50%;
+  background: var(--signal);
+  animation: blyp-tick-in 380ms var(--ease-out-expo);
+}
+@keyframes blyp-tick-in {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+}
+
+/* Tactile press on every docs button */
+#nd-docs-layout button:not(:disabled):active {
+  transform: scale(0.97);
+}
+#nd-docs-layout button {
+  transition:
+    transform 160ms var(--ease-out-expo),
+    background-color 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease;
 }

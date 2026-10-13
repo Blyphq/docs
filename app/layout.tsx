@@ -1,46 +1,9 @@
 import type { Metadata } from "next";
-import {
-  Geist,
-  Geist_Mono,
-  Plus_Jakarta_Sans,
-  Space_Mono,
-} from "next/font/google";
 import { RootProvider } from "@farming-labs/theme";
 import docsConfig from "@/docs.config";
 import { CanonicalLink } from "@/app/components/canonical-link";
+import { fontVariables } from "@/lib/fonts";
 import "./global.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistSansDocs = Geist({
-  variable: "--fd-font-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const geistMonoDocs = Geist_Mono({
-  variable: "--fd-font-mono",
-  subsets: ["latin"],
-});
-
-const plusJakarta = Plus_Jakarta_Sans({
-  variable: "--font-plus-jakarta",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
-
-const spaceMono = Space_Mono({
-  variable: "--font-space-mono",
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -89,7 +52,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={fontVariables} suppressHydrationWarning>
       <head>
         <CanonicalLink />
         <script
@@ -98,9 +61,7 @@ export default function RootLayout({
           data-website-id={process.env.NEXT_PUBLIC_UMAMI_ID}
         ></script>
       </head>
-      <body
-        className={`${geistSans.variable} ${geistSansDocs.variable} ${geistMono.variable} ${geistMonoDocs.variable} ${plusJakarta.variable} ${spaceMono.variable}`}
-      >
+      <body>
         <RootProvider>{children}</RootProvider>
       </body>
     </html>
