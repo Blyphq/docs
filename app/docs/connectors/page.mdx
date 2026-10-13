@@ -1,6 +1,6 @@
 ---
 title: "Connectors"
-description: "Forward Blyp logs and structured events to Better Stack, PostHog, Sentry, and OTLP backends across supported runtimes."
+description: "Forward Blyp logs and structured events to Better Stack, PostHog, Databuddy, Sentry, New Relic, and OTLP backends across supported runtimes."
 icon: "link"
 order: 8
 ---
@@ -15,6 +15,7 @@ Blyp ships first-party connector support for:
 - [PostHog](/docs/connectors/posthog)
 - [Databuddy](/docs/connectors/databuddy)
 - [Sentry](/docs/connectors/sentry)
+- [New Relic](/docs/connectors/newrelic)
 - [OTLP](/docs/connectors/otlp)
 
 As of `@blyp/core@0.1.22`, connector SDKs are installed as optional peers instead of being pulled in transitively by the base package. Install only the peer packages needed by the connectors you actually enable.
@@ -45,11 +46,12 @@ The dedicated helper entry points are:
 - `@blyp/core/posthog`
 - `@blyp/core/databuddy`
 - `@blyp/core/sentry`
+- `@blyp/core/newrelic`
 - `@blyp/core/otlp`
 
 ## Client and Expo connector requests
 
-Browser and Expo loggers do not talk directly to Better Stack, PostHog, Sentry, or OTLP vendor SDKs. They request forwarding through Blyp ingestion instead.
+Browser and Expo loggers do not talk directly to Better Stack, PostHog, Sentry, New Relic, or OTLP vendor SDKs. They request forwarding through Blyp ingestion instead.
 
 ```ts
 import { createClientLogger } from "@blyp/core/client";
@@ -78,6 +80,11 @@ const otlpClient = createClientLogger({
   endpoint: "/inngest",
   connector: { type: "otlp", name: "grafana" },
 });
+
+const newRelicClient = createClientLogger({
+  endpoint: "/inngest",
+  connector: "newrelic",
+});
 ```
 
 Use the same `connector` values in `@blyp/core/expo`.
@@ -102,6 +109,7 @@ If a connector is enabled but logs still do not arrive, or if Better Stack and P
 - [PostHog](/docs/connectors/posthog)
 - [Databuddy](/docs/connectors/databuddy)
 - [Sentry](/docs/connectors/sentry)
+- [New Relic](/docs/connectors/newrelic)
 - [OTLP](/docs/connectors/otlp)
 - [Configuration](/docs/configuration)
 - [Troubleshooting](/docs/troubleshooting)

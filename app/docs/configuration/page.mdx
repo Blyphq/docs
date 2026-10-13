@@ -331,6 +331,13 @@ export default {
       environment: process.env.NODE_ENV,
       release: process.env.RELEASE_SHA,
     },
+    newrelic: {
+      enabled: true,
+      mode: "auto",
+      licenseKey: process.env.NEW_RELIC_LICENSE_KEY,
+      region: "us",
+      serviceName: "api",
+    },
     otlp: [
       {
         name: "grafana",
@@ -346,6 +353,8 @@ export default {
 ```
 
 ## Notes that matter in production
+
+For New Relic, install the optional OpenTelemetry log peers and explicitly pass the ingest license key. Set `region: "eu"` for an EU account, or override `endpoint` with a full OTLP HTTP logs URL. See [New Relic](/docs/connectors/newrelic) for setup, manual APIs, and verification.
 
 - `ignorePaths` applies to both automatic request logs and error logs.
 - When client logging is enabled, the ingestion path is auto-added to the ignore list so Blyp does not emit duplicate `http_request` records for `POST /inngest`.

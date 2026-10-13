@@ -207,6 +207,11 @@ const sentryLogger = createClientLogger({
   connector: "sentry",
 });
 
+const newRelicLogger = createClientLogger({
+  endpoint: "/inngest",
+  connector: "newrelic",
+});
+
 const otlpLogger = createClientLogger({
   endpoint: "/inngest",
   connector: { type: "otlp", name: "grafana" },
@@ -221,6 +226,8 @@ Important behavior:
 - PostHog client `error` and `critical` logs are promoted into Error Tracking only when server-side PostHog error tracking runs in `auto` mode
 
 Use [Connectors](/docs/connectors) for the server-side setup behind these requests.
+
+For [New Relic](/docs/connectors/newrelic), keep the ingest license key on the server. The ingestion response reports connector readiness in `x-blyp-newrelic-status`.
 
 ## Expo mobile logging
 

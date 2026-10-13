@@ -97,7 +97,7 @@ const logger = createExpoLogger({
 
 ## Connector forwarding requests
 
-Expo can request server-side forwarding into PostHog, Sentry, or a named OTLP target:
+Expo can request server-side forwarding into PostHog, Sentry, New Relic, or a named OTLP target:
 
 ```ts
 const logger = createExpoLogger({
@@ -121,6 +121,15 @@ const logger = createExpoLogger({
 ```
 
 Expo still posts to Blyp first. Blyp forwards only when the matching server connector is configured and ready.
+
+For [New Relic](/docs/connectors/newrelic), configure the ingest license key on the server and request forwarding from Expo:
+
+```ts
+const logger = createExpoLogger({
+  endpoint: "https://api.example.com/inngest",
+  connector: "newrelic",
+});
+```
 
 ## Delivery hooks
 

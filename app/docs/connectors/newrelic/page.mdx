@@ -1,0 +1,209 @@
+---
+title: "New Relic"
+description: "Forward Blyp logs to New Relic over OTLP/HTTP with automatic delivery, manual helpers, and browser or Expo ingestion."
+icon: "link"
+order: 6
+related: [/docs/connectors, /docs/configuration, /docs/integrations/convex]
+agent:
+  task: Forward Blyp logs to New Relic using a server-side license key and the account's OTLP region.
+  outcome: A uniquely named test record appears in New Relic Logs with the configured service identity.
+  appliesTo: { package: ["@blyp/core", "@opentelemetry/sdk-logs"] }
+  prerequisites: [A New Relic ingest license key and the account region are available.]
+  files: [blyp.config.ts, .env]
+  commands: ["pnpm add @blyp/core @opentelemetry/api-logs@^0.206 @opentelemetry/exporter-logs-otlp-http@^0.206 @opentelemetry/resources@^2 @opentelemetry/sdk-logs@^0.206"]
+  sideEffects: [Selected logs leave the application for New Relic.]
+  verification: [Emit a unique record, await flush, and find the message in New Relic Logs.]
+  rollback: [Set connectors.newrelic.enabled to false.]
+  failureModes:
+    - symptom: Local logs appear but New Relic remains empty.
+      resolution: Check the ingest license key, account region, optional OTLP peers, and flush before process exit.
+---
+
+# New Relic
+
+<Agent>
+Use a Blyp version with the New Relic connector, install the OpenTelemetry log peers on the server,
+and configure an ingest license key with the correct account region. Emit a unique record and await
+flush before looking for it in New Relic Logs. Browser and Expo apps use Blyp ingestion with
+`connector: "newrelic"`; the license key belongs in the server configuration.
+</Agent>
+
+Use `connectors.newrelic` to export Blyp logs to New Relic over OTLP/HTTP. Added in `@blyp/core@0.1.31`, the connector reuses Blyp's OTLP pipeline and sets the New Relic endpoint and `api-key` header for you.
+
+## Install
+
+For Node/Bun applications, install Blyp and the optional OpenTelemetry log peers:
+
+```bash
+bun add @blyp/core @opentelemetry/api-logs@^0.206 @opentelemetry/exporter-logs-otlp-http@^0.206 @opentelemetry/resources@^2 @opentelemetry/sdk-logs@^0.206
+```
+
+Use a version of `@blyp/core` that includes the `@blyp/core/newrelic` entrypoint. The New Relic Node agent is not required for this log exporter.
+
+## Configure automatic forwarding
+
+Create a New Relic ingest license key for the account that should receive your logs. Use an ingest license key rather than a user API key; see [New Relic's OTLP requirements](https://docs.newrelic.com/docs/opentelemetry/best-practices/opentelemetry-otlp/). Set it in the server environment:
+
+```bash
+NEW_RELIC_LICENSE_KEY=your-new-relic-ingest-license-key
+```
+
+Wire the environment variable into `blyp.config.ts`:
+
+```ts
+export default {
+  connectors: {
+    newrelic: {
+      enabled: true,
+      mode: "auto",
+      licenseKey: process.env.NEW_RELIC_LICENSE_KEY,
+      region: "us",
+      serviceName: "api",
+    },
+  },
+};
+```
+
+Blyp does not automatically read `NEW_RELIC_LICENSE_KEY`; pass it through configuration explicitly. Your runtime must load the environment variable before Blyp reads the config.
+
+When the connector is ready and `mode: "auto"`, ordinary server logs and structured records forward automatically. Framework adapters use the same connector configuration.
+
+### Config fields
+
+| Field | Behavior |
+| --- | --- |
+| `enabled` | Defaults to `false`. Set to `true` to enable delivery. |
+| `mode` | Defaults to `"auto"`. Use `"manual"` to send explicitly through the helper APIs. |
+| `licenseKey` | Required ingest license key, sent as the `api-key` header. Whitespace is trimmed. |
+| `region` | `"us"` (default) or `"eu"`; selects the account's OTLP logs endpoint. |
+| `endpoint` | Optional full HTTP/HTTPS logs URL for a proxy or collector. Overrides the region endpoint. |
+| `serviceName` | OTLP `service.name` resource attribute; inherits Blyp's default service name, normally `"blyp-app"`. |
+
+The region endpoints are:
+
+| Region | OTLP HTTP logs endpoint |
+| --- | --- |
+| US | `https://otlp.nr-data.net/v1/logs` |
+| EU | `https://otlp.eu01.nr-data.net/v1/logs` |
+
+The connector is ready only when it is enabled, the license key is nonempty, and the endpoint is a valid absolute HTTP/HTTPS URL. Supply the full logs path, including `/v1/logs`, when overriding the endpoint.
+
+## Verify delivery
+
+With the config above, emit and flush a test record from a server script:
+
+```ts
+import { createStandaloneLogger } from "@blyp/core/standalone";
+
+const logger = createStandaloneLogger();
+
+logger.info("blyp-newrelic-check", { source: "setup-check" });
+await logger.flush();
+```
+
+In New Relic Logs, search for `blyp-newrelic-check` in the receiving account and recent time range. You can also run this NRQL query:
+
+```sql
+SELECT * FROM Log
+WHERE message = 'blyp-newrelic-check'
+SINCE 30 minutes ago
+```
+
+The message becomes the OTLP log body, the Blyp level maps to OTLP severity, and `serviceName` becomes the `service.name` resource attribute. Attributes include `blyp.level`, `blyp.source`, and `blyp.payload` (the serialized record), plus available correlation fields such as `blyp.trace_id` and `blyp.group_id`. Automatic server forwarding preserves Blyp's redaction before export. New Relic's attribute size limits still apply, so large records may be truncated by the destination.
+
+## Manual APIs
+
+Set `mode: "manual"` in your config to stop automatic server forwarding, then use the dedicated server helpers:
+
+```ts
+import {
+  createNewRelicLogger,
+  createStructuredNewRelicLogger,
+} from "@blyp/core/newrelic";
+
+const logger = createNewRelicLogger();
+
+logger.child({ requestId: "req_123" }).info("checkout started");
+
+const checkout = createStructuredNewRelicLogger("checkout", {
+  orderId: "ord_123",
+});
+
+checkout.info("payment authorized");
+checkout.emit({ status: 200 });
+
+await logger.flush();
+```
+
+These helpers use the configured New Relic target without requiring a target name. You can also pass inline connector settings:
+
+```ts
+const connectors = {
+  newrelic: {
+    enabled: true,
+    mode: "manual" as const,
+    licenseKey: process.env.NEW_RELIC_LICENSE_KEY,
+    serviceName: "billing",
+  },
+};
+
+const logger = createNewRelicLogger({ connectors });
+const checkout = createStructuredNewRelicLogger(
+  "checkout",
+  { orderId: "ord_123" },
+  { connectors },
+);
+
+checkout.emit({ status: 200 });
+await logger.flush();
+```
+
+The connector exports logs. Error and critical records use OTLP error/fatal severity; this integration does not initialize New Relic APM or provide a separate exception-capture API.
+
+## Browser and Expo forwarding
+
+Configure New Relic on the server that handles Blyp ingestion, then request that connector from the client:
+
+```ts
+import { createClientLogger } from "@blyp/core/client";
+
+const logger = createClientLogger({
+  endpoint: "/inngest",
+  connector: "newrelic",
+});
+
+logger.info("checkout opened");
+```
+
+```ts
+import { createExpoLogger } from "@blyp/core/expo";
+
+const logger = createExpoLogger({
+  endpoint: "https://api.example.com/inngest",
+  connector: "newrelic",
+});
+
+logger.info("checkout opened on mobile");
+```
+
+Both clients post to Blyp first. The server redacts and forwards the record when New Relic is configured and ready. Keep the license key and OpenTelemetry peers on the server.
+
+The ingestion response includes `x-blyp-newrelic-status: enabled` or `missing`. A successful `204` ingestion response confirms Blyp accepted the record; check New Relic to verify remote delivery.
+
+## Convex
+
+Convex supports `connectors.newrelic` through shared configuration. Import `defineConfig` from `@blyp/core/config`, then pass the config to `configureConvexLogger()` from `@blyp/core/convex`.
+
+Actions and HTTP actions export via native `fetch` when the connector is enabled, ready, and in `"auto"` mode. Queries and mutations stay console-only. Convex needs no OpenTelemetry peers and ignores the Node durable delivery queue. Setting the Convex option `otlp: false` disables remote exports, including New Relic.
+
+See [Convex shared configuration](/docs/integrations/convex#shared-blypconfigts) for the setup and action wrappers.
+
+## Troubleshooting
+
+- **Logs appear locally but not in New Relic:** check `enabled`, a nonempty ingest license key, the receiving account's region, and the installed OpenTelemetry peers. Await `flush()` before a short-lived process exits.
+- **Authentication fails:** use the receiving account's ingest license key and confirm it is passed through `licenseKey`.
+- **A proxy or collector returns 404:** set `endpoint` to the full OTLP HTTP logs URL, including `/v1/logs`.
+- **Client ingestion reports `missing`:** configure the connector on the server handling that ingestion route. Client-side settings alone cannot enable export.
+- **Ordinary server logs do not forward in manual mode:** send with `createNewRelicLogger()` or `createStructuredNewRelicLogger()`, or switch to `mode: "auto"`.
+
+New Relic uses the internal OTLP target name `newrelic`; reserve that name instead of creating a separate `connectors.otlp` target with it. For Node/Bun, [durable connector delivery](/docs/working-with-blyp/production) through `connectors.delivery` can buffer retryable export failures with optional SQLite persistence.

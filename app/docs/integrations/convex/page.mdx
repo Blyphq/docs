@@ -1,6 +1,6 @@
 ---
 title: "Convex"
-description: "Use the isolate Convex logger with vendor configs, shared blyp.config.ts, and action-only HTTP export to PostHog, Axiom, Better Stack, Sentry, Databuddy, HTTP, or OTLP."
+description: "Use the isolate Convex logger with vendor configs, shared blyp.config.ts, and action-only HTTP export to PostHog, Axiom, Better Stack, Sentry, Databuddy, New Relic, HTTP, or OTLP."
 icon: "convex"
 order: 15
 ---
@@ -114,6 +114,13 @@ export default defineConfig({
       apiKey: process.env.DATABUDDY_API_KEY,
       websiteId: process.env.DATABUDDY_WEBSITE_ID,
     },
+    newrelic: {
+      enabled: true,
+      mode: "auto",
+      licenseKey: process.env.NEW_RELIC_LICENSE_KEY,
+      region: "us",
+      serviceName: "convex-api",
+    },
     http: [{
       name: "webhook",
       enabled: true,
@@ -153,6 +160,7 @@ The HTTP API still uses the full Node logger. Convex keeps isolate-safe log expo
 | `connectors.betterstack` | `@logtail/node` | OTLP `fetch` from actions |
 | `connectors.sentry` | `@sentry/node` | OTLP `fetch` from actions |
 | `connectors.databuddy` | `@databuddy/sdk` | HTTP `fetch` from actions |
+| `connectors.newrelic` with `mode: "auto"` | Node OTLP SDK | OTLP `fetch` from actions with the New Relic `api-key` header |
 | `connectors.http` | JSON POST | JSON `fetch` from actions |
 | `connectors.otlp` with `mode: "auto"` | Node OTLP SDK | JSON HTTP `fetch` from actions |
 | `destination: "file"` / `file` | yes | ignored, console warning |
@@ -162,6 +170,8 @@ The HTTP API still uses the full Node logger. Convex keeps isolate-safe log expo
 | vendor exception autocapture | yes | ignored, console warning |
 
 If the shared config has no usable remote sink, Convex stays console-only and warns once.
+
+[New Relic](/docs/connectors/newrelic) uses the account's US or EU OTLP logs endpoint. Its shared connector must be enabled, have a nonempty license key, and use `mode: "auto"`. No OpenTelemetry peer packages are needed in Convex; `otlp: false` disables this export along with the other remote sinks.
 
 `mode: "manual"` connector targets are not auto-exported from Convex, matching Node auto-forwarding.
 
