@@ -2,22 +2,23 @@
 
 import docsConfig from "@/docs.config";
 import type { GeneratedChangelogEntry } from "@farming-labs/next/changelog";
-import ChangelogEntry1 from "../release-notes/2026-08-26/page.mdx";
-import ChangelogEntry2 from "../release-notes/2026-08-18/page.mdx";
-import ChangelogEntry3 from "../release-notes/2026-05-17/page.mdx";
-import ChangelogEntry4 from "../release-notes/2026-05-06/page.mdx";
-import ChangelogEntry5 from "../release-notes/2026-04-07/page.mdx";
-import ChangelogEntry6 from "../release-notes/2026-04-05/page.mdx";
-import ChangelogEntry7 from "../release-notes/2026-04-02/page.mdx";
-import ChangelogEntry8 from "../release-notes/2026-03-29/page.mdx";
-import ChangelogEntry9 from "../release-notes/2026-03-24/page.mdx";
-import ChangelogEntry10 from "../release-notes/2026-03-23/page.mdx";
-import ChangelogEntry11 from "../release-notes/2026-03-22/page.mdx";
-import ChangelogEntry12 from "../release-notes/2026-03-19/page.mdx";
-import ChangelogEntry13 from "../release-notes/2026-03-16/page.mdx";
-import ChangelogEntry14 from "../release-notes/2026-03-14/page.mdx";
-import ChangelogEntry15 from "../release-notes/2026-03-11/page.mdx";
-import ChangelogEntry16 from "../release-notes/2026-03-10/page.mdx";
+import ChangelogEntry1 from "../release-notes/2026-10-13/page.mdx";
+import ChangelogEntry2 from "../release-notes/2026-08-26/page.mdx";
+import ChangelogEntry3 from "../release-notes/2026-08-18/page.mdx";
+import ChangelogEntry4 from "../release-notes/2026-05-17/page.mdx";
+import ChangelogEntry5 from "../release-notes/2026-05-06/page.mdx";
+import ChangelogEntry6 from "../release-notes/2026-04-07/page.mdx";
+import ChangelogEntry7 from "../release-notes/2026-04-05/page.mdx";
+import ChangelogEntry8 from "../release-notes/2026-04-02/page.mdx";
+import ChangelogEntry9 from "../release-notes/2026-03-29/page.mdx";
+import ChangelogEntry10 from "../release-notes/2026-03-24/page.mdx";
+import ChangelogEntry11 from "../release-notes/2026-03-23/page.mdx";
+import ChangelogEntry12 from "../release-notes/2026-03-22/page.mdx";
+import ChangelogEntry13 from "../release-notes/2026-03-19/page.mdx";
+import ChangelogEntry14 from "../release-notes/2026-03-16/page.mdx";
+import ChangelogEntry15 from "../release-notes/2026-03-14/page.mdx";
+import ChangelogEntry16 from "../release-notes/2026-03-11/page.mdx";
+import ChangelogEntry17 from "../release-notes/2026-03-10/page.mdx";
 import {
   createNextChangelogIndexMetadata,
   createNextChangelogIndexPage,
@@ -25,11 +26,27 @@ import {
 
 export const changelogEntries: GeneratedChangelogEntry[] = [
   {
+    slug: "2026-10-13",
+    date: "2026-10-13",
+    url: "/docs/changelog/2026-10-13",
+    sourcePath: "app/docs/release-notes/2026-10-13/page.mdx",
+    Component: ChangelogEntry1,
+    metadata: {
+      title: "PostHog and Sentry connector reliability",
+      description:
+        "Blyp adds structured exception capture, bounded flush results, final-payload privacy hooks, and error capture coordination while fixing packed PostHog and Sentry connector loading.",
+      authors: ["Blyp"],
+      version: "v0.1.32",
+      tags: ["core", "connectors", "posthog", "sentry", "privacy"],
+      pinned: true,
+    },
+  },
+  {
     slug: "2026-08-26",
     date: "2026-08-26",
     url: "/docs/changelog/2026-08-26",
     sourcePath: "app/docs/release-notes/2026-08-26/page.mdx",
-    Component: ChangelogEntry1,
+    Component: ChangelogEntry2,
     metadata: {
       title: "Convex support",
       description:
@@ -43,7 +60,7 @@ export const changelogEntries: GeneratedChangelogEntry[] = [
     date: "2026-08-18",
     url: "/docs/changelog/2026-08-18",
     sourcePath: "app/docs/release-notes/2026-08-18/page.mdx",
-    Component: ChangelogEntry2,
+    Component: ChangelogEntry3,
     metadata: {
       title: "Farm.js support",
       description:
@@ -59,7 +76,7 @@ export const changelogEntries: GeneratedChangelogEntry[] = [
     date: "2026-05-17",
     url: "/docs/changelog/2026-05-17",
     sourcePath: "app/docs/release-notes/2026-05-17/page.mdx",
-    Component: ChangelogEntry3,
+    Component: ChangelogEntry4,
     metadata: {
       title: "Stable authentication integrations and MongoDB",
       description:
@@ -74,7 +91,7 @@ export const changelogEntries: GeneratedChangelogEntry[] = [
     date: "2026-05-06",
     url: "/docs/changelog/2026-05-06",
     sourcePath: "app/docs/release-notes/2026-05-06/page.mdx",
-    Component: ChangelogEntry4,
+    Component: ChangelogEntry5,
     metadata: {
       title: "Authentication integration beta",
       description:
@@ -89,7 +106,7 @@ export const changelogEntries: GeneratedChangelogEntry[] = [
     date: "2026-04-07",
     url: "/docs/changelog/2026-04-07",
     sourcePath: "app/docs/release-notes/2026-04-07/page.mdx",
-    Component: ChangelogEntry5,
+    Component: ChangelogEntry6,
     metadata: {
       title: "Typed configuration and SolidStart",
       description: "Blyp adds typed config authoring and a first-class SolidStart integration.",
@@ -103,7 +120,7 @@ export const changelogEntries: GeneratedChangelogEntry[] = [
     date: "2026-04-05",
     url: "/docs/changelog/2026-04-05",
     sourcePath: "app/docs/release-notes/2026-04-05/page.mdx",
-    Component: ChangelogEntry6,
+    Component: ChangelogEntry7,
     metadata: {
       title: "Better Agent tracing and reasoning capture",
       description:
@@ -118,7 +135,7 @@ export const changelogEntries: GeneratedChangelogEntry[] = [
     date: "2026-04-02",
     url: "/docs/changelog/2026-04-02",
     sourcePath: "app/docs/release-notes/2026-04-02/page.mdx",
-    Component: ChangelogEntry7,
+    Component: ChangelogEntry8,
     metadata: {
       title: "Studio dashboard and observability expansion",
       description:
@@ -133,7 +150,7 @@ export const changelogEntries: GeneratedChangelogEntry[] = [
     date: "2026-03-29",
     url: "/docs/changelog/2026-03-29",
     sourcePath: "app/docs/release-notes/2026-03-29/page.mdx",
-    Component: ChangelogEntry8,
+    Component: ChangelogEntry9,
     metadata: {
       title: "AI tracing, durable delivery, and redaction",
       description:
@@ -148,7 +165,7 @@ export const changelogEntries: GeneratedChangelogEntry[] = [
     date: "2026-03-24",
     url: "/docs/changelog/2026-03-24",
     sourcePath: "app/docs/release-notes/2026-03-24/page.mdx",
-    Component: ChangelogEntry9,
+    Component: ChangelogEntry10,
     metadata: {
       title: "React Router, Astro, Nitro, and Nuxt adapters",
       description: "Blyp broadens its framework support with four request-aware server adapters.",
@@ -162,7 +179,7 @@ export const changelogEntries: GeneratedChangelogEntry[] = [
     date: "2026-03-23",
     url: "/docs/changelog/2026-03-23",
     sourcePath: "app/docs/release-notes/2026-03-23/page.mdx",
-    Component: ChangelogEntry10,
+    Component: ChangelogEntry11,
     metadata: {
       title: "Studio packaging and brand fixes",
       description:
@@ -177,7 +194,7 @@ export const changelogEntries: GeneratedChangelogEntry[] = [
     date: "2026-03-22",
     url: "/docs/changelog/2026-03-22",
     sourcePath: "app/docs/release-notes/2026-03-22/page.mdx",
-    Component: ChangelogEntry11,
+    Component: ChangelogEntry12,
     metadata: {
       title: "Live GitHub-backed skill installation",
       description:
@@ -192,7 +209,7 @@ export const changelogEntries: GeneratedChangelogEntry[] = [
     date: "2026-03-19",
     url: "/docs/changelog/2026-03-19",
     sourcePath: "app/docs/release-notes/2026-03-19/page.mdx",
-    Component: ChangelogEntry12,
+    Component: ChangelogEntry13,
     metadata: {
       title: "Database-backed Studio logs",
       description:
@@ -207,7 +224,7 @@ export const changelogEntries: GeneratedChangelogEntry[] = [
     date: "2026-03-16",
     url: "/docs/changelog/2026-03-16",
     sourcePath: "app/docs/release-notes/2026-03-16/page.mdx",
-    Component: ChangelogEntry13,
+    Component: ChangelogEntry14,
     metadata: {
       title: "Scoped package, database commands, and CLI rename",
       description:
@@ -222,7 +239,7 @@ export const changelogEntries: GeneratedChangelogEntry[] = [
     date: "2026-03-14",
     url: "/docs/changelog/2026-03-14",
     sourcePath: "app/docs/release-notes/2026-03-14/page.mdx",
-    Component: ChangelogEntry14,
+    Component: ChangelogEntry15,
     metadata: {
       title: "Blyp CLI launch and packaged Studio fixes",
       description:
@@ -237,7 +254,7 @@ export const changelogEntries: GeneratedChangelogEntry[] = [
     date: "2026-03-11",
     url: "/docs/changelog/2026-03-11",
     sourcePath: "app/docs/release-notes/2026-03-11/page.mdx",
-    Component: ChangelogEntry15,
+    Component: ChangelogEntry16,
     metadata: {
       title: "Expo delivery, structured logs, and first-party connectors",
       description:
@@ -252,7 +269,7 @@ export const changelogEntries: GeneratedChangelogEntry[] = [
     date: "2026-03-10",
     url: "/docs/changelog/2026-03-10",
     sourcePath: "app/docs/release-notes/2026-03-10/page.mdx",
-    Component: ChangelogEntry16,
+    Component: ChangelogEntry17,
     metadata: {
       title: "Initial Blyp release",
       description:

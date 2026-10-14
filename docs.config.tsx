@@ -29,7 +29,9 @@ const logoIcon = (src: string, alt: string, className = "object-contain dark:inv
 
 export default defineDocs({
   entry: "docs",
-  contentDir: "app/docs",
+  contentDir: process.env.BLYP_DOCS_RUNTIME_ROOT
+    ? `${process.env.BLYP_DOCS_RUNTIME_ROOT}/app/docs`
+    : "app/docs",
   theme: fumadocs({
     ui: {
       colors: {

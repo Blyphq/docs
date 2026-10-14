@@ -1,0 +1,46 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "blyp-docs",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-13",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
+  "workers_dev": true,
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "blyp-docs"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  },
+  "account_id": "ab1872e3a470525e897b4b6ab11b8cfd",
+  "vars": {
+    "NEXT_PUBLIC_SITE_URL": "https://www.blyp.dev",
+    "NEXT_PUBLIC_UMAMI_ID": "16b8c36a-2ec0-4767-ba88-e12375f3a1dd",
+    "BLYP_DOCS_RUNTIME_ROOT": "/tmp/blyp-docs"
+  },
+  "images": {
+    "binding": "IMAGES"
+  },
+  "limits": {
+    "cpu_ms": 10000
+  },
+  "routes": [
+    {
+      "pattern": "blyp.dev/*",
+      "zone_name": "blyp.dev"
+    },
+    {
+      "pattern": "www.blyp.dev/*",
+      "zone_name": "blyp.dev"
+    }
+  ]
+}

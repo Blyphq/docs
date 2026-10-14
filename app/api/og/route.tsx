@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 const gridColumns = Array.from({ length: 25 }, (_, index) => index * 48);
 const gridRows = Array.from({ length: 14 }, (_, index) => index * 48);

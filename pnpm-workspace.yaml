@@ -1,3 +1,7 @@
 allowBuilds:
+  esbuild: true
   protobufjs: true
   sharp: true
+  workerd: true
+patchedDependencies:
+  '@farming-labs/docs@0.2.111': patches/@farming-labs__docs@0.2.111.patch

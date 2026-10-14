@@ -1,0 +1,31 @@
+diff --git a/dist/agent-evals-3m5FXStK.mjs b/dist/agent-evals-3m5FXStK.mjs
+index 137da9f7e893dab3f506ab87a6e43c2b51465759..e7e2855602d4037b16e8bfc910ce3cb35200be94 100644
+--- a/dist/agent-evals-3m5FXStK.mjs
++++ b/dist/agent-evals-3m5FXStK.mjs
+@@ -570,10 +570,13 @@ const DEFAULT_TOP_K = 5;
+ const DEFAULT_TOKEN_BUDGET = 4e3;
+ const CONTEXT_SEPARATOR = "\n\n---\n\n";
+ const STATIC_CODE_PLAN_CONFIG = resolveDocsCodeBlocksValidateConfig(true);
+-const STATIC_JITI = createJiti(import.meta.url, {
+-	fsCache: false,
+-	moduleCache: false
+-});
++let staticJiti;
++function getStaticJiti() {
++	return staticJiti ??= createJiti(import.meta.url, {
++		fsCache: false,
++		moduleCache: false
++	});
++}
+ const EXECUTABLE_LANGUAGES = new Set([
+ 	"bash",
+ 	"curl",
+@@ -1525,7 +1528,7 @@ function validateStaticSyntax(target) {
+ 	if (language === "javascript" || language === "js" || language === "jsx" || language === "node" || language === "typescript" || language === "ts" || language === "tsx") try {
+ 		const typescript = language === "typescript" || language === "ts" || language === "tsx";
+ 		const jsx = language === "jsx" || language === "tsx";
+-		const transformed = STATIC_JITI.transform({
++		const transformed = getStaticJiti().transform({
+ 			source: target.code,
+ 			filename: `golden-example.${language === "typescript" ? "ts" : language}`,
+ 			ts: typescript,

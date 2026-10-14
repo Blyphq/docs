@@ -266,7 +266,7 @@ export function getSkillInstallTargets(skillId: string): SkillInstallTarget[] {
 
 export async function readSkillSource(slug: SkillPreset["slug"]): Promise<string> {
   const skill = getSkillBySlug(slug);
-  const filePath = path.join(process.cwd(), "public", skill.rawPath.replace(/^\//, ""));
+  const filePath = path.join(process.env.BLYP_DOCS_RUNTIME_ROOT ?? process.cwd(), "public", skill.rawPath.replace(/^\//, ""));
 
   return readFile(filePath, "utf8");
 }

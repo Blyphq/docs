@@ -1,0 +1,65 @@
+---
+title: "PostHog and Sentry connector reliability"
+description: "Blyp adds structured exception capture, bounded flush results, final-payload privacy hooks, and error capture coordination while fixing packed PostHog and Sentry connector loading."
+authors: ["Blyp"]
+version: "v0.1.32"
+tags: ["core", "connectors", "posthog", "sentry", "privacy"]
+pinned: true
+---
+
+## @blyp/core v0.1.32
+
+### New features
+
+- **Structured exception capture:** Native errors and supported serialized errors now produce handled exceptions at every severity in automatic PostHog and Sentry delivery. Original stacks and nested causes are preserved; transported errors without a stack stay stackless. Ordinary messages remain logs. PostHog exception capture still requires `errorTracking.enabled: true` and `errorTracking.mode: "auto"`.
+- **Bounded flush and shutdown:** Standalone and direct PostHog/Sentry loggers accept `{ timeoutMs }` and return completion information with `delivered`, `failed`, or `timed_out` status, pending work, and optional errors. Standalone results include each destination. The default timeout is 5,000 ms; other framework adapters may still return `void`.
+- **Sentry event scope:** Typed `tags`, `extra`, `fingerprint`, `contexts`, and verified `userId` metadata map to an isolated event scope. Blyp reuses an application-owned Sentry client without replacing its initialization, transport, integrations, sampling, or hooks.
+- **Final-payload privacy hooks:** PostHog adds `errorTracking.beforeSend` after SDK enrichment, and Sentry adds `finalPayloadFilter(payload, kind)` after SDK and application hooks. SDK-added source lines are stripped from Blyp exceptions by default; set `includeSourceContext: true` on the corresponding connector's exception configuration to opt in.
+- **Error capture coordination:** `createErrorCaptureRegistry()` provides expiring, weak object-identity claims per destination to coordinate application and framework exception capture. Failed or timed-out claims can be released; suppressing pending captures is an explicit tradeoff that can prevent an independent fallback.
+- **Ephemeral server operation:** Default server logger initialization is lazy. Explicit configurations that disable persistence skip project bootstrap writes and leave no log files or SQLite queue.
+- **Framework compatibility and correlation:** Added Next.js 16 peer support. Framework request correlation reuses a valid active OpenTelemetry trace ID when available.
+
+### Fixes
+
+- Fixed automatic PostHog and Sentry connector loading in packed CommonJS and ESM installations. Sender factories now resolve through public connector entrypoints, removing the need for install-time bundle patches.
+- Fixed the dedicated PostHog logger's no-op `flush()` and `shutdown()`. PostHog flushing now waits for OTLP logs, asynchronous exception enrichment, and SDK delivery work.
+- Added reporting for observed Sentry exception transport failures. Observed destination failures remain latched for the connector lifetime, so later flushes cannot report earlier lost telemetry as delivered.
+- Added real-SDK packed-package collector coverage for isolated Node CommonJS and ESM applications, plus a reproducible published-package investigation.
+
+### Usage
+
+Attach a supported error representation and verified server identity to the log, then await a bounded flush before ending serverless work:
+
+```ts
+import { createStandaloneLogger } from "@blyp/core/standalone";
+
+// Use your existing configuration with automatic connectors enabled.
+const logger = createStandaloneLogger(config);
+
+logger.warning("Payment retry required", {
+  error: new Error("Payment provider unavailable"),
+  userId: verifiedUserId,
+  requestId,
+  tags: { component: "billing" },
+});
+
+const result = await logger.flush({ timeoutMs: 1500 });
+if (result && "destinations" in result) {
+  // Inspect each destination and handle incomplete delivery in your diagnostics.
+  console.log(result.destinations);
+}
+```
+
+### Compatibility and migration
+
+- Upgrade with `bun add @blyp/core@0.1.32` and keep each enabled connector's optional peer SDKs installed. Remove any local sender shim or version-checked bundle patch used to work around earlier connector loading failures.
+- Warning and info records containing supported errors now create handled exceptions in automatic mode. An ordinary error-level message without an error representation does not create an exception issue.
+- Source filenames, function names, and line/column numbers remain available, but local source lines are removed by default. PostHog's opt-in is `errorTracking.includeSourceContext`; Sentry's is `includeSourceContext`.
+- Browser-supplied `metadata.posthogDistinctId` is no longer used as person identity. Verify authentication at ingestion and return trusted `userId`, `distinctId`, and `organizationId` through `clientLogging.enrich` in `serverContext`.
+- Existing callers may continue ignoring flush return values. A `delivered` result reports completed observed work, not a backend indexing guarantee or a per-event receipt. A timeout bounds the caller's wait without cancelling in-flight work. Recreate the logger after resolving a destination failure that has latched.
+- Importing a server entrypoint alone no longer initializes its default logger. Using the default logger or explicitly calling `loadConfig()` retains the existing project bootstrap behavior. For ephemeral operation, use an explicitly configured logger with file logging, database destinations, and durable connector delivery disabled.
+- Applications that already initialize Sentry should keep that initialization and enable SDK logs there when forwarding Blyp logs. Other framework events continue to use the application's own privacy hooks.
+
+[Read the PostHog guide](/docs/connectors/posthog), [read the Sentry guide](/docs/connectors/sentry), or [view the original release on GitHub](https://github.com/Blyphq/blyp/releases/tag/v0.1.32).
+
+For detailed delivery semantics and migration examples, see the upstream [connector contracts](https://github.com/Blyphq/blyp/blob/v0.1.32/docs/connectors/contracts.md) and [migration guide](https://github.com/Blyphq/blyp/blob/v0.1.32/docs/connectors/carsxe-migration.md).
