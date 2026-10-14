@@ -1,0 +1,41 @@
+---
+title: "Expanded New Relic integration"
+description: "Blyp expands New Relic support with OpenTelemetry traces and metrics, request instrumentation, custom events, browser and React Native bridges, and read-only account APIs."
+authors: ["Blyp"]
+version: "v0.1.33"
+tags: ["core", "connectors", "newrelic", "telemetry", "privacy"]
+pinned: true
+---
+
+## @blyp/core v0.1.33
+
+### New features
+
+- **Expanded New Relic log export:** Added US, EU, and JP region configuration, service version, namespace, environment, and custom resource attributes. Logs support the New Relic JSON Log API and OTLP/HTTP protobuf alongside the existing OTLP/HTTP JSON default, with gzip, bounded batches, and configurable export timing.
+- **Native trace correlation:** Log records capture active OpenTelemetry trace and span IDs before delivery queues run, preserving correlation and original timestamps. An optional `getLinkingMetadata` callback accepts linking fields from an existing New Relic Node APM agent; synthetic Blyp IDs remain separate `blyp.trace_id` attributes.
+- **OpenTelemetry traces and metrics:** The new `@blyp/core/newrelic/telemetry` entrypoint provides `initializeNewRelicTelemetry()`, `withSpan()`, counters, histograms, and gauges. Applications can use Blyp-owned providers or supply existing providers while retaining control of their registration and lifecycle.
+- **Automatic request telemetry:** Framework adapters can opt into request spans, request counts, and duration metrics independently of request logging. Instrumentation accepts W3C trace context, reuses active server spans, and handles response completion, streaming, cancellation, and aborts. Default metric dimensions use method, matched route, and status rather than user or request identifiers.
+- **Custom events and direct metrics:** The SDK-free `@blyp/core/newrelic/http` entrypoint sends custom events and gauge, count, and summary metrics from Node, Bun, Workers, and Convex actions. It includes bounded in-memory batching and retries. The server telemetry handle also supports these operations and optional shared durable delivery for events and direct metrics.
+- **Browser and React Native bridges:** Separate `@blyp/core/newrelic/browser` and `/mobile` entrypoints initialize or attach official New Relic agents for logs, events, handled errors, breadcrumbs, user IDs, and attributes. Choose native agent delivery, existing Blyp backend forwarding, or explicitly enable both. Browser imports are SSR-safe, and session replay defaults to disabled.
+- **Read-only account APIs:** `@blyp/core/newrelic/api` adds account discovery, connection checks, scoped NRQL queries, and entity lookup through NerdGraph, with explicit account scoping and typed errors.
+- **Explicit environment mapping:** `newRelicConfigFromEnv()` from `@blyp/core/config` maps server environment variables into configuration. Enable the connector and each additional signal explicitly; normal config resolution does not read environment variables or perform network checks.
+
+### Fixes and reliability
+
+- New Relic flush and shutdown report bounded completion results, including observed failures and dropped exports. Queued logger flushes wait for delivery before checking the OTLP destination, and shutdown closes owned queues and providers even after a failed barrier.
+- Standalone structured OTLP and New Relic loggers initialize their sender lazily, release their private queue and provider after `emit()`, and expose `flush()` and `shutdown()` methods that remain available through fluent calls.
+- Hardened redaction across browser, mobile, Convex, and New Relic payloads, including credential keys. Log filters receive redacted records, and their returned records are redacted again. Long New Relic attributes are bounded and marked with `blyp.truncated`.
+- Hardened Log API envelopes, request-context isolation, abort handling, metric summary validation, and partial-rejection reporting for owned telemetry exporters.
+- Improved packed CommonJS and ESM connector loading through the public OTLP entrypoint, and made the packed connector verification harness tolerate npm lifecycle output.
+
+### Compatibility and migration
+
+- Upgrade with `bun add @blyp/core@0.1.33`. Existing New Relic logging configuration and browser/Expo backend forwarding remain supported. Install the optional SDK dependencies for each newly enabled capability.
+- The legacy `endpoint` remains the complete OTLP logs URL; `logs.endpoint` takes precedence. Trace, metric, event, and account API endpoints are configured independently. OTLP/HTTP JSON remains the default; protobuf requires an explicit protocol setting and the optional serializer dependency.
+- Use ingest license keys for server ingestion, a user API key for NerdGraph, browser app credentials for the browser agent, and platform app tokens for React Native. Account IDs identify the account and supplement the required credentials.
+- Initialize server telemetry once at startup and use matching service names in telemetry and framework logger configuration. Externally supplied providers remain application-managed and are not flushed or shut down by Blyp.
+- New Relic/OTLP no longer installs process signal handlers or calls `process.exit`. Applications own shutdown hooks and should await explicit flush or shutdown before serverless work ends. Existing base logger results identify New Relic logs through the `otlp` destination.
+- A server `delivered` result describes a completed transport barrier, not a backend indexing guarantee. Browser and mobile SDKs own harvesting; their bridge barriers return `unsupported` with reason `agent-managed`.
+- Native React Native monitoring requires linking and rebuilding the application. Expo Go can continue using backend forwarding; native monitoring requires a development/native build.
+
+[Read the New Relic guide](/docs/connectors/newrelic) or [view the upstream changes](https://github.com/Blyphq/blyp/compare/v0.1.32...b05839f).
