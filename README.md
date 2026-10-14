@@ -23,9 +23,25 @@ pnpm deploy            # Build and deploy to Cloudflare
 The production site uses `www.blyp.dev`; `blyp.dev` redirects there and preserves
 paths and query strings. Both domains are served by Cloudflare Workers.
 
-For future deployments, run `pnpm deploy`. If connecting the repository to
-Workers Builds, set the build command to `pnpm build:cloudflare` and the deploy
-command to `pnpm exec opennextjs-cloudflare deploy`.
+Pushes to `main` automatically deploy through
+[Deploy to Cloudflare](.github/workflows/deploy-cloudflare.yml) in GitHub Actions.
+The workflow installs dependencies from the lockfile, builds and prepares the
+Worker, then deploys through OpenNext's Wrangler integration. Deployments are
+serialized so production uploads cannot overlap. You can also run the workflow
+manually from the Actions tab on `main`.
+
+One-time setup: create a Cloudflare API token using the **Edit Cloudflare Workers**
+template, scoped to the account and `blyp.dev` zone in `wrangler.jsonc`. Add it as
+the `CLOUDFLARE_API_TOKEN` repository secret under **Settings → Secrets and
+variables → Actions**. The account ID is already configured in `wrangler.jsonc`.
+See [Cloudflare's GitHub Actions setup](https://developers.cloudflare.com/workers/ci-cd/external-cicd/github-actions/)
+for token permissions. CI uses this token instead of a local Wrangler login.
+
+You can still deploy locally with `pnpm deploy`. If using Cloudflare Workers
+Builds instead of GitHub Actions, set the production branch to `main`, the build
+command to `pnpm build:cloudflare`, and the deploy command to
+`pnpm exec opennextjs-cloudflare deploy`. Use one automatic deployment integration
+to avoid deploying each push twice.
 
 The existing server bundle exceeds the Workers Free plan's 10 ms CPU limit.
 Workers Paid is required for the dynamic docs APIs and image generation.
