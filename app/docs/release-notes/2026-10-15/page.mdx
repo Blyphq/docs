@@ -1,0 +1,54 @@
+---
+title: "A new look for Blyp Studio"
+description: "The CLI's local workspace gets a refreshed interface, clearer navigation, redesigned debugging views, and improved mobile layouts."
+authors: ["Blyp"]
+version: "v0.1.56"
+tags: ["cli", "studio", "design"]
+pinned: true
+---
+
+## @blyp/cli v0.1.56
+
+Blyp Studio now shares the documentation site's visual language: the official Blyp logo, warm light and dark palettes, Manrope headings, and consistent colors for log levels. The redesign carries through navigation, debugging views, and the AI assistant.
+
+### A clearer workspace
+
+Project switching, search, filters, and log file selection have been redesigned. Overview, HTTP / API, Background Jobs, Agents, and log details also get a refreshed interface. Mobile layouts now include full-width search and improved navigation drawer behavior.
+
+### Errors, with context
+
+The Errors view brings grouped issues, occurrence counts, and frequency trends together. Switch between grouped and raw entries, filter by type or source, and inspect a selected issue alongside the list.
+
+The detail panel keeps the stack trace, source location, first and last seen times, and tags within reach, with actions to ask AI for a fix, mark an issue resolved, ignore it, or view its trace.
+
+![Redesigned Studio Errors view showing grouped issues, frequency trends, and an error detail panel.](/images/changelog/2026-10-15/studio-errors.png)
+
+### Follow a payment through checkout
+
+The Payments view puts revenue, checkout attempts, success rate, failures, and webhook counts above correlated checkout traces. Each trace shows its amount, status, duration, and related events, with expandable details and an Ask AI action for investigating problems.
+
+![Studio Payments view showing payment metrics and checkout traces with completed, declined, and error statuses.](/images/changelog/2026-10-15/studio-payments.png)
+
+### Spot slow and failed queries
+
+The Database view pairs query totals, slow and failed query counts, average query time, and active transactions with a query log. Scan operations, tables, SQL previews, durations, and status badges in one place.
+
+![Studio Database view showing query metrics and a query log with operation, table, duration, and status columns.](/images/changelog/2026-10-15/studio-database.png)
+
+### Investigate authentication activity
+
+The Auth view brings login attempts, active sessions, authentication errors, and suspicious activity into one workspace. Flagged patterns include repeated failed logins, invalid token spikes, and concurrent sessions, with an auth timeline and user activity table for investigation.
+
+![Studio Auth view showing login metrics, suspicious activity cards, an authentication timeline, and user activity.](/images/changelog/2026-10-15/studio-auth.png)
+
+### Fixes and reliability
+
+- Updated the AI assistant interface and configuration guidance.
+- Fixed web test configuration and chart tooltip types.
+- Pinned matching TanStack Router and Start versions so fresh CLI installations can run the packaged Studio correctly.
+
+### Availability
+
+At release time, npm publication was pending after the registry rejected the publish request. See the [GitHub release](https://github.com/Blyphq/cli/releases/tag/v0.1.56) for publication status before installing this version.
+
+[Read the CLI guide](/docs/cli) or [view the full changes](https://github.com/Blyphq/cli/compare/v0.1.55...v0.1.56).
